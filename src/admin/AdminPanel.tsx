@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { UserProfile, UserStatus } from '../types';
 import { useAuth } from '../hooks/useAuth';
+import { TemplateManager } from './TemplateManager';
 import {
   fetchAllUsers,
   updateUserStatus,
@@ -22,7 +23,8 @@ import {
   Mail,
   User as UserIcon,
   ShieldCheck,
-  Sparkles
+  Sparkles,
+  LayoutGrid
 } from 'lucide-react';
 
 interface ConfirmActionState {
@@ -32,6 +34,7 @@ interface ConfirmActionState {
 
 export const AdminPanel: React.FC = () => {
   const { user: currentAuthUser } = useAuth();
+  const [adminTab, setAdminTab] = useState<'templates' | 'users'>('templates');
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -160,36 +163,74 @@ export const AdminPanel: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header — Shows ONLY ADMINISTRADOR / PAINEL ADMINISTRATIVO */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="px-2.5 py-0.5 rounded-full bg-purple-500/20 border border-purple-500/30 text-purple-300 text-[11px] font-bold uppercase tracking-wider flex items-center gap-1">
-              <ShieldCheck size={13} /> PAINEL ADMINISTRATIVO
-            </span>
-            <span className="text-xs text-slate-400 font-extrabold uppercase tracking-wider">
-              ADMINISTRADOR
-            </span>
-            {stats.pendingUsers > 0 && (
-              <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300 text-[11px] font-black uppercase tracking-wider animate-pulse flex items-center gap-1">
-                <Clock size={11} /> SOLICITAÇÕES ({stats.pendingUsers})
-              </span>
-            )}
-          </div>
-          <h2 className="text-2xl font-black text-white tracking-tight">
-            Gestão & Moderação de Acessos
-          </h2>
-        </div>
+      {/* Top Admin Section Tabs */}
+      <div className="flex items-center gap-2 border-b border-white/10 pb-3">
+        <button
+          type="button"
+          onClick={() => setAdminTab('templates')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            adminTab === 'templates'
+              ? 'bg-amber-400 text-slate-950 shadow-md shadow-amber-400/20'
+              : 'bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white'
+          }`}
+        >
+          <LayoutGrid size={15} />
+          <span>MODELOS DE BIOSITE</span>
+        </button>
 
         <button
-          onClick={loadData}
-          disabled={loading}
-          className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white text-xs font-semibold flex items-center gap-2 border border-white/10 transition-colors w-fit cursor-pointer"
+          type="button"
+          onClick={() => setAdminTab('users')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer relative ${
+            adminTab === 'users'
+              ? 'bg-amber-400 text-slate-950 shadow-md shadow-amber-400/20'
+              : 'bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white'
+          }`}
         >
-          <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
-          <span>Atualizar Dados</span>
+          <Users size={15} />
+          <span>USUÁRIOS & ACESSOS</span>
+          {stats.pendingUsers > 0 && (
+            <span className="px-1.5 py-0.5 rounded-full bg-red-500 text-white text-[10px] font-bold">
+              {stats.pendingUsers}
+            </span>
+          )}
         </button>
       </div>
+
+      {adminTab === 'templates' ? (
+        <TemplateManager />
+      ) : (
+        <div className="space-y-6">
+          {/* Header — Shows ONLY ADMINISTRADOR / PAINEL ADMINISTRATIVO */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="px-2.5 py-0.5 rounded-full bg-purple-500/20 border border-purple-500/30 text-purple-300 text-[11px] font-bold uppercase tracking-wider flex items-center gap-1">
+                  <ShieldCheck size={13} /> PAINEL ADMINISTRATIVO
+                </span>
+                <span className="text-xs text-slate-400 font-extrabold uppercase tracking-wider">
+                  ADMINISTRADOR
+                </span>
+                {stats.pendingUsers > 0 && (
+                  <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300 text-[11px] font-black uppercase tracking-wider animate-pulse flex items-center gap-1">
+                    <Clock size={11} /> SOLICITAÇÕES ({stats.pendingUsers})
+                  </span>
+                )}
+              </div>
+              <h2 className="text-2xl font-black text-white tracking-tight">
+                Gestão & Moderação de Acessos
+              </h2>
+            </div>
+
+            <button
+              onClick={loadData}
+              disabled={loading}
+              className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white text-xs font-semibold flex items-center gap-2 border border-white/10 transition-colors w-fit cursor-pointer"
+            >
+              <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+              <span>Atualizar Dados</span>
+            </button>
+          </div>
 
       {/* Stats Counters with Highlighted PENDENTES Card */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
@@ -690,6 +731,8 @@ export const AdminPanel: React.FC = () => {
               </>
             )}
           </div>
+        </div>
+      )}
         </div>
       )}
     </div>

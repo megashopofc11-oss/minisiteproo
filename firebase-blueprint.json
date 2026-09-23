@@ -31,9 +31,33 @@
         "updatedAt": { "type": "number" }
       },
       "required": ["projectId", "userId", "nome", "createdAt", "updatedAt"]
+    },
+    "Template": {
+      "title": "Template",
+      "description": "BioSite template imported and curated by administrator",
+      "type": "object",
+      "properties": {
+        "templateId": { "type": "string" },
+        "name": { "type": "string" },
+        "slug": { "type": "string" },
+        "categoryId": { "type": "string" },
+        "demoUrl": { "type": "string" },
+        "thumbnailUrl": { "type": "string" },
+        "sourceFileReference": { "type": "string" },
+        "status": { "type": "string", "enum": ["draft", "published", "disabled"] },
+        "version": { "type": "number" },
+        "createdAt": { "type": "number" },
+        "updatedAt": { "type": "number" },
+        "createdBy": { "type": "string" }
+      },
+      "required": ["templateId", "name", "categoryId", "status", "version", "createdAt"]
     }
   },
   "firestore": {
+    "/templates/{templateId}": {
+      "schema": "Template",
+      "description": "Collection of curated biosite templates managed by admins and browsed by users"
+    },
     "/users/{userId}": {
       "schema": "UserProfile",
       "description": "Collection of user profiles and authentication statuses"

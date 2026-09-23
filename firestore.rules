@@ -78,6 +78,16 @@ service cloud.firestore {
       }
     }
 
+    // Templates Collection (Admin manages, users browse published models)
+    match /templates/{templateId} {
+      // Admins can read all templates (published, draft, disabled).
+      // Authenticated users can read published templates.
+      allow read: if isAdmin() || (isAuthenticated() && resource.data.status == 'published');
+
+      // Only administrators can create, update, or delete templates
+      allow create, update, delete: if isAdmin();
+    }
+
     // Default deny all other paths
     match /{document=**} {
       allow read, write: if false;

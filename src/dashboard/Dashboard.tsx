@@ -1,23 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { ProjectData } from '../types';
-import { V2DesignMeta } from '../v2/types';
+import { BioFacilTemplate } from '../types/biofacil';
 import { V2Home } from '../v2/home/V2Home';
+import { BioFacilEditor } from '../editor/BioFacilEditor';
 import { V2Editor } from '../v2/editor/V2Editor';
 import { MyProjects } from '../projects/MyProjects';
 import { AdminPanel } from '../admin/AdminPanel';
-import { saveProject, fetchPlatformStats, fetchUserProjects } from '../firebase/firestoreService';
-import { getV2DesignById } from '../v2/registry/templateRegistryV2';
+import {
+  fetchUserProjects,
+  fetchTemplateById,
+  saveBioFacilUserProject
+} from '../firebase/firestoreService';
 import { ShieldCheck, ArrowLeft } from 'lucide-react';
+
+interface BioFacilSession {
+  template: BioFacilTemplate;
+  projectId: string;
+  projectName?: string;
+  values?: Record<string, any>;
+}
 
 export const Dashboard: React.FC = () => {
   const { user, userProfile, logout, isAdmin } = useAuth();
 
-  // Navigation states: 'home' (V2 Streaming Discovery) | 'projects' (User's Saved Projects) | 'admin' (Admin Panel)
+  // Navigation states: 'home' (Published Templates Catalog) | 'projects' (User Saved Projects) | 'admin' (Admin Panel)
   const [currentView, setCurrentView] = useState<'home' | 'projects' | 'admin'>(
     isAdmin ? 'admin' : 'home'
   );
-  const [activeEditingProject, setActiveEditingProject] = useState<ProjectData | null>(null);
+
+  // New BioFacil editor session
+  const [bioFacilSession, setBioFacilSession] = useState<BioFacilSession | null>(null);
+
+  // Legacy editor session (for existing projects)
+  const [legacyEditingProject, setLegacyEditingProject] = useState<ProjectData | null>(null);
+
   const [userHasProjects, setUserHasProjects] = useState<boolean>(false);
 
   // Safeguard: if a non-admin is on 'admin', revert immediately to 'home'
@@ -34,91 +51,96 @@ export const Dashboard: React.FC = () => {
         .then((projects) => setUserHasProjects(projects.length > 0))
         .catch(() => {});
     }
-  }, [user, activeEditingProject]);
+  }, [user, bioFacilSession, legacyEditingProject]);
 
-  // If in Editor view
-  if (activeEditingProject) {
+  // If in BioFacil Editor
+  if (bioFacilSession && user) {
     return (
-      <V2Editor
-        initialProject={activeEditingProject}
-        onBack={() => setActiveEditingProject(null)}
+      <BioFacilEditor
+        template={bioFacilSession.template}
+        projectId={bioFacilSession.projectId}
+        userId={user.uid}
+        initialProjectName={bioFacilSession.projectName}
+        initialValues={bioFacilSession.values}
+        onBack={() => setBioFacilSession(null)}
       />
     );
   }
 
-  // Handle design selection from V2 Home (Creates new project and immediately opens V2Editor)
-  const handleSelectDesign = async (design: V2DesignMeta) => {
+  // If in Legacy Editor view
+  if (legacyEditingProject) {
+    return (
+      <V2Editor
+        initialProject={legacyEditingProject}
+        onBack={() => setLegacyEditingProject(null)}
+      />
+    );
+  }
+
+  // Handle template selection from Catalog (creates user project and opens BioFacilEditor)
+  const handleSelectTemplate = async (template: BioFacilTemplate) => {
     if (!user) return;
 
     const newProjectId = `proj_${Date.now()}`;
-    const newProject: ProjectData = {
-      projectId: newProjectId,
-      userId: user.uid,
-      nome: design.demoData.brandName,
-      templateId: design.id,
-      engineVersion: 2,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-      identity: {
-        name: design.demoData.brandName,
-        slogan: design.demoData.headline || '',
-        badge: '',
-        title: design.demoData.brandName,
-        subtitle: design.demoData.subheadline || '',
-        description: design.demoData.about || '',
-        about: design.demoData.about || '',
-        logoUrl: design.demoData.logoUrl || '',
-        avatarUrl: design.demoData.professionalPhotoUrl || '',
-        bannerUrl: design.demoData.heroImageUrl || ''
-      },
-      theme: {
-        primary: design.cover.primary,
-        secondary: design.cover.accent,
-        accent: design.cover.accent,
-        background: design.cover.background,
-        surface: design.cover.surfaceColor,
-        text: design.cover.textColor,
-        textMuted: '#94A3B8',
-        cardBg: design.cover.surfaceColor,
-        border: 'rgba(255,255,255,0.1)',
-        fontHeading: design.cover.fontHeading,
-        fontBody: 'Plus Jakarta Sans'
-      },
-      photos: [],
-      galleryStyle: 'grid',
-      services: [],
-      buttons: [],
-      socials: {
-        whatsapp: { enabled: true, number: design.demoData.socials.whatsapp?.number || '', message: '', label: 'WhatsApp' },
-        instagram: { enabled: !!design.demoData.socials.instagram?.url, username: '', url: design.demoData.socials.instagram?.url || '' },
-        tiktok: { enabled: false, username: '', url: '' },
-        facebook: { enabled: false, url: '' },
-        google: { enabled: false, url: '' },
-        googleReview: { enabled: false, url: '' }
-      },
-      location: {
-        address: design.demoData.location?.address || '',
-        city: design.demoData.location?.city || '',
-        phone: design.demoData.location?.phone || '',
-        hours: design.demoData.location?.hours || '',
-        mapsUrl: design.demoData.location?.mapsUrl || ''
-      },
-      seo: {
-        title: design.demoData.brandName,
-        description: design.demoData.headline || '',
-        ogImage: design.demoData.heroImageUrl || '',
-        favicon: ''
-      },
-      projectData: design.demoData as any
-    };
+    const defaultValues: Record<string, any> = {};
+
+    if (template.biofacilSchema?.fields) {
+      template.biofacilSchema.fields.forEach((f) => {
+        if (f.defaultValue !== undefined) {
+          defaultValues[f.id] = f.defaultValue;
+        } else if (f.type === 'services' || f.type === 'gallery' || f.type === 'testimonials') {
+          defaultValues[f.id] = [];
+        } else {
+          defaultValues[f.id] = '';
+        }
+      });
+    }
 
     try {
-      await saveProject(newProject);
-      setActiveEditingProject(newProject);
+      await saveBioFacilUserProject({
+        projectId: newProjectId,
+        userId: user.uid,
+        templateId: template.templateId,
+        templateVersion: template.version || 1,
+        projectName: template.name || 'Meu BioSite',
+        values: defaultValues,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        engineVersion: 2
+      });
     } catch (err) {
-      console.error('Error creating project from V2 design:', err);
-      setActiveEditingProject(newProject);
+      console.warn('Initial project save notice:', err);
     }
+
+    setBioFacilSession({
+      template,
+      projectId: newProjectId,
+      projectName: template.name || 'Meu BioSite',
+      values: defaultValues
+    });
+  };
+
+  // Handle edit from MyProjects
+  const handleEditProject = async (project: ProjectData) => {
+    if (project.templateId) {
+      try {
+        const foundTemplate = await fetchTemplateById(project.templateId);
+        if (foundTemplate) {
+          setBioFacilSession({
+            template: foundTemplate,
+            projectId: project.projectId,
+            projectName: project.nome,
+            values: (project as any).values || {}
+          });
+          return;
+        }
+      } catch (e) {
+        console.warn('Could not load template for project:', e);
+      }
+    }
+
+    // Fallback for legacy projects
+    setLegacyEditingProject(project);
   };
 
   // Admin View
@@ -136,7 +158,7 @@ export const Dashboard: React.FC = () => {
           </button>
 
           <div className="flex items-center gap-2">
-            <ShieldCheck size={16} className="text-indigo-400" />
+            <ShieldCheck size={16} className="text-purple-400" />
             <span className="text-xs font-bold text-white uppercase tracking-wider">Painel Administrativo</span>
           </div>
 
@@ -186,7 +208,7 @@ export const Dashboard: React.FC = () => {
         <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-8">
           <MyProjects
             userId={user?.uid || ''}
-            onEditProject={(proj) => setActiveEditingProject(proj)}
+            onEditProject={handleEditProject}
             onNewProject={() => setCurrentView('home')}
           />
         </main>
@@ -194,10 +216,10 @@ export const Dashboard: React.FC = () => {
     );
   }
 
-  // Default: V2 Streaming Discovery Home
+  // Default: Dynamic Model Catalog
   return (
     <V2Home
-      onSelectDesign={handleSelectDesign}
+      onSelectTemplate={handleSelectTemplate}
       onGoToProjects={() => setCurrentView('projects')}
       onGoToAdmin={isAdmin ? () => setCurrentView('admin') : undefined}
       isAdmin={isAdmin}

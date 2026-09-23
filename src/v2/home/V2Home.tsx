@@ -1,23 +1,21 @@
-import React, { useState, useMemo, useRef } from 'react';
-import { V2DesignMeta, V2Tone } from '../types';
-import { V2_DESIGNS, BARBEARIA_DESIGNS, getV2DesignById } from '../registry/templateRegistryV2';
-import { V2Hero } from '../components/V2Hero';
-import { StreamingRail } from '../components/StreamingRail';
-import { StreamingCoverCard } from '../components/StreamingCoverCard';
-import { PreviewModalV2 } from '../components/PreviewModalV2';
+import React, { useState, useEffect, useMemo } from 'react';
+import { BioFacilTemplate, INITIAL_NICHES } from '../../types/biofacil';
+import { fetchPublishedTemplates } from '../../firebase/firestoreService';
 import {
   Sparkles,
   Search,
   FolderKanban,
-  MoreHorizontal,
-  X,
-  LogOut,
+  Eye,
+  Edit3,
   ShieldCheck,
-  Plus
+  LogOut,
+  X,
+  Layers,
+  ArrowRight
 } from 'lucide-react';
 
 interface V2HomeProps {
-  onSelectDesign: (design: V2DesignMeta) => void;
+  onSelectTemplate: (template: BioFacilTemplate) => void;
   onGoToProjects: () => void;
   onGoToAdmin?: () => void;
   isAdmin?: boolean;
@@ -26,10 +24,8 @@ interface V2HomeProps {
   hasProjects?: boolean;
 }
 
-type FilterTag = 'todos' | 'barbearia' | 'claros' | 'escuros' | 'editoriais' | 'fotograficos' | 'criativos' | 'minimalistas';
-
 export const V2Home: React.FC<V2HomeProps> = ({
-  onSelectDesign,
+  onSelectTemplate,
   onGoToProjects,
   onGoToAdmin,
   isAdmin,
@@ -37,357 +33,323 @@ export const V2Home: React.FC<V2HomeProps> = ({
   onLogout,
   hasProjects
 }) => {
+  const [templates, setTemplates] = useState<BioFacilTemplate[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeFilter, setActiveFilter] = useState<FilterTag>('todos');
-  const [previewDesign, setPreviewDesign] = useState<V2DesignMeta | null>(null);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const railsSectionRef = useRef<HTMLDivElement>(null);
+  const [activeNiche, setActiveNiche] = useState<string>('todos');
+  const [previewTemplate, setPreviewTemplate] = useState<BioFacilTemplate | null>(null);
 
-  const scrollToRails = () => {
-    railsSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  // Filtered designs for search / filter chip mode
-  const isFiltering = searchQuery.trim().length > 0 || activeFilter !== 'todos';
-
-  const filteredDesigns = useMemo(() => {
-    return V2_DESIGNS.filter((d) => {
-      // Text search
-      if (searchQuery.trim()) {
-        const q = searchQuery.toLowerCase().trim();
-        const matchesName = d.name.toLowerCase().includes(q);
-        const matchesTagline = d.tagline.toLowerCase().includes(q);
-        const matchesSegment = d.demoData.segment.toLowerCase().includes(q);
-        const matchesTags = d.tags.some((t) => t.toLowerCase().includes(q));
-        if (!matchesName && !matchesTagline && !matchesSegment && !matchesTags) {
-          return false;
+  useEffect(() => {
+    let isMounted = true;
+    setLoading(true);
+    fetchPublishedTemplates()
+      .then((data) => {
+        if (isMounted) {
+          setTemplates(data || []);
         }
-      }
+      })
+      .catch((err) => {
+        console.error('Error fetching published templates:', err);
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false);
+      });
 
-      // Filter chips
-      if (activeFilter === 'barbearia') return d.tags.includes('barbearia') || d.id.startsWith('barbearia-');
-      if (activeFilter === 'claros') return d.tone === 'claro';
-      if (activeFilter === 'escuros') return d.tone === 'escuro';
-      if (activeFilter === 'editoriais') return d.family === 'editorial';
-      if (activeFilter === 'fotograficos') return d.family === 'portfolio' || d.family === 'cinematic';
-      if (activeFilter === 'criativos') return d.family === 'graphic' || d.family === 'poster' || d.family === 'bento';
-      if (activeFilter === 'minimalistas') return d.family === 'minimal';
-
-      return true;
-    });
-  }, [searchQuery, activeFilter]);
-
-  // Rails categorized by discovery vibe
-  const rails = useMemo(() => {
-    return {
-      destaques: V2_DESIGNS.filter((d) => d.rails.includes('destaques')),
-      impacto: V2_DESIGNS.filter((d) => d.rails.includes('impacto') || d.family === 'cinematic' || d.family === 'graphic'),
-      elegantes: V2_DESIGNS.filter((d) => d.rails.includes('elegantes') || d.tone === 'claro' || d.family === 'editorial'),
-      fotografia: V2_DESIGNS.filter((d) => d.rails.includes('fotografia') || d.family === 'portfolio'),
-      ousados: V2_DESIGNS.filter((d) => d.rails.includes('ousados') || d.family === 'poster' || d.family === 'bento'),
-      locais: V2_DESIGNS.filter((d) => d.rails.includes('locais') || d.family === 'story' || d.family === 'personal')
+    return () => {
+      isMounted = false;
     };
   }, []);
 
+  // Compute available niches dynamically from published templates
+  const availableNiches = useMemo(() => {
+    const presentCategories = new Set(templates.map((t) => t.categoryId.toLowerCase()));
+    return INITIAL_NICHES.filter((n) => presentCategories.has(n.id.toLowerCase()));
+  }, [templates]);
+
+  // Filter templates
+  const filteredTemplates = useMemo(() => {
+    return templates.filter((t) => {
+      if (activeNiche !== 'todos' && t.categoryId.toLowerCase() !== activeNiche.toLowerCase()) {
+        return false;
+      }
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim();
+        const matchName = t.name.toLowerCase().includes(q);
+        const matchCat = (t.categoryName || t.categoryId).toLowerCase().includes(q);
+        if (!matchName && !matchCat) return false;
+      }
+      return true;
+    });
+  }, [templates, activeNiche, searchQuery]);
+
   return (
-    <div className="min-h-screen bg-[#07080D] text-slate-100 flex flex-col selection:bg-amber-400 selection:text-slate-950">
+    <div className="min-h-screen bg-[#07080D] text-slate-100 flex flex-col selection:bg-amber-400 selection:text-slate-950 font-sans">
       {/* 1. Minimal Top Navbar */}
       <header className="h-16 px-4 sm:px-8 border-b border-white/5 bg-[#090A10]/95 backdrop-blur-md sticky top-0 z-40 flex items-center justify-between">
-        {/* Brand */}
-        <div
-          onClick={() => {
-            setSearchQuery('');
-            setActiveFilter('todos');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          }}
-          className="flex items-center gap-2.5 cursor-pointer group select-none"
-        >
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-600 flex items-center justify-center shadow-md shadow-amber-500/20">
-            <Sparkles size={16} className="text-slate-950 stroke-[2.5]" />
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-300 flex items-center justify-center font-black text-slate-950 text-sm shadow-md shadow-amber-500/20">
+            BF
           </div>
-          <span className="font-black text-base sm:text-lg tracking-tight text-white group-hover:text-amber-300 transition-colors">
-            BIO <span className="text-amber-400">FÁCIL</span>
-          </span>
-          <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+          <div>
+            <span className="font-extrabold text-sm tracking-tight text-white flex items-center gap-1.5">
+              BIO FÁCIL
+              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-400/10 text-amber-400 border border-amber-400/20">
+                PRO
+              </span>
+            </span>
+          </div>
         </div>
 
-        {/* Center: Quick Search Bar */}
-        <div className="flex-1 max-w-md mx-4 sm:mx-8 hidden md:block">
+        <div className="flex items-center gap-2 sm:gap-3">
+          {hasProjects && (
+            <button
+              type="button"
+              onClick={onGoToProjects}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-semibold text-slate-200 border border-white/10 transition-colors cursor-pointer"
+            >
+              <FolderKanban size={14} className="text-amber-400" />
+              <span>Meus Projetos</span>
+            </button>
+          )}
+
+          {isAdmin && onGoToAdmin && (
+            <button
+              type="button"
+              onClick={onGoToAdmin}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-purple-500/15 hover:bg-purple-500/25 text-xs font-bold text-purple-300 border border-purple-500/30 transition-colors cursor-pointer"
+            >
+              <ShieldCheck size={14} />
+              <span>Painel Admin</span>
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={onLogout}
+            className="p-2 rounded-xl text-slate-400 hover:text-red-400 hover:bg-white/5 transition-colors cursor-pointer"
+            title="Sair"
+          >
+            <LogOut size={16} />
+          </button>
+        </div>
+      </header>
+
+      {/* 2. Hero Section */}
+      <section className="px-4 sm:px-8 pt-12 pb-8 max-w-6xl mx-auto w-full text-center space-y-4">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-300 text-xs font-bold uppercase tracking-wider">
+          <Sparkles size={13} />
+          <span>Modelos Exclusivos Bio Fácil</span>
+        </div>
+
+        <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
+          Escolha seu modelo e personalize <br />
+          <span className="bg-gradient-to-r from-amber-200 via-amber-400 to-amber-500 bg-clip-text text-transparent">
+            em poucos minutos.
+          </span>
+        </h1>
+
+        <p className="text-slate-400 text-sm max-w-xl mx-auto leading-relaxed">
+          Designs profissionais com direção de arte completa. Escolha, personalize seus textos e fotos, e baixe seu site pronto para publicação.
+        </p>
+
+        {/* Search Bar */}
+        <div className="pt-4 max-w-md mx-auto">
           <div className="relative">
-            <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Buscar por estilo, característica ou segmento…"
-              className="w-full h-10 pl-10 pr-9 rounded-xl bg-white/5 border border-white/10 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-amber-500/50 focus:bg-white/10 transition-all"
+              placeholder="Buscar por segmento ou estilo..."
+              className="w-full pl-11 pr-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-white text-xs placeholder:text-slate-600 focus:outline-none focus:border-amber-400 transition-colors shadow-inner"
             />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
-              >
-                <X size={14} />
-              </button>
-            )}
           </div>
         </div>
 
-        {/* Right Actions */}
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={onGoToProjects}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold text-white transition-all cursor-pointer"
-          >
-            <FolderKanban size={14} className="text-amber-400" />
-            <span>Meus Projetos</span>
-          </button>
-
-          {/* Menu Dropdown Toggle */}
-          <div className="relative">
+        {/* Dynamic Category Chips (only categories with published models) */}
+        {availableNiches.length > 0 && (
+          <div className="flex items-center justify-center gap-2 flex-wrap pt-2">
             <button
               type="button"
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-slate-300 hover:text-white transition-all cursor-pointer"
-              title="Menu de Opções"
+              onClick={() => setActiveNiche('todos')}
+              className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                activeNiche === 'todos'
+                  ? 'bg-amber-400 text-slate-950 shadow-md shadow-amber-400/20'
+                  : 'bg-white/5 text-slate-400 hover:text-white hover:bg-white/10'
+              }`}
             >
-              <MoreHorizontal size={18} />
+              Todos
             </button>
+            {availableNiches.map((nicho) => (
+              <button
+                key={nicho.id}
+                type="button"
+                onClick={() => setActiveNiche(nicho.id)}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                  activeNiche === nicho.id
+                    ? 'bg-amber-400 text-slate-950 shadow-md shadow-amber-400/20'
+                    : 'bg-white/5 text-slate-400 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                {nicho.name}
+              </button>
+            ))}
+          </div>
+        )}
+      </section>
 
-            {menuOpen && (
-              <div className="absolute right-0 mt-2 w-52 bg-[#0E111B] border border-white/10 rounded-2xl shadow-2xl p-2 z-50 animate-in fade-in zoom-in-95 duration-150">
-                <div className="px-3 py-2 border-b border-white/5 mb-1">
-                  <div className="text-xs font-bold text-white truncate">{userName || 'Usuário'}</div>
-                  <div className="text-[10px] text-amber-400 font-semibold uppercase">
-                    {isAdmin ? 'Administrador' : 'Acesso Liberado'}
+      {/* 3. Catalog Body */}
+      <main className="flex-1 px-4 sm:px-8 pb-16 max-w-6xl mx-auto w-full">
+        {loading ? (
+          <div className="py-24 text-center space-y-3">
+            <div className="w-8 h-8 border-2 border-amber-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <p className="text-xs text-slate-400 font-semibold tracking-wider uppercase">Carregando catálogo...</p>
+          </div>
+        ) : templates.length === 0 ? (
+          /* Exact required empty state when 0 published models exist */
+          <div className="py-20 text-center max-w-lg mx-auto space-y-5 rounded-3xl border border-white/5 bg-[#0A0C14] p-8 sm:p-12 shadow-2xl">
+            <div className="w-16 h-16 rounded-2xl bg-amber-400/10 border border-amber-400/20 text-amber-400 flex items-center justify-center mx-auto shadow-lg shadow-amber-400/5">
+              <Sparkles size={28} />
+            </div>
+
+            <div className="space-y-2">
+              <h2 className="text-xl sm:text-2xl font-black text-white tracking-wider uppercase">
+                NOVOS MODELOS ESTÃO CHEGANDO
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+                Nossa biblioteca está sendo preparada com novas experiências profissionais.
+              </p>
+            </div>
+
+            {isAdmin && onGoToAdmin && (
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={onGoToAdmin}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs shadow-lg shadow-amber-400/20 transition-all cursor-pointer"
+                >
+                  <ShieldCheck size={16} />
+                  <span>Cadastrar Primeiro Modelo no Painel Admin</span>
+                </button>
+              </div>
+            )}
+          </div>
+        ) : filteredTemplates.length === 0 ? (
+          <div className="py-16 text-center space-y-2">
+            <p className="text-sm font-bold text-white">Nenhum modelo encontrado com esses filtros.</p>
+            <p className="text-xs text-slate-500">Tente buscar por outro termo ou selecione "Todos".</p>
+          </div>
+        ) : (
+          /* Cards Grid */
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredTemplates.map((template) => (
+              <div
+                key={template.templateId}
+                className="group rounded-3xl border border-white/10 bg-[#0E111C] overflow-hidden flex flex-col justify-between hover:border-amber-400/40 transition-all duration-300 shadow-xl hover:shadow-2xl hover:shadow-amber-400/5"
+              >
+                {/* Thumbnail */}
+                <div className="aspect-[16/10] bg-slate-950 relative overflow-hidden">
+                  <img
+                    src={template.thumbnailUrl}
+                    alt={template.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0E111C] via-transparent to-black/30"></div>
+
+                  <div className="absolute top-3 left-3">
+                    <span className="px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/10 text-amber-400 text-[10px] font-bold uppercase tracking-wider">
+                      {template.categoryName || template.categoryId}
+                    </span>
                   </div>
                 </div>
 
-                {isAdmin && onGoToAdmin && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMenuOpen(false);
-                      onGoToAdmin();
-                    }}
-                    className="w-full px-3 py-2 rounded-xl text-left text-xs font-bold text-indigo-300 hover:bg-indigo-600/20 flex items-center gap-2 transition-colors cursor-pointer"
-                  >
-                    <ShieldCheck size={14} />
-                    <span>Painel Administrativo</span>
-                  </button>
-                )}
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMenuOpen(false);
-                    onGoToProjects();
-                  }}
-                  className="w-full px-3 py-2 rounded-xl text-left text-xs font-bold text-slate-300 hover:bg-white/5 flex items-center gap-2 transition-colors cursor-pointer"
-                >
-                  <FolderKanban size={14} />
-                  <span>Meus Biosites</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMenuOpen(false);
-                    onLogout();
-                  }}
-                  className="w-full px-3 py-2 rounded-xl text-left text-xs font-bold text-red-400 hover:bg-red-500/10 flex items-center gap-2 transition-colors cursor-pointer"
-                >
-                  <LogOut size={14} />
-                  <span>Sair da Conta</span>
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </header>
-
-      {/* Mobile Inline Search */}
-      <div className="md:hidden px-4 pt-3">
-        <div className="relative">
-          <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Buscar por estilo, característica ou segmento…"
-            className="w-full h-10 pl-10 pr-9 rounded-xl bg-white/5 border border-white/10 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-amber-500/50"
-          />
-        </div>
-      </div>
-
-      {/* 2. Platform Hero */}
-      {!isFiltering && (
-        <V2Hero
-          onExploreClick={scrollToRails}
-          onProjectsClick={onGoToProjects}
-          featuredDesigns={[V2_DESIGNS[0], V2_DESIGNS[1], V2_DESIGNS[2]]}
-          onSelectDesign={(design) => setPreviewDesign(design)}
-        />
-      )}
-
-      {/* 3. Filter Chips (Zero-Pill Discipline) */}
-      <div ref={railsSectionRef} className="px-4 sm:px-8 pt-8 pb-4">
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mr-2 hidden sm:inline">
-            Filtros:
-          </span>
-          {[
-            { id: 'todos', label: 'Todos' },
-            { id: 'barbearia', label: 'Barbearia (10 Modelos)' },
-            { id: 'claros', label: 'Claros & Marfim' },
-            { id: 'escuros', label: 'Escuros & Noturnos' },
-            { id: 'editoriais', label: 'Editoriais' },
-            { id: 'fotograficos', label: 'Fotográficos' },
-            { id: 'criativos', label: 'Criativos & Bento' },
-            { id: 'minimalistas', label: 'Minimalistas' }
-          ].map((chip) => {
-            const active = activeFilter === chip.id;
-            return (
-              <button
-                key={chip.id}
-                type="button"
-                onClick={() => setActiveFilter(chip.id as FilterTag)}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
-                  active
-                    ? 'bg-amber-400 text-slate-950 font-black shadow-md shadow-amber-400/20'
-                    : 'text-slate-400 hover:text-white bg-white/5 hover:bg-white/10'
-                }`}
-              >
-                {chip.label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* 4. Content Area: Search / Filter Mode OR Streaming Rails */}
-      <main className="flex-1 pb-16">
-        {isFiltering ? (
-          /* Filter / Search Results Grid */
-          <div className="px-4 sm:px-8 py-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-black text-white uppercase tracking-tight">
-                Resultados ({filteredDesigns.length})
-              </h2>
-              <button
-                type="button"
-                onClick={() => {
-                  setSearchQuery('');
-                  setActiveFilter('todos');
-                }}
-                className="text-xs text-amber-400 font-bold hover:underline"
-              >
-                Limpar filtros
-              </button>
-            </div>
-
-            {filteredDesigns.length === 0 ? (
-              <div className="py-20 text-center">
-                <p className="text-sm text-slate-400">Nenhum estilo encontrado para essa busca.</p>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSearchQuery('');
-                    setActiveFilter('todos');
-                  }}
-                  className="mt-4 px-4 py-2 rounded-xl bg-amber-400 text-slate-950 font-bold text-xs"
-                >
-                  Ver Todos os Estilos
-                </button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {filteredDesigns.map((design) => (
-                  <div key={design.id} className="flex justify-center">
-                    <StreamingCoverCard
-                      design={design}
-                      onPreview={(d) => setPreviewDesign(d)}
-                      onSelect={(d) => onSelectDesign(d)}
-                    />
+                {/* Content */}
+                <div className="p-5 space-y-4 flex-1 flex flex-col justify-between">
+                  <div className="space-y-1">
+                    <h3 className="font-bold text-white text-lg tracking-tight group-hover:text-amber-300 transition-colors">
+                      {template.name}
+                    </h3>
+                    <p className="text-xs text-slate-400">
+                      {template.biofacilSchema?.tagline || `${template.biofacilSchema?.fields?.length || 0} seções e campos personalizáveis`}
+                    </p>
                   </div>
-                ))}
+
+                  {/* Customer Actions ONLY: VISUALIZAR and PERSONALIZAR (URL is never shown!) */}
+                  <div className="pt-2 border-t border-white/5 grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setPreviewTemplate(template)}
+                      className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-200 text-xs font-bold border border-white/10 transition-colors cursor-pointer"
+                    >
+                      <Eye size={14} />
+                      <span>VISUALIZAR</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => onSelectTemplate(template)}
+                      className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black shadow-md shadow-amber-400/20 transition-all cursor-pointer"
+                    >
+                      <Edit3 size={14} />
+                      <span>PERSONALIZAR</span>
+                    </button>
+                  </div>
+                </div>
               </div>
-            )}
-          </div>
-        ) : (
-          /* Streaming Rails (Netflix/Spotify Discovery Style) */
-          <div className="pt-6">
-            <StreamingRail
-              title="Coleção Barbearia — 10 Experiências Únicas"
-              subtitle="Direção de arte completa: do Noir cinematográfico ao Pôster brutalista e Visagismo VIP"
-              designs={BARBEARIA_DESIGNS}
-              onPreview={(d) => setPreviewDesign(d)}
-              onSelect={(d) => onSelectDesign(d)}
-            />
-
-            <StreamingRail
-              title="Destaques para Você"
-              subtitle="Os designs mais admirados e com maior impacto de conversão"
-              designs={rails.destaques}
-              onPreview={(d) => setPreviewDesign(d)}
-              onSelect={(d) => onSelectDesign(d)}
-            />
-
-            <StreamingRail
-              title="Impacto Visual & Alta Densidade"
-              subtitle="Fotografia marcante, profundidade e composições de peso"
-              designs={rails.impacto}
-              onPreview={(d) => setPreviewDesign(d)}
-              onSelect={(d) => onSelectDesign(d)}
-            />
-
-            <StreamingRail
-              title="Elegantes & Minimalistas"
-              subtitle="Fundos claros, tipografia refinada e espaço negativo generoso"
-              designs={rails.elegantes}
-              onPreview={(d) => setPreviewDesign(d)}
-              onSelect={(d) => onSelectDesign(d)}
-            />
-
-            <StreamingRail
-              title="Fotografia em Destaque"
-              subtitle="Projetos pensados para valorizar suas melhores fotos e trabalhos"
-              designs={rails.fotografia}
-              onPreview={(d) => setPreviewDesign(d)}
-              onSelect={(d) => onSelectDesign(d)}
-            />
-
-            <StreamingRail
-              title="Ousados & Criativos"
-              subtitle="Bento assimétrico, posters monumentais e contrastes intensos"
-              designs={rails.ousados}
-              onPreview={(d) => setPreviewDesign(d)}
-              onSelect={(d) => onSelectDesign(d)}
-            />
-
-            <StreamingRail
-              title="Negócios Locais & Profissionais"
-              subtitle="Autoridade pessoal, jornadas em etapas e conversão direta"
-              designs={rails.locais}
-              onPreview={(d) => setPreviewDesign(d)}
-              onSelect={(d) => onSelectDesign(d)}
-            />
+            ))}
           </div>
         )}
       </main>
 
-      {/* 5. Preview Modal V2 (Iframe Isolated) */}
-      {previewDesign && (
-        <PreviewModalV2
-          design={previewDesign}
-          onClose={() => setPreviewDesign(null)}
-          onUseDesign={(d) => {
-            setPreviewDesign(null);
-            onSelectDesign(d);
-          }}
-        />
+      {/* 4. Modal de Visualização Isolada (Iframe) */}
+      {previewTemplate && (
+        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col p-3 sm:p-6 animate-in fade-in duration-200">
+          <div className="flex items-center justify-between pb-3 border-b border-white/10 shrink-0">
+            <div className="flex items-center gap-3">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+              <div>
+                <h3 className="font-bold text-white text-sm sm:text-base leading-tight">
+                  {previewTemplate.name}
+                </h3>
+                <span className="text-[11px] text-amber-400 font-mono">
+                  {previewTemplate.categoryName || previewTemplate.categoryId}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  const t = previewTemplate;
+                  setPreviewTemplate(null);
+                  onSelectTemplate(t);
+                }}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs shadow-md transition-all cursor-pointer"
+              >
+                <Edit3 size={14} />
+                <span>USAR ESTE MODELO</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setPreviewTemplate(null)}
+                className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+          </div>
+
+          <div className="flex-1 rounded-2xl overflow-hidden mt-3 border border-white/10 bg-white">
+            <iframe
+              srcDoc={previewTemplate.htmlContent || ''}
+              title={previewTemplate.name}
+              className="w-full h-full border-0"
+              sandbox="allow-scripts allow-same-origin"
+            />
+          </div>
+        </div>
       )}
     </div>
   );
