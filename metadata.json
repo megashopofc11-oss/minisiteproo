@@ -1,6 +1,6 @@
 {
   "name": "BioSite Pro 2.0",
-  "description": "Construtor profissional de biosites SaaS premium com 10 nichos, 100 templates de alto padrão, editor em tempo real e exportação estática independente.",
+  "description": "BIO FÁCIL: Escolha um estilo visual premium, personalize suas informações e publique seu biosite autoral e independente sem mensalidades.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

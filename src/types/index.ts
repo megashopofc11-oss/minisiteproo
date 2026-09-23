@@ -311,6 +311,9 @@ export interface ShareConfig {
   label: string;
 }
 
+import { BioProjectData, BioDesignConfig, BioItem, DesignId } from './designs';
+export * from './designs';
+
 export interface ProjectData {
   projectId: string;
   userId: string;
@@ -329,6 +332,12 @@ export interface ProjectData {
   socials: SocialLinks;
   location: LocationInfo;
   seo: SeoConfig;
+
+  // New Architecture (Separation of Data and Design)
+  legacyTemplate?: boolean;
+  projectData?: BioProjectData;
+  designConfig?: BioDesignConfig;
+  itemsTitle?: string;
 
   // Premium Features & Upgrades
   professionalPhotoUrl?: string; // Foto recortada PNG de pessoa

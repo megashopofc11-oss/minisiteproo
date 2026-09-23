@@ -21,6 +21,7 @@ import { SocialProfileEngine } from './engines/SocialProfileEngine';
 import { getWhatsAppUrl } from './engines/common';
 import { BrandWhatsApp } from '../components/BrandIcons';
 import { X, AlertTriangle, RefreshCw } from 'lucide-react';
+import { DesignRenderer } from '../designs/engines/DesignRenderer';
 
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -97,6 +98,11 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
   const waUrl = getWhatsAppUrl(project);
 
   const getEngine = () => {
+    // Check if project uses the modern Design System (or has designConfig)
+    if (project.designConfig || (templateId && /^(0[1-9]|1[0-9]|20)-/.test(templateId))) {
+      return <DesignRenderer project={project} />;
+    }
+
     // 1. Direct template index matching (THE 10 AUTHENTIC ENGINES PER NICHE)
     // MODELO 01 — GRAPHIC BIO / HIGH CONVERSION (Ad blocks, 3D mockups, verified badge)
     if (templateId.endsWith('-01')) {

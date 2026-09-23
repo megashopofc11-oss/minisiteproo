@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { ProjectData, TemplateDefinition, NichoId } from '../types';
+import { DesignMeta } from '../types/designs';
+import { getDesignById } from '../designs/registry';
 import { MyProjects } from '../projects/MyProjects';
 import { TemplatesLibrary } from '../templates/TemplatesLibrary';
 import { AdminPanel } from '../admin/AdminPanel';
@@ -87,6 +89,105 @@ export const Dashboard: React.FC = () => {
     }
   };
 
+  // Handle modern design selection
+  const handleSelectDesign = async (design: DesignMeta) => {
+    if (!user || isAdmin) return;
+
+    const newProjectId = `proj_${Date.now()}`;
+    const newProject: ProjectData = {
+      projectId: newProjectId,
+      userId: user.uid,
+      nome: `Meu ${design.name}`,
+      nicho: '01-barbearia',
+      templateId: design.id,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      identity: {
+        name: design.demoData.brandName,
+        slogan: design.demoData.headline || '',
+        badge: design.demoData.badge || '',
+        title: design.demoData.brandName,
+        headline: design.demoData.headline,
+        subtitle: design.demoData.subtitle || '',
+        description: design.demoData.about || '',
+        about: design.demoData.about || '',
+        logoUrl: design.demoData.logoUrl || '',
+        avatarUrl: design.demoData.professionalPhotoUrl || '',
+        bannerUrl: design.demoData.heroImageUrl || '',
+        professionalPhotoUrl: design.demoData.professionalPhotoUrl || '',
+        heroImageUrl: design.demoData.heroImageUrl || '',
+        quote: design.demoData.quote || ''
+      },
+      theme: {
+        primary: design.palettes[0]?.primary || '#F59E0B',
+        secondary: design.palettes[0]?.secondary || '#B45309',
+        accent: design.palettes[0]?.accent || '#FCD34D',
+        background: design.palettes[0]?.background || '#07080D',
+        surface: design.palettes[0]?.surface || '#0E111A',
+        text: design.palettes[0]?.text || '#FFFFFF',
+        textMuted: design.palettes[0]?.textMuted || '#94A3B8',
+        cardBg: design.palettes[0]?.cardBg || '#0E111A',
+        border: design.palettes[0]?.border || 'rgba(255,255,255,0.1)',
+        fontHeading: design.typographies[0]?.headingFont || 'Syne',
+        fontBody: design.typographies[0]?.bodyFont || 'Plus Jakarta Sans'
+      },
+      photos: design.demoData.gallery || [],
+      galleryStyle: 'carousel',
+      services: design.demoData.items.map((it) => ({
+        id: it.id,
+        name: it.title,
+        description: it.description,
+        price: it.price || '',
+        priceEnabled: it.priceEnabled || false,
+        featured: it.featured,
+        tag: it.tag,
+        imageUrl: it.photoUrl
+      })),
+      buttons: [],
+      socials: {
+        whatsapp: design.demoData.whatsapp || { enabled: true, number: '', message: '', label: 'WhatsApp' },
+        instagram: design.demoData.instagram || { enabled: false, username: '', url: '' },
+        tiktok: design.demoData.tiktok || { enabled: false, username: '', url: '' },
+        facebook: design.demoData.facebook || { enabled: false, url: '' },
+        google: { enabled: false, url: '' },
+        googleReview: { enabled: false, url: '' }
+      },
+      location: {
+        address: design.demoData.location.address,
+        city: design.demoData.location.city,
+        phone: design.demoData.location.phone,
+        hours: design.demoData.hours,
+        mapsUrl: design.demoData.location.mapsUrl
+      },
+      seo: {
+        title: `${design.demoData.brandName} | Biosite Oficial`,
+        description: design.demoData.headline || design.demoData.subtitle || '',
+        ogImage: design.demoData.heroImageUrl || '',
+        favicon: design.demoData.logoUrl || ''
+      },
+      projectData: design.demoData,
+      designConfig: {
+        designId: design.id,
+        heroVariant: 'A',
+        contentVariant: 'A',
+        galleryVariant: 'A',
+        ctaVariant: 'A',
+        contactVariant: 'A',
+        paletteId: design.palettes[0]?.id || 'cine-noir',
+        typographyId: design.typographies[0]?.id || 'cine-typo-syne',
+        motionLevel: 'cinematic'
+      }
+    };
+
+    try {
+      await saveProject(newProject);
+      setActiveEditingProject(newProject);
+    } catch (err) {
+      console.error('Error creating project from design:', err);
+      setActiveEditingProject(newProject);
+    }
+  };
+
   const navigateToHome = () => {
     setActiveEditingProject(null);
     if (isAdmin) {
@@ -160,7 +261,7 @@ export const Dashboard: React.FC = () => {
                 }`}
               >
                 <LayoutGrid size={15} />
-                <span>10 Nichos & 100 Modelos</span>
+                <span>Biblioteca de Estilos</span>
               </button>
             </>
           )}
@@ -374,10 +475,12 @@ export const Dashboard: React.FC = () => {
           <MyProjects
             userId={user?.uid || ''}
             onEditProject={(proj) => setActiveEditingProject(proj)}
-            onNewProject={(nichoId) => {
-              if (nichoId) setInitialLibraryNicho(nichoId);
-              else setInitialLibraryNicho(null);
-              setCurrentView('library');
+            onNewProject={(design) => {
+              if (design) {
+                handleSelectDesign(design);
+              } else {
+                handleSelectDesign(getDesignById('01-cinematic'));
+              }
             }}
           />
         )}

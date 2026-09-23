@@ -1,24 +1,22 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { ProjectData, PhotoItem } from '../types';
 import {
-  ProjectData,
-  PhotoItem,
-  ServiceItem,
-  CustomButton,
-  GalleryStyle,
-  ThemeConfig,
-  FontCategory,
-  SocialIconStyle,
-  SectionKey,
-  WhatsAppStyle
-} from '../types';
+  BioProjectData,
+  BioDesignConfig,
+  BioItem,
+  DesignMeta,
+  HeroVariant,
+  ContentVariant,
+  GalleryVariant,
+  CtaVariant,
+  ContactVariant
+} from '../types/designs';
 import { saveProject } from '../firebase/firestoreService';
 import { exportProjectZip, downloadStandaloneHtml } from '../exporter/generateZip';
 import { TemplateRenderer } from '../preview/TemplateRenderer';
-import { IconLibraryModal } from '../components/IconLibrary';
-import { AppIcon, BrandWhatsApp, BrandGoogle } from '../components/BrandIcons';
+import { StyleSelectorModal } from '../designs/StyleSelectorModal';
+import { getDesignById, shuffleDesignConfig, normalizeProjectDataAndConfig } from '../designs/registry';
 import {
-  Save,
-  Download,
   ArrowLeft,
   Smartphone,
   Tablet,
@@ -27,28 +25,26 @@ import {
   Edit3,
   Plus,
   Trash2,
-  ChevronUp,
-  ChevronDown,
+  Save,
+  Download,
+  Dices,
+  Sparkles,
+  Layers,
   Palette,
   Image as ImageIcon,
-  Check,
-  Share2,
+  MessageCircle,
   MapPin,
-  Globe,
-  Layers,
-  Sparkles,
-  Link,
-  Sliders,
-  Type,
-  Clock,
   Star,
+  Check,
   FileCode,
   Archive,
   MoveUp,
   MoveDown,
-  CheckCircle2,
   ChevronRight,
-  X
+  RefreshCw,
+  ExternalLink,
+  Sliders,
+  Type
 } from 'lucide-react';
 
 interface ProjectEditorProps {
@@ -56,1892 +52,1315 @@ interface ProjectEditorProps {
   onBack: () => void;
 }
 
-const PRESET_PALETTES: { name: string; colors: Partial<ThemeConfig> }[] = [
-  {
-    name: 'Ouro Nobre & Amadeirado (Barbearia/Luxo)',
-    colors: { primary: '#D97706', secondary: '#92400E', accent: '#FDE68A', background: '#07080D', surface: '#0F121C', text: '#F8FAFC' }
-  },
-  {
-    name: 'Rosa Sofisticado & Nude (Manicure/Beauty)',
-    colors: { primary: '#EC4899', secondary: '#BE185D', accent: '#F472B6', background: '#0C070A', surface: '#191016', text: '#FDF2F8' }
-  },
-  {
-    name: 'Champagne & Dourado Real (Salão/Editorial)',
-    colors: { primary: '#F59E0B', secondary: '#B45309', accent: '#FEF3C7', background: '#0A0A0E', surface: '#16161F', text: '#FAF5FF' }
-  },
-  {
-    name: 'Fogo Rústico & Terracota (Gastronomia/Pizza)',
-    colors: { primary: '#EF4444', secondary: '#DC2626', accent: '#FCA5A5', background: '#0B0606', surface: '#191010', text: '#FEF2F2' }
-  },
-  {
-    name: 'Azul Safira & Prata (Imóveis/Arquitetura)',
-    colors: { primary: '#3B82F6', secondary: '#1D4ED8', accent: '#93C5FD', background: '#070A10', surface: '#101524', text: '#F8FAFC' }
-  },
-  {
-    name: 'Neon High Performance (Personal/Fitness)',
-    colors: { primary: '#10B981', secondary: '#059669', accent: '#34D399', background: '#050B07', surface: '#0D1A12', text: '#ECFDF5' }
-  },
-  {
-    name: 'Cromado & Noite Urbana (Executivo/Motorista)',
-    colors: { primary: '#0EA5E9', secondary: '#0369A1', accent: '#7DD3FC', background: '#060A10', surface: '#0D1522', text: '#F0F9FF' }
-  },
-  {
-    name: 'Aço Industrial & Laranja (Mecânica/Racing)',
-    colors: { primary: '#F97316', secondary: '#C2410C', accent: '#FDBA74', background: '#08080C', surface: '#14141E', text: '#F8FAFC' }
-  },
-  {
-    name: 'Chocolate Belga & Doces Finos (Confeitaria)',
-    colors: { primary: '#F43F5E', secondary: '#92400E', accent: '#FFE4E6', background: '#0D080A', surface: '#1A1114', text: '#FFF1F2' }
-  },
-  {
-    name: 'Minimal Monocromático de Alta Costura',
-    colors: { primary: '#FFFFFF', secondary: '#94A3B8', accent: '#E2E8F0', background: '#050505', surface: '#121212', text: '#FFFFFF' }
-  }
-];
+type TabKey = 'conteudo' | 'design' | 'fotos' | 'secoes' | 'contato' | 'exportar';
 
-const FONT_PRESETS: { category: FontCategory; name: string; sample: string; headingFont: string }[] = [
-  { category: 'MODERNA', name: 'Plus Jakarta Sans (Moderna)', sample: 'Design contemporâneo, limpo e altamente legível', headingFont: 'Plus Jakarta Sans' },
-  { category: 'ELEGANTE', name: 'Playfair Display (Elegante & Nobre)', sample: 'Tipografia serifada de luxo e sofisticação tradicional', headingFont: 'Playfair Display' },
-  { category: 'BOLD', name: 'Syne (Bold & Imponente)', sample: 'Geometria marcante com presença visual de destaque', headingFont: 'Syne' },
-  { category: 'EDITORIAL', name: 'Bodoni Moda (Editorial Fashion)', sample: 'Estética de revista de alta costura e moda internacional', headingFont: 'Bodoni Moda' },
-  { category: 'MINIMAL', name: 'DM Sans (Minimalista)', sample: 'Espaçamento sutil e minimalismo refinado para marcas clean', headingFont: 'DM Sans' },
-  { category: 'ESPORTIVA', name: 'Chakra Petch (Esportiva & Tecnológica)', sample: 'Traços dinâmicos com energia de alta performance', headingFont: 'Chakra Petch' }
+const SERVICE_TITLE_SUGGESTIONS = [
+  'Serviços',
+  'Especialidades',
+  'Soluções',
+  'Tratamentos',
+  'Trabalhos',
+  'Modalidades',
+  'Áreas de Atuação',
+  'Criações',
+  'Cardápio',
+  'Destaques'
 ];
 
 export const ProjectEditor: React.FC<ProjectEditorProps> = ({
   initialProject,
   onBack
 }) => {
-  // Ensure default extended properties exist
-  const [project, setProject] = useState<ProjectData>(() => ({
-    ...initialProject,
-    fontCategory: initialProject.fontCategory || 'MODERNA',
-    socialIconStyle: initialProject.socialIconStyle || 'glass',
-    sectionsOrder: initialProject.sectionsOrder || ['hero', 'status', 'about', 'services', 'gallery', 'reviews', 'hours', 'location', 'socials', 'cta'],
-    sectionsVisibility: initialProject.sectionsVisibility || {
-      hero: true,
-      status: true,
-      about: true,
-      services: true,
-      gallery: true,
-      reviews: true,
-      hours: true,
-      location: true,
-      socials: true,
-      cta: true
-    },
-    statusConfig: initialProject.statusConfig || {
-      enabled: true,
-      autoCalculate: true,
-      openTime: '08:00',
-      closeTime: '20:00',
-      customText: 'ABERTO AGORA',
-      customMessage: 'Atendimento com horário agendado'
-    },
-    whatsappConfig: initialProject.whatsappConfig || {
-      enabled: true,
-      number: initialProject.socials?.whatsapp?.number || '',
-      message: initialProject.socials?.whatsapp?.message || 'Olá! Vim pelo biosite.',
-      label: 'Agendar pelo WhatsApp',
-      style: 'floating',
-      floatingPosition: 'right',
-      showFloating: true
-    },
-    googleReviewConfig: initialProject.googleReviewConfig || {
-      enabled: true,
-      url: initialProject.socials?.googleReview?.url || 'https://maps.google.com',
-      rating: 5.0,
-      reviewCount: 147,
-      title: 'NOS AVALIE NO GOOGLE',
-      subtitle: 'Sua opinião é fundamental para nossa contínua excelência.',
-      style: 'gold'
-    },
-    shareConfig: initialProject.shareConfig || {
-      enabled: true,
-      label: 'Compartilhar'
-    }
-  }));
+  // Normalize project to ensure clean separation of projectData and designConfig
+  const normalized = normalizeProjectDataAndConfig(initialProject);
 
-  // Accordion active sections in Editor (Requisito 17)
-  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
-    identidade: true,
-    logo_capa: false,
-    textos: false,
-    cores: false,
-    fontes: false,
-    secoes: false,
-    status: false,
-    whatsapp: false,
-    reviews: false,
-    botoes: false,
-    redes: false,
-    servicos: false,
-    galeria: false,
-    horarios_loc: false,
-    seo: false,
-    exportar: false
-  });
+  const [project, setProject] = useState<ProjectData>(initialProject);
+  const [data, setData] = useState<BioProjectData>(normalized.projectData);
+  const [config, setConfig] = useState<BioDesignConfig>(normalized.designConfig);
 
+  const [activeTab, setActiveTab] = useState<TabKey>('conteudo');
   const [viewport, setViewport] = useState<'mobile' | 'tablet' | 'desktop'>('mobile');
-  const [mobilePreviewModalOpen, setMobilePreviewModalOpen] = useState(false);
-  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [mobileViewMode, setMobileViewMode] = useState<'edit' | 'preview'>('edit');
+  const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'unsaved'>('saved');
+  const [isStyleModalOpen, setIsStyleModalOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
-  const [exportNotice, setExportNotice] = useState<string | null>(null);
 
-  // Icon picker state
-  const [iconModalOpen, setIconModalOpen] = useState(false);
-  const [iconTargetKey, setIconTargetKey] = useState<{ type: 'service' | 'button'; id: string } | null>(null);
+  // Sync state back to ProjectData
+  const updateProjectState = (newData: BioProjectData, newConfig: BioDesignConfig) => {
+    setData(newData);
+    setConfig(newConfig);
+    setSaveStatus('unsaved');
 
-  // Debounced auto-save ref
-  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const isFirstRender = useRef(true);
-
-  const toggleAccordion = (sectionKey: string) => {
-    setOpenSections((prev) => ({
+    setProject((prev) => ({
       ...prev,
-      [sectionKey]: !prev[sectionKey]
+      updatedAt: Date.now(),
+      nome: newData.brandName || prev.nome,
+      templateId: newConfig.designId,
+      projectData: newData,
+      designConfig: newConfig,
+      itemsTitle: newData.itemsTitle,
+      identity: {
+        ...prev.identity,
+        name: newData.brandName,
+        headline: newData.headline,
+        subtitle: newData.subtitle,
+        slogan: newData.headline,
+        description: newData.about,
+        logoUrl: newData.logoUrl,
+        avatarUrl: newData.professionalPhotoUrl || '',
+        bannerUrl: newData.heroImageUrl || '',
+        badge: newData.badge || '',
+        quote: newData.quote || ''
+      },
+      photos: newData.gallery,
+      services: newData.items.map((it) => ({
+        id: it.id,
+        name: it.title,
+        description: it.description,
+        price: it.price || '',
+        priceEnabled: it.priceEnabled || false,
+        featured: it.featured,
+        tag: it.tag,
+        imageUrl: it.photoUrl
+      })),
+      socials: {
+        whatsapp: newData.whatsapp,
+        instagram: newData.instagram,
+        tiktok: newData.tiktok,
+        facebook: newData.facebook,
+        google: newData.google,
+        googleReview: newData.googleReview
+      },
+      location: {
+        address: newData.location.address,
+        city: newData.location.city,
+        phone: newData.location.phone,
+        hours: newData.hours,
+        mapsUrl: newData.location.mapsUrl
+      }
     }));
   };
 
-  // Auto-save logic (700ms debounce)
-  const triggerAutoSave = useCallback((dataToSave: ProjectData) => {
-    if (saveTimeoutRef.current) {
-      clearTimeout(saveTimeoutRef.current);
-    }
-    setSaveStatus('saving');
-    saveTimeoutRef.current = setTimeout(async () => {
-      try {
-        await saveProject(dataToSave);
-        setSaveStatus('saved');
-        setTimeout(() => setSaveStatus('idle'), 2500);
-      } catch (err) {
-        console.error('Error auto-saving project:', err);
-        setSaveStatus('error');
-      }
-    }, 700);
-  }, []);
-
+  // Autosave with debounce
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-    triggerAutoSave(project);
-  }, [project, triggerAutoSave]);
+    if (saveStatus !== 'unsaved') return;
 
-  // Update Helpers
-  const updateIdentity = (field: keyof ProjectData['identity'], val: string) => {
-    setProject((prev) => ({
-      ...prev,
-      identity: { ...prev.identity, [field]: val }
-    }));
-  };
-
-  const updateTheme = (field: keyof ThemeConfig, val: string) => {
-    setProject((prev) => ({
-      ...prev,
-      theme: { ...prev.theme, [field]: val }
-    }));
-  };
-
-  const updateStatusConfig = (updates: Partial<NonNullable<ProjectData['statusConfig']>>) => {
-    setProject((prev) => ({
-      ...prev,
-      statusConfig: { ...prev.statusConfig!, ...updates }
-    }));
-  };
-
-  const updateWhatsAppConfig = (updates: Partial<NonNullable<ProjectData['whatsappConfig']>>) => {
-    setProject((prev) => ({
-      ...prev,
-      whatsappConfig: { ...prev.whatsappConfig!, ...updates }
-    }));
-  };
-
-  const updateGoogleReviewConfig = (updates: Partial<NonNullable<ProjectData['googleReviewConfig']>>) => {
-    setProject((prev) => ({
-      ...prev,
-      googleReviewConfig: { ...prev.googleReviewConfig!, ...updates }
-    }));
-  };
-
-  const updateLogoConfig = (updates: Partial<NonNullable<ProjectData['logoConfig']>>) => {
-    setProject((prev) => ({
-      ...prev,
-      logoConfig: {
-        size: prev.logoConfig?.size || 'lg',
-        align: prev.logoConfig?.align || 'center',
-        position: prev.logoConfig?.position || 'hero',
-        background: prev.logoConfig?.background || 'none',
-        ...updates
+    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    debounceTimerRef.current = setTimeout(async () => {
+      setSaveStatus('saving');
+      try {
+        await saveProject(project);
+        setSaveStatus('saved');
+      } catch (err) {
+        console.error('Autosave error:', err);
+        setSaveStatus('unsaved');
       }
-    }));
-  };
+    }, 1200);
 
-  // Section Ordering & Visibility Controls (Requisito 18)
-  const toggleSectionVisibility = (key: SectionKey) => {
-    setProject((prev) => ({
-      ...prev,
-      sectionsVisibility: {
-        ...prev.sectionsVisibility,
-        [key]: prev.sectionsVisibility?.[key] === false ? true : false
-      }
-    }));
-  };
-
-  const moveSectionOrder = (index: number, direction: 'up' | 'down') => {
-    const list = [...(project.sectionsOrder || [])];
-    const targetIndex = direction === 'up' ? index - 1 : index + 1;
-    if (targetIndex < 0 || targetIndex >= list.length) return;
-
-    const temp = list[index];
-    list[index] = list[targetIndex];
-    list[targetIndex] = temp;
-
-    setProject((prev) => ({
-      ...prev,
-      sectionsOrder: list
-    }));
-  };
-
-  // Photo Management
-  const addPhoto = () => {
-    const newP: PhotoItem = {
-      id: `p_${Date.now()}`,
-      url: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=800&q=80',
-      caption: 'Nova Fotografia',
-      alt: 'Foto do Atendimento',
-      position: (project.photos || []).length
+    return () => {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
     };
-    setProject((prev) => ({ ...prev, photos: [...(prev.photos || []), newP] }));
+  }, [project, saveStatus]);
+
+  // Manual save
+  const handleManualSave = async () => {
+    setSaveStatus('saving');
+    try {
+      await saveProject(project);
+      setSaveStatus('saved');
+    } catch (err) {
+      console.error('Error saving:', err);
+      alert('Erro ao salvar projeto.');
+      setSaveStatus('unsaved');
+    }
   };
 
-  const removePhoto = (id: string) => {
-    setProject((prev) => ({
-      ...prev,
-      photos: (prev.photos || []).filter((p) => p.id !== id)
-    }));
+  const currentDesignMeta = getDesignById(config.designId);
+
+  // 🎲 MISTURAR DESIGN (Pure JavaScript, No AI)
+  const handleShuffleDesign = () => {
+    const newConfig = shuffleDesignConfig(config.designId, config);
+    updateProjectState(data, newConfig);
   };
 
-  const movePhoto = (index: number, direction: 'up' | 'down') => {
-    const list = [...(project.photos || [])];
-    const targetIndex = direction === 'up' ? index - 1 : index + 1;
-    if (targetIndex < 0 || targetIndex >= list.length) return;
-    const temp = list[index];
-    list[index] = list[targetIndex];
-    list[targetIndex] = temp;
-    setProject((prev) => ({ ...prev, photos: list }));
+  // Switch style completely
+  const handleSelectNewStyle = (newDesign: DesignMeta) => {
+    const newConfig: BioDesignConfig = {
+      designId: newDesign.id,
+      heroVariant: 'A',
+      contentVariant: 'A',
+      galleryVariant: 'A',
+      ctaVariant: 'A',
+      contactVariant: 'A',
+      paletteId: newDesign.palettes[0]?.id || 'cine-noir',
+      typographyId: newDesign.typographies[0]?.id || 'cine-typo-syne',
+      motionLevel: 'cinematic'
+    };
+    updateProjectState(data, newConfig);
+    setIsStyleModalOpen(false);
   };
 
-  const updatePhoto = (id: string, field: keyof PhotoItem, val: string) => {
-    setProject((prev) => ({
-      ...prev,
-      photos: (prev.photos || []).map((p) => (p.id === id ? { ...p, [field]: val } : p))
-    }));
+  // Content field helper
+  const updateDataField = <K extends keyof BioProjectData>(field: K, value: BioProjectData[K]) => {
+    const next = { ...data, [field]: value };
+    updateProjectState(next, config);
   };
 
-  // Service Management
-  const addService = () => {
-    const newS: ServiceItem = {
-      id: `s_${Date.now()}`,
-      name: 'Novo Procedimento',
-      description: 'Descrição do procedimento e benefícios para o cliente.',
-      price: 'R$ 90,00',
-      iconName: 'sparkles',
+  // Config field helper
+  const updateConfigField = <K extends keyof BioDesignConfig>(field: K, value: BioDesignConfig[K]) => {
+    const next = { ...config, [field]: value };
+    updateProjectState(data, next);
+  };
+
+  // Items / Services helpers
+  const handleAddItem = () => {
+    const newItem: BioItem = {
+      id: `item_${Date.now()}`,
+      title: 'Novo Serviço ou Especialidade',
+      description: 'Breve resumo do que este serviço entrega ao cliente.',
+      photoUrl: '',
+      price: 'R$ 0,00',
+      priceEnabled: false,
       featured: false
     };
-    setProject((prev) => ({ ...prev, services: [...(prev.services || []), newS] }));
+    updateDataField('items', [...data.items, newItem]);
   };
 
-  const removeService = (id: string) => {
-    setProject((prev) => ({
-      ...prev,
-      services: (prev.services || []).filter((s) => s.id !== id)
-    }));
+  const handleUpdateItem = (id: string, updates: Partial<BioItem>) => {
+    const updated = data.items.map((it) => (it.id === id ? { ...it, ...updates } : it));
+    updateDataField('items', updated);
   };
 
-  const updateService = (id: string, updates: Partial<ServiceItem>) => {
-    setProject((prev) => ({
-      ...prev,
-      services: (prev.services || []).map((s) => (s.id === id ? { ...s, ...updates } : s))
-    }));
+  const handleDeleteItem = (id: string) => {
+    const filtered = data.items.filter((it) => it.id !== id);
+    updateDataField('items', filtered);
   };
 
-  // Action Buttons Management
-  const addButton = () => {
-    const newBtn: CustomButton = {
-      id: `b_${Date.now()}`,
-      text: 'Novo Botão de Ação',
-      url: 'https://',
-      iconName: 'link',
-      style: 'solid',
-      color: project.theme.primary,
-      size: 'md',
-      align: 'center'
+  // Gallery helpers
+  const handleAddPhoto = () => {
+    const newPhoto: PhotoItem = {
+      id: `photo_${Date.now()}`,
+      url: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=800&q=80',
+      caption: '',
+      alt: 'Foto do biosite',
+      position: data.gallery.length
     };
-    setProject((prev) => ({ ...prev, buttons: [...(prev.buttons || []), newBtn] }));
+    updateDataField('gallery', [...data.gallery, newPhoto]);
   };
 
-  const removeButton = (id: string) => {
-    setProject((prev) => ({
-      ...prev,
-      buttons: (prev.buttons || []).filter((b) => b.id !== id)
-    }));
+  const handleUpdatePhoto = (id: string, updates: Partial<PhotoItem>) => {
+    const updated = data.gallery.map((p) => (p.id === id ? { ...p, ...updates } : p));
+    updateDataField('gallery', updated);
   };
 
-  const updateButton = (id: string, updates: Partial<CustomButton>) => {
-    setProject((prev) => ({
-      ...prev,
-      buttons: (prev.buttons || []).map((b) => (b.id === id ? { ...b, ...updates } : b))
-    }));
+  const handleDeletePhoto = (id: string) => {
+    const filtered = data.gallery.filter((p) => p.id !== id);
+    updateDataField('gallery', filtered);
   };
 
-  // Export handlers (Requisito 27 & 28)
-  const handleExportZip = async () => {
-    setIsExporting(true);
-    setExportNotice(null);
-    try {
-      await exportProjectZip(project);
-      setExportNotice('Arquivo ZIP exportado com sucesso!');
-      setTimeout(() => setExportNotice(null), 4000);
-    } catch (err) {
-      console.error('Error exporting ZIP:', err);
-    } finally {
-      setIsExporting(false);
-    }
-  };
-
-  const handleDownloadHtml = () => {
-    try {
-      downloadStandaloneHtml(project);
-      setExportNotice('Arquivo index.html estático baixado com sucesso!');
-      setTimeout(() => setExportNotice(null), 4000);
-    } catch (err) {
-      console.error('Error downloading HTML:', err);
-    }
-  };
-
-  const SECTION_LABELS: Record<SectionKey, string> = {
-    hero: 'Capa / Hero Principal',
-    status: 'Status Aberto / Fechado',
-    about: 'Sobre Nós / História',
-    differentials: 'Diferenciais da Marca',
-    services: 'Especialidades & Atendimento',
-    gallery: 'Galeria Visual de Fotos',
-    reviews: 'Avaliações Google Reviews',
-    hours: 'Horários de Atendimento',
-    location: 'Endereço & Google Maps',
-    socials: 'Redes Sociais & Canais',
-    faq: 'Perguntas Frequentes',
-    cta: 'Rodapé & Botão Final'
+  const handleMovePhoto = (index: number, direction: 'up' | 'down') => {
+    const targetIdx = direction === 'up' ? index - 1 : index + 1;
+    if (targetIdx < 0 || targetIdx >= data.gallery.length) return;
+    const newArr = [...data.gallery];
+    const temp = newArr[index];
+    newArr[index] = newArr[targetIdx];
+    newArr[targetIdx] = temp;
+    updateDataField('gallery', newArr);
   };
 
   return (
-    <div className="min-h-screen bg-[#07080D] text-slate-100 flex flex-col">
-      {/* Top Bar with Brand, Save Status, Viewports, and Actions */}
-      <header className="h-16 px-4 sm:px-6 border-b border-white/10 bg-[#0A0C14]/95 backdrop-blur-md flex items-center justify-between sticky top-0 z-40">
+    <div className="h-screen flex flex-col bg-[#07080D] text-slate-100 overflow-hidden font-sans">
+
+      {/* TOPBAR */}
+      <header className="h-16 border-b border-white/10 bg-[#090B14] px-4 sm:px-6 flex items-center justify-between shrink-0 z-30">
         <div className="flex items-center gap-3">
           <button
+            type="button"
             onClick={onBack}
             className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-colors cursor-pointer"
-            title="Voltar aos Projetos"
+            title="Voltar para a Home"
           >
             <ArrowLeft size={18} />
           </button>
 
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-black text-sm text-white truncate max-w-[140px] sm:max-w-xs">
-                {project.nome}
+              <span className="text-xs sm:text-sm font-black text-white uppercase truncate max-w-[160px] sm:max-w-xs">
+                {data.brandName || project.nome}
               </span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30 hidden sm:inline">
-                {project.nicho}
+              <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-mono text-[9px] font-bold">
+                {currentDesignMeta.number} {currentDesignMeta.name}
               </span>
             </div>
 
-            <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
-              {saveStatus === 'saving' && (
-                <span className="flex items-center gap-1 text-amber-400">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
-                  Salvando alterações...
-                </span>
-              )}
-              {saveStatus === 'saved' && (
-                <span className="flex items-center gap-1 text-emerald-400">
-                  <Check size={12} /> Salvo automaticamente
-                </span>
-              )}
-              {saveStatus === 'idle' && <span>Autosave ativo</span>}
+            <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
+              {saveStatus === 'saving' && <span className="text-amber-400">Salvando alterações...</span>}
+              {saveStatus === 'saved' && <span className="text-emerald-400 flex items-center gap-1"><Check size={10} /> Salvo na nuvem</span>}
+              {saveStatus === 'unsaved' && <span className="text-slate-400">Alterações pendentes</span>}
             </div>
           </div>
         </div>
 
-        {/* Viewport switcher (Desktop view) */}
-        <div className="hidden md:flex items-center gap-1 bg-white/5 p-1 rounded-2xl border border-white/10">
+        {/* Viewport Toggles (Desktop only) */}
+        <div className="hidden lg:flex items-center bg-white/5 p-1 rounded-xl border border-white/10">
           <button
             type="button"
             onClick={() => setViewport('mobile')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-              viewport === 'mobile' ? 'bg-amber-500 text-slate-950 shadow-md font-black' : 'text-slate-400 hover:text-white'
+            className={`p-1.5 rounded-lg transition-colors ${
+              viewport === 'mobile' ? 'bg-amber-500 text-slate-950 shadow' : 'text-slate-400 hover:text-white'
             }`}
+            title="Visualização Mobile (380px)"
           >
-            <Smartphone size={14} />
-            <span>390px</span>
+            <Smartphone size={16} />
           </button>
           <button
             type="button"
             onClick={() => setViewport('tablet')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-              viewport === 'tablet' ? 'bg-amber-500 text-slate-950 shadow-md font-black' : 'text-slate-400 hover:text-white'
+            className={`p-1.5 rounded-lg transition-colors ${
+              viewport === 'tablet' ? 'bg-amber-500 text-slate-950 shadow' : 'text-slate-400 hover:text-white'
             }`}
+            title="Visualização Tablet (640px)"
           >
-            <Tablet size={14} />
-            <span>Tablet</span>
+            <Tablet size={16} />
           </button>
           <button
             type="button"
             onClick={() => setViewport('desktop')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-              viewport === 'desktop' ? 'bg-amber-500 text-slate-950 shadow-md font-black' : 'text-slate-400 hover:text-white'
+            className={`p-1.5 rounded-lg transition-colors ${
+              viewport === 'desktop' ? 'bg-amber-500 text-slate-950 shadow' : 'text-slate-400 hover:text-white'
             }`}
+            title="Visualização Desktop"
           >
-            <Monitor size={14} />
-            <span>Desktop</span>
+            <Monitor size={16} />
           </button>
         </div>
 
-        {/* Export Quick Buttons */}
+        {/* Mobile View Toggle (Editar / Preview) */}
+        <div className="lg:hidden flex items-center bg-white/5 p-1 rounded-xl border border-white/10">
+          <button
+            type="button"
+            onClick={() => setMobileViewMode('edit')}
+            className={`px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1 transition-colors ${
+              mobileViewMode === 'edit' ? 'bg-amber-500 text-slate-950' : 'text-slate-400'
+            }`}
+          >
+            <Edit3 size={13} />
+            <span>Editar</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setMobileViewMode('preview')}
+            className={`px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1 transition-colors ${
+              mobileViewMode === 'preview' ? 'bg-amber-500 text-slate-950' : 'text-slate-400'
+            }`}
+          >
+            <Eye size={13} />
+            <span>Preview</span>
+          </button>
+        </div>
+
+        {/* Action Buttons */}
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={handleDownloadHtml}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-slate-200 hover:text-white text-xs font-bold border border-white/15 transition-all cursor-pointer active:scale-95"
-            title="Baixar arquivo index.html independente"
+            onClick={handleShuffleDesign}
+            className="hidden sm:flex py-2 px-3 rounded-xl bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-400/30 text-indigo-300 hover:text-white font-bold text-xs items-center gap-1.5 transition-all cursor-pointer"
+            title="Sortear variações visuais sem mudar o conteúdo"
           >
-            <FileCode size={15} className="text-amber-400" />
-            <span>Baixar HTML</span>
+            <Dices size={15} />
+            <span>MISTURAR</span>
           </button>
 
           <button
             type="button"
-            onClick={handleExportZip}
-            disabled={isExporting}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-black transition-all cursor-pointer shadow-lg shadow-amber-500/25 active:scale-95"
+            onClick={handleManualSave}
+            className="py-2 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs uppercase flex items-center gap-1.5 shadow transition-all cursor-pointer"
           >
-            <Archive size={15} />
-            <span>{isExporting ? 'Gerando...' : 'Baixar ZIP'}</span>
+            <Save size={14} />
+            <span>Salvar</span>
           </button>
         </div>
       </header>
 
-      {/* Export Toast Notification */}
-      {exportNotice && (
-        <div className="fixed top-20 right-6 z-50 p-4 rounded-2xl bg-emerald-600 text-white font-bold text-xs shadow-2xl flex items-center gap-2 animate-bounce">
-          <CheckCircle2 size={18} />
-          <span>{exportNotice}</span>
-        </div>
-      )}
+      {/* MAIN LAYOUT (SPLIT: LEFT CONTROLS, RIGHT PREVIEW) */}
+      <div className="flex-1 flex overflow-hidden relative">
 
-      {/* Main Workspace (Split Grid: Left Accordion Editor, Right Real-Time Preview) */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* LEFT COLUMN: Collapsible Accordion Editor (Requisito 17) */}
-        <aside className="w-full lg:w-[480px] border-r border-white/10 bg-[#080A12] overflow-y-auto p-4 sm:p-6 space-y-4">
-          <div className="flex items-center justify-between pb-2 border-b border-white/10">
-            <span className="text-xs font-black uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
-              <Sliders size={14} />
-              Editor Completo Bio Fácil
-            </span>
-            <span className="text-[11px] text-slate-400">16 seções recolhíveis</span>
+        {/* LEFT PANEL: TABS & INPUTS */}
+        <div
+          className={`w-full lg:w-[480px] xl:w-[520px] bg-[#0A0C14] border-r border-white/10 flex flex-col shrink-0 overflow-hidden ${
+            mobileViewMode === 'preview' ? 'hidden lg:flex' : 'flex'
+          }`}
+        >
+          {/* TAB BAR (CONTEÚDO, DESIGN, FOTOS, SEÇÕES, CONTATO, EXPORTAR) */}
+          <div className="flex border-b border-white/10 bg-[#07080D] overflow-x-auto no-scrollbar shrink-0 px-2">
+            {[
+              { id: 'conteudo', label: 'CONTEÚDO', icon: Edit3 },
+              { id: 'design', label: 'DESIGN', icon: Palette },
+              { id: 'fotos', label: 'FOTOS', icon: ImageIcon },
+              { id: 'secoes', label: 'SEÇÕES', icon: Layers },
+              { id: 'contato', label: 'CONTATO', icon: MessageCircle },
+              { id: 'exportar', label: 'EXPORTAR', icon: Download }
+            ].map((t) => {
+              const Icon = t.icon;
+              const isActive = activeTab === t.id;
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => setActiveTab(t.id as TabKey)}
+                  className={`py-3 px-3.5 text-xs font-black uppercase tracking-wider flex items-center gap-1.5 border-b-2 transition-all shrink-0 cursor-pointer ${
+                    isActive
+                      ? 'border-amber-400 text-amber-300 bg-white/[0.03]'
+                      : 'border-transparent text-slate-400 hover:text-white hover:bg-white/[0.01]'
+                  }`}
+                >
+                  <Icon size={14} />
+                  <span>{t.label}</span>
+                </button>
+              );
+            })}
           </div>
 
-          {/* 1. IDENTIDADE DA MARCA */}
-          <div className="rounded-2xl border border-white/10 bg-[#0D0F1C] overflow-hidden">
-            <button
-              type="button"
-              onClick={() => toggleAccordion('identidade')}
-              className="w-full p-4 flex items-center justify-between text-left font-black text-xs sm:text-sm text-white hover:bg-white/5 transition-colors cursor-pointer"
-            >
-              <span className="flex items-center gap-2">
-                <Sparkles size={16} className="text-amber-400" />
-                IDENTIDADE & NOME
-              </span>
-              {openSections.identidade ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-            </button>
+          {/* TAB CONTENT AREA */}
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 no-scrollbar">
 
-            {openSections.identidade && (
-              <div className="p-4 pt-0 space-y-3 border-t border-white/5">
-                <div>
-                  <label className="text-[11px] font-bold text-slate-400 block mb-1">Nome Principal / Marca</label>
-                  <input
-                    type="text"
-                    value={project.identity.name}
-                    onChange={(e) => updateIdentity('name', e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:border-amber-400 outline-none"
-                  />
+            {/* TAB 1: CONTEÚDO */}
+            {activeTab === 'conteudo' && (
+              <div className="space-y-6 animate-fadeIn">
+                <div className="space-y-1">
+                  <h3 className="text-sm font-black text-white uppercase tracking-wider">
+                    Informações Principais
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    Estes textos preenchem o topo e o corpo do seu biosite.
+                  </p>
                 </div>
 
-                <div>
-                  <label className="text-[11px] font-bold text-slate-400 block mb-1">Slogan / Headline de Impacto</label>
-                  <input
-                    type="text"
-                    value={project.identity.slogan}
-                    onChange={(e) => updateIdentity('slogan', e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:border-amber-400 outline-none"
-                  />
+                <div className="space-y-4 bg-white/[0.02] p-4 rounded-2xl border border-white/5">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-300 block">Nome / Marca / Empresa</label>
+                    <input
+                      type="text"
+                      value={data.brandName}
+                      onChange={(e) => updateDataField('brandName', e.target.value)}
+                      placeholder="Ex: Dra. Camila Menezes"
+                      className="w-full px-3.5 py-2.5 bg-black/40 border border-white/10 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400/50"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-300 block">Segmento / Ramo de Atuação</label>
+                    <input
+                      type="text"
+                      value={data.segment}
+                      onChange={(e) => updateDataField('segment', e.target.value)}
+                      placeholder="Ex: Dermatologia & Estética Avançada"
+                      className="w-full px-3.5 py-2.5 bg-black/40 border border-white/10 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400/50"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-300 block">Headline Principal (Frase de Impacto)</label>
+                    <input
+                      type="text"
+                      value={data.headline}
+                      onChange={(e) => updateDataField('headline', e.target.value)}
+                      placeholder="Ex: CUIDADO MÉDICO QUE ELEVA SUA NATURALIDADE"
+                      className="w-full px-3.5 py-2.5 bg-black/40 border border-white/10 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400/50"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-300 block">Subtítulo / Proposta</label>
+                    <textarea
+                      rows={2}
+                      value={data.subtitle}
+                      onChange={(e) => updateDataField('subtitle', e.target.value)}
+                      placeholder="Ex: Tratamentos dermatológicos avançados com tecnologia suíça."
+                      className="w-full px-3.5 py-2 bg-black/40 border border-white/10 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400/50"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-300 block">Sobre / Trajetória / Manifesto</label>
+                    <textarea
+                      rows={3}
+                      value={data.about}
+                      onChange={(e) => updateDataField('about', e.target.value)}
+                      placeholder="Breve história e filosofia da sua marca..."
+                      className="w-full px-3.5 py-2 bg-black/40 border border-white/10 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400/50"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-300 block">Selo / Badge de Autoridade (Opcional)</label>
+                    <input
+                      type="text"
+                      value={data.badge || ''}
+                      onChange={(e) => updateDataField('badge', e.target.value)}
+                      placeholder="Ex: CRM/SP 148.920 • RQE 62.140"
+                      className="w-full px-3.5 py-2.5 bg-black/40 border border-white/10 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400/50"
+                    />
+                  </div>
                 </div>
 
-                <div>
-                  <label className="text-[11px] font-bold text-slate-400 block mb-1">Badge de Exclusividade (Kicker)</label>
-                  <input
-                    type="text"
-                    value={project.identity.badge}
-                    onChange={(e) => updateIdentity('badge', e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:border-amber-400 outline-none"
-                    placeholder="Ex: 10 MODELOS EXCLUSIVOS"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-[11px] font-bold text-slate-400 block mb-1">Texto "Sobre Nós" / Apresentação</label>
-                  <textarea
-                    rows={3}
-                    value={project.identity.about}
-                    onChange={(e) => updateIdentity('about', e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:border-amber-400 outline-none"
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* 2. LOGO & FOTOS DA CAPA (Requisito 16) */}
-          <div className="rounded-2xl border border-white/10 bg-[#0D0F1C] overflow-hidden">
-            <button
-              type="button"
-              onClick={() => toggleAccordion('logo_capa')}
-              className="w-full p-4 flex items-center justify-between text-left font-black text-xs sm:text-sm text-white hover:bg-white/5 transition-colors cursor-pointer"
-            >
-              <span className="flex items-center gap-2">
-                <ImageIcon size={16} className="text-amber-400" />
-                LOGO & CAPA DO HERO
-              </span>
-              {openSections.logo_capa ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-            </button>
-
-            {openSections.logo_capa && (
-              <div className="p-4 pt-0 space-y-4 border-t border-white/5">
-                {/* 1. LOGO PRINCIPAL (PNG TRANSPARENTE) */}
-                <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/10 space-y-3">
+                {/* SERVIÇOS / ESPECIALIDADES COM TÍTULO PERSONALIZÁVEL */}
+                <div className="space-y-4 pt-4 border-t border-white/10">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-black text-amber-400 uppercase tracking-wider">
-                      Logo da Marca / Empresa
-                    </span>
+                    <div>
+                      <h4 className="text-sm font-black text-white uppercase tracking-wider">
+                        Seção de Serviços
+                      </h4>
+                      <p className="text-xs text-slate-400">
+                        Defina o título da seção e seus itens principais
+                      </p>
+                    </div>
                     <button
                       type="button"
-                      onClick={() => setProject((prev) => ({ ...prev, showLogo: prev.showLogo === false ? true : false }))}
-                      className={`px-2.5 py-1 rounded-full text-[10px] font-bold border transition-colors cursor-pointer flex items-center gap-1.5 ${
-                        project.showLogo !== false
-                          ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-                          : 'bg-rose-500/20 text-rose-300 border-rose-500/40'
-                      }`}
+                      onClick={handleAddItem}
+                      className="py-1.5 px-3 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs flex items-center gap-1 transition-colors cursor-pointer"
                     >
-                      <span className={`w-1.5 h-1.5 rounded-full ${project.showLogo !== false ? 'bg-emerald-400' : 'bg-rose-400'}`} />
-                      <span>{project.showLogo !== false ? 'Logo Visível' : 'Logo Oculta'}</span>
+                      <Plus size={14} />
+                      <span>Adicionar</span>
                     </button>
                   </div>
 
-                  <div>
-                    <label className="text-[11px] font-bold text-slate-400 block mb-1">
-                      URL da Logo (PNG, SVG, WEBP)
-                    </label>
+                  {/* Custom Title & Suggestions */}
+                  <div className="space-y-2 bg-white/[0.02] p-4 rounded-2xl border border-white/5">
+                    <label className="text-xs font-bold text-slate-300 block">Título da Seção de Serviços</label>
                     <input
                       type="text"
-                      value={project.identity.logoUrl || ''}
-                      onChange={(e) => updateIdentity('logoUrl', e.target.value)}
-                      placeholder="https://exemplo.com/logo.png"
-                      className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:border-amber-400 outline-none"
+                      value={data.itemsTitle}
+                      onChange={(e) => updateDataField('itemsTitle', e.target.value)}
+                      placeholder="Ex: Especialidades de Assinatura"
+                      className="w-full px-3.5 py-2 bg-black/40 border border-white/10 rounded-xl text-xs text-white font-bold placeholder-slate-500 focus:outline-none focus:border-amber-400/50"
                     />
-                    <p className="text-[10px] text-slate-400 mt-1">
-                      A logo não é recortada em círculo: ela preserva o formato original e proporções reais.
-                    </p>
-                  </div>
 
-                  {/* Logo Controls: Size, Align, Background */}
-                  <div className="grid grid-cols-2 gap-2 pt-1">
-                    <div>
-                      <label className="text-[10px] font-bold text-slate-400 block mb-1">Tamanho da Logo</label>
-                      <select
-                        value={project.logoConfig?.size || 'lg'}
-                        onChange={(e) => updateLogoConfig({ size: e.target.value as any })}
-                        className="w-full px-2.5 py-1.5 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:border-amber-400 outline-none"
-                      >
-                        <option value="sm" className="bg-[#0D0F1C]">Pequena (48px)</option>
-                        <option value="md" className="bg-[#0D0F1C]">Média (64px)</option>
-                        <option value="lg" className="bg-[#0D0F1C]">Grande (96px)</option>
-                        <option value="xl" className="bg-[#0D0F1C]">Extra Grande (128px)</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="text-[10px] font-bold text-slate-400 block mb-1">Alinhamento</label>
-                      <select
-                        value={project.logoConfig?.align || 'center'}
-                        onChange={(e) => updateLogoConfig({ align: e.target.value as any })}
-                        className="w-full px-2.5 py-1.5 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:border-amber-400 outline-none"
-                      >
-                        <option value="center" className="bg-[#0D0F1C]">Centro</option>
-                        <option value="left" className="bg-[#0D0F1C]">Esquerda</option>
-                        <option value="right" className="bg-[#0D0F1C]">Direita</option>
-                      </select>
+                    {/* Quick suggestion chips */}
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      {SERVICE_TITLE_SUGGESTIONS.map((sug) => (
+                        <button
+                          key={sug}
+                          type="button"
+                          onClick={() => updateDataField('itemsTitle', sug)}
+                          className={`px-2.5 py-0.5 rounded-md text-[10px] font-bold border transition-colors cursor-pointer ${
+                            data.itemsTitle === sug
+                              ? 'bg-amber-500 text-slate-950 border-amber-400'
+                              : 'bg-white/5 border-white/10 text-slate-400 hover:text-white'
+                          }`}
+                        >
+                          {sug}
+                        </button>
+                      ))}
                     </div>
                   </div>
 
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-400 block mb-1">Fundo da Logo</label>
-                    <div className="grid grid-cols-4 gap-1.5">
-                      {[
-                        { id: 'none', label: 'Nenhum' },
-                        { id: 'glass', label: 'Vidro' },
-                        { id: 'light', label: 'Claro' },
-                        { id: 'dark', label: 'Escuro' }
-                      ].map((item) => {
-                        const isSelected = (project.logoConfig?.background || 'none') === item.id;
-                        return (
+                  {/* List of Items */}
+                  <div className="space-y-3">
+                    {data.items.map((item, idx) => (
+                      <div
+                        key={item.id}
+                        className="p-4 rounded-2xl border border-white/10 bg-black/30 space-y-3"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-mono text-amber-400 font-bold uppercase">
+                            Item {idx + 1}
+                          </span>
                           <button
-                            key={item.id}
                             type="button"
-                            onClick={() => updateLogoConfig({ background: item.id as any })}
-                            className={`py-1.5 px-2 rounded-xl text-[10px] font-bold border text-center transition-all cursor-pointer ${
-                              isSelected
-                                ? 'bg-amber-500 text-slate-950 border-amber-400 font-black'
-                                : 'bg-white/5 border-white/10 text-slate-300 hover:text-white'
-                            }`}
+                            onClick={() => handleDeleteItem(item.id)}
+                            className="text-slate-500 hover:text-rose-400 transition-colors p-1 cursor-pointer"
                           >
-                            {item.label}
+                            <Trash2 size={14} />
                           </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
+                        </div>
 
-                {/* 2. FOTOGRAFIAS (DISTINTAS DA LOGO) */}
-                <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/10 space-y-3">
-                  <span className="text-xs font-black text-amber-400 uppercase tracking-wider block">
-                    Fotografias de Destaque
-                  </span>
-
-                  <div>
-                    <label className="text-[11px] font-bold text-slate-400 block mb-1">
-                      Foto Principal / Banner do Hero
-                    </label>
-                    <input
-                      type="text"
-                      value={project.identity.bannerUrl || ''}
-                      onChange={(e) => updateIdentity('bannerUrl', e.target.value)}
-                      placeholder="https://exemplo.com/banner.jpg"
-                      className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:border-amber-400 outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-[11px] font-bold text-slate-400 block mb-1">
-                      Foto do Profissional / Especialista
-                    </label>
-                    <input
-                      type="text"
-                      value={project.identity.avatarUrl || ''}
-                      onChange={(e) => updateIdentity('avatarUrl', e.target.value)}
-                      placeholder="https://exemplo.com/profissional.jpg"
-                      className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:border-amber-400 outline-none"
-                    />
-                    <p className="text-[10px] text-slate-400 mt-1">
-                      Usada especialmente nos modelos focados no profissional (ex: Modelo 09 - Profile).
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* 3. GERENCIAR SEÇÕES & ORDEM (Requisito 18) */}
-          <div className="rounded-2xl border border-white/10 bg-[#0D0F1C] overflow-hidden">
-            <button
-              type="button"
-              onClick={() => toggleAccordion('secoes')}
-              className="w-full p-4 flex items-center justify-between text-left font-black text-xs sm:text-sm text-white hover:bg-white/5 transition-colors cursor-pointer"
-            >
-              <span className="flex items-center gap-2">
-                <Layers size={16} className="text-amber-400" />
-                GERENCIAR & REORDENAR SEÇÕES
-              </span>
-              {openSections.secoes ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-            </button>
-
-            {openSections.secoes && (
-              <div className="p-4 pt-0 space-y-2 border-t border-white/5">
-                <p className="text-[11px] text-slate-400 mb-2">
-                  Ative ou desative as seções e altere a ordem de exibição no biosite:
-                </p>
-
-                {(project.sectionsOrder || []).map((secKey, idx) => {
-                  const isVisible = project.sectionsVisibility?.[secKey] !== false;
-                  return (
-                    <div
-                      key={secKey}
-                      className="flex items-center justify-between p-2.5 rounded-xl bg-white/5 border border-white/5"
-                    >
-                      <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-200">
                         <input
-                          type="checkbox"
-                          checked={isVisible}
-                          onChange={() => toggleSectionVisibility(secKey)}
-                          className="accent-amber-500 rounded"
+                          type="text"
+                          value={item.title}
+                          onChange={(e) => handleUpdateItem(item.id, { title: e.target.value })}
+                          placeholder="Nome do serviço"
+                          className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-xs text-white font-bold focus:outline-none focus:border-amber-400/50"
                         />
-                        <span className={isVisible ? 'text-white' : 'text-slate-500 line-through'}>
-                          {SECTION_LABELS[secKey] || secKey}
-                        </span>
-                      </label>
 
-                      <div className="flex items-center gap-1">
-                        <button
-                          type="button"
-                          onClick={() => moveSectionOrder(idx, 'up')}
-                          disabled={idx === 0}
-                          className="p-1 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white disabled:opacity-20 cursor-pointer"
-                          title="Mover para Cima"
-                        >
-                          <MoveUp size={14} />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => moveSectionOrder(idx, 'down')}
-                          disabled={idx === (project.sectionsOrder || []).length - 1}
-                          className="p-1 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white disabled:opacity-20 cursor-pointer"
-                          title="Mover para Baixo"
-                        >
-                          <MoveDown size={14} />
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
+                        <textarea
+                          rows={2}
+                          value={item.description}
+                          onChange={(e) => handleUpdateItem(item.id, { description: e.target.value })}
+                          placeholder="Descrição objetiva do que inclui..."
+                          className="w-full px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-xs text-slate-300 focus:outline-none focus:border-amber-400/50"
+                        />
 
-          {/* 4. TIPOGRAFIA & FONTES (Requisito 19) */}
-          <div className="rounded-2xl border border-white/10 bg-[#0D0F1C] overflow-hidden">
-            <button
-              type="button"
-              onClick={() => toggleAccordion('fontes')}
-              className="w-full p-4 flex items-center justify-between text-left font-black text-xs sm:text-sm text-white hover:bg-white/5 transition-colors cursor-pointer"
-            >
-              <span className="flex items-center gap-2">
-                <Type size={16} className="text-amber-400" />
-                TIPOGRAFIA & FONTES
-              </span>
-              {openSections.fontes ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-            </button>
+                        {/* Price Switch (DEFAULT OFF) */}
+                        <div className="flex items-center justify-between pt-1 border-t border-white/5">
+                          <div className="flex items-center gap-2">
+                            <label className="relative inline-flex items-center cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={Boolean(item.priceEnabled)}
+                                onChange={(e) => handleUpdateItem(item.id, { priceEnabled: e.target.checked })}
+                                className="sr-only peer"
+                              />
+                              <div className="w-8 h-4 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-amber-500" />
+                            </label>
+                            <span className="text-xs text-slate-400">Exibir Preço</span>
+                          </div>
 
-            {openSections.fontes && (
-              <div className="p-4 pt-0 space-y-3 border-t border-white/5">
-                <p className="text-[11px] text-slate-400">
-                  Selecione a categoria tipográfica ideal para o tom do seu negócio:
-                </p>
-
-                <div className="grid grid-cols-1 gap-2">
-                  {FONT_PRESETS.map((fp) => {
-                    const isSelected = project.fontCategory === fp.category;
-                    return (
-                      <div
-                        key={fp.category}
-                        onClick={() => {
-                          setProject((prev) => ({
-                            ...prev,
-                            fontCategory: fp.category,
-                            theme: { ...prev.theme, fontHeading: fp.headingFont }
-                          }));
-                        }}
-                        className={`p-3 rounded-xl border cursor-pointer transition-all ${
-                          isSelected
-                            ? 'border-amber-400 bg-amber-500/10 shadow-md'
-                            : 'border-white/10 bg-white/5 hover:border-white/20'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs font-black uppercase text-white tracking-wider">
-                            {fp.name}
-                          </span>
-                          {isSelected && <Check size={14} className="text-amber-400" />}
+                          {item.priceEnabled && (
+                            <input
+                              type="text"
+                              value={item.price || ''}
+                              onChange={(e) => handleUpdateItem(item.id, { price: e.target.value })}
+                              placeholder="Ex: R$ 120,00"
+                              className="w-28 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-xs text-emerald-400 font-mono font-bold text-right focus:outline-none focus:border-amber-400/50"
+                            />
+                          )}
                         </div>
-                        <p
-                          className="text-xs text-slate-300"
-                          style={{
-                            fontFamily:
-                              fp.category === 'ELEGANTE'
-                                ? "'Playfair Display', serif"
-                                : fp.category === 'BOLD'
-                                ? "'Syne', sans-serif"
-                                : fp.category === 'EDITORIAL'
-                                ? "'Bodoni Moda', serif"
-                                : fp.category === 'ESPORTIVA'
-                                ? "'Chakra Petch', sans-serif"
-                                : "'Plus Jakarta Sans', sans-serif"
-                          }}
-                        >
-                          {fp.sample}
-                        </p>
+
+                        {/* Optional photo URL */}
+                        <div className="space-y-1">
+                          <span className="text-[10px] text-slate-400 block">URL da Foto (Opcional)</span>
+                          <input
+                            type="text"
+                            value={item.photoUrl || ''}
+                            onChange={(e) => handleUpdateItem(item.id, { photoUrl: e.target.value })}
+                            placeholder="https://..."
+                            className="w-full px-2.5 py-1 bg-white/5 border border-white/10 rounded-lg text-[11px] text-slate-300 focus:outline-none"
+                          />
+                        </div>
                       </div>
-                    );
-                  })}
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
-          </div>
 
-          {/* 4.5. ORDEM & VISIBILIDADE DAS SEÇÕES (Requisito 18 & Autonomia dos Modelos) */}
-          <div className="rounded-2xl border border-white/10 bg-[#0D0F1C] overflow-hidden">
-            <button
-              type="button"
-              onClick={() => toggleAccordion('secoes')}
-              className="w-full p-4 flex items-center justify-between text-left font-black text-xs sm:text-sm text-white hover:bg-white/5 transition-colors cursor-pointer"
-            >
-              <span className="flex items-center gap-2">
-                <Layers size={16} className="text-amber-400" />
-                ORDEM & VISIBILIDADE DAS SEÇÕES
-              </span>
-              {openSections.secoes ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-            </button>
+            {/* TAB 2: DESIGN */}
+            {activeTab === 'design' && (
+              <div className="space-y-6 animate-fadeIn">
+                {/* Estilo Atual + Ações Principais */}
+                <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/30 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] font-mono text-amber-400 font-bold uppercase block">
+                        ESTILO ATUAL ({currentDesignMeta.number})
+                      </span>
+                      <h3 className="text-lg font-black text-white uppercase">
+                        {currentDesignMeta.name}
+                      </h3>
+                      <p className="text-xs text-slate-300 line-clamp-1">{currentDesignMeta.subtitle}</p>
+                    </div>
 
-            {openSections.secoes && (
-              <div className="p-4 pt-0 space-y-3 border-t border-white/5">
-                <p className="text-[11px] text-slate-400 leading-relaxed">
-                  Adicione, oculte ou reordene as seções do seu biosite. O layout se adapta automaticamente a cada alteração.
-                </p>
+                    <span className="px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-bold border border-amber-400/30">
+                      {currentDesignMeta.badge}
+                    </span>
+                  </div>
 
-                <div className="space-y-2">
-                  {(project.sectionsOrder || ['hero', 'status', 'about', 'differentials', 'services', 'gallery', 'reviews', 'hours', 'location', 'socials', 'cta']).map((secKey, idx, arr) => {
-                    const isVisible = project.sectionsVisibility?.[secKey as SectionKey] !== false;
-                    const labels: Record<string, string> = {
-                      hero: 'Hero / Cabeçalho Principal',
-                      status: 'Status Aberto / Fechado',
-                      about: 'Sobre Nós / Apresentação',
-                      differentials: 'Diferenciais da Marca',
-                      services: 'Especialidades & Atendimento',
-                      gallery: 'Galeria Visual de Fotos',
-                      reviews: 'Avaliações Google 5.0',
-                      hours: 'Horários de Funcionamento',
-                      location: 'Localização & Endereço',
-                      socials: 'Redes Sociais & Contato',
-                      cta: 'Rodapé & Botão de Conversão'
-                    };
+                  <div className="grid grid-cols-2 gap-2.5 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => setIsStyleModalOpen(true)}
+                      className="py-2.5 px-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-black text-xs uppercase flex items-center justify-center gap-1.5 transition-colors cursor-pointer border border-white/10"
+                    >
+                      <Layers size={14} />
+                      <span>TROCAR ESTILO</span>
+                    </button>
 
-                    return (
-                      <div
-                        key={secKey}
-                        className={`p-2.5 rounded-xl border flex items-center justify-between gap-2 transition-all ${
-                          isVisible
-                            ? 'bg-white/5 border-white/10 text-white'
-                            : 'bg-black/30 border-white/5 text-slate-500 opacity-60'
-                        }`}
+                    <button
+                      type="button"
+                      onClick={handleShuffleDesign}
+                      className="py-2.5 px-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs uppercase flex items-center justify-center gap-1.5 shadow-lg active:scale-95 transition-all cursor-pointer"
+                    >
+                      <Dices size={15} />
+                      <span>MISTURAR DESIGN</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Seletor de Variações: Hero, Conteúdo, Galeria, CTA, Contato */}
+                <div className="space-y-5">
+                  <h4 className="text-xs font-black uppercase text-slate-400 tracking-wider">
+                    VARIAÇÕES DE SEÇÃO
+                  </h4>
+
+                  {/* 1. Hero Variant */}
+                  <div className="space-y-2 bg-white/[0.02] p-4 rounded-2xl border border-white/5">
+                    <label className="text-xs font-bold text-white flex items-center justify-between">
+                      <span>Hero (Topo)</span>
+                      <span className="text-amber-400 font-mono text-[11px]">Variante {config.heroVariant}</span>
+                    </label>
+                    <div className="grid grid-cols-4 gap-1.5">
+                      {(['A', 'B', 'C', 'D'] as HeroVariant[]).map((v) => (
+                        <button
+                          key={v}
+                          type="button"
+                          onClick={() => updateConfigField('heroVariant', v)}
+                          className={`py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                            config.heroVariant === v
+                              ? 'bg-amber-500 text-slate-950 shadow'
+                              : 'bg-white/5 text-slate-400 hover:text-white border border-white/5'
+                          }`}
+                        >
+                          Variante {v}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 2. Conteúdo / Serviços */}
+                  <div className="space-y-2 bg-white/[0.02] p-4 rounded-2xl border border-white/5">
+                    <label className="text-xs font-bold text-white flex items-center justify-between">
+                      <span>Conteúdo / Serviços</span>
+                      <span className="text-amber-400 font-mono text-[11px]">Variante {config.contentVariant}</span>
+                    </label>
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {(['A', 'B', 'C'] as ContentVariant[]).map((v) => (
+                        <button
+                          key={v}
+                          type="button"
+                          onClick={() => updateConfigField('contentVariant', v)}
+                          className={`py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                            config.contentVariant === v
+                              ? 'bg-amber-500 text-slate-950 shadow'
+                              : 'bg-white/5 text-slate-400 hover:text-white border border-white/5'
+                          }`}
+                        >
+                          Variante {v}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 3. Galeria */}
+                  <div className="space-y-2 bg-white/[0.02] p-4 rounded-2xl border border-white/5">
+                    <label className="text-xs font-bold text-white flex items-center justify-between">
+                      <span>Galeria de Fotos</span>
+                      <span className="text-amber-400 font-mono text-[11px]">Variante {config.galleryVariant}</span>
+                    </label>
+                    <div className="grid grid-cols-4 gap-1.5">
+                      {(['A', 'B', 'C', 'D'] as GalleryVariant[]).map((v) => (
+                        <button
+                          key={v}
+                          type="button"
+                          onClick={() => updateConfigField('galleryVariant', v)}
+                          className={`py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                            config.galleryVariant === v
+                              ? 'bg-amber-500 text-slate-950 shadow'
+                              : 'bg-white/5 text-slate-400 hover:text-white border border-white/5'
+                          }`}
+                        >
+                          Variante {v}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 4. CTA */}
+                  <div className="space-y-2 bg-white/[0.02] p-4 rounded-2xl border border-white/5">
+                    <label className="text-xs font-bold text-white flex items-center justify-between">
+                      <span>Chamada para Ação (CTA)</span>
+                      <span className="text-amber-400 font-mono text-[11px]">Variante {config.ctaVariant}</span>
+                    </label>
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {(['A', 'B', 'C'] as CtaVariant[]).map((v) => (
+                        <button
+                          key={v}
+                          type="button"
+                          onClick={() => updateConfigField('ctaVariant', v)}
+                          className={`py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                            config.ctaVariant === v
+                              ? 'bg-amber-500 text-slate-950 shadow'
+                              : 'bg-white/5 text-slate-400 hover:text-white border border-white/5'
+                          }`}
+                        >
+                          Variante {v}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 5. Contato */}
+                  <div className="space-y-2 bg-white/[0.02] p-4 rounded-2xl border border-white/5">
+                    <label className="text-xs font-bold text-white flex items-center justify-between">
+                      <span>Contato & Localização</span>
+                      <span className="text-amber-400 font-mono text-[11px]">Variante {config.contactVariant}</span>
+                    </label>
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {(['A', 'B', 'C'] as ContactVariant[]).map((v) => (
+                        <button
+                          key={v}
+                          type="button"
+                          onClick={() => updateConfigField('contactVariant', v)}
+                          className={`py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                            config.contactVariant === v
+                              ? 'bg-amber-500 text-slate-950 shadow'
+                              : 'bg-white/5 text-slate-400 hover:text-white border border-white/5'
+                          }`}
+                        >
+                          Variante {v}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Paletas de Cor Específicas do Estilo */}
+                <div className="space-y-3 pt-4 border-t border-white/10">
+                  <h4 className="text-xs font-black uppercase text-slate-400 tracking-wider">
+                    PALETAS DE COR DO ESTILO
+                  </h4>
+                  <div className="space-y-2">
+                    {currentDesignMeta.palettes.map((pal) => {
+                      const isSelected = config.paletteId === pal.id;
+                      return (
+                        <div
+                          key={pal.id}
+                          onClick={() => updateConfigField('paletteId', pal.id)}
+                          className={`p-3 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
+                            isSelected
+                              ? 'border-amber-400 bg-amber-500/10'
+                              : 'border-white/10 hover:border-white/20 bg-white/[0.02]'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="flex -space-x-1.5">
+                              <span className="w-5 h-5 rounded-full border border-black" style={{ backgroundColor: pal.primary }} />
+                              <span className="w-5 h-5 rounded-full border border-black" style={{ backgroundColor: pal.secondary }} />
+                              <span className="w-5 h-5 rounded-full border border-black" style={{ backgroundColor: pal.background }} />
+                            </div>
+                            <span className="text-xs font-bold text-white">{pal.name}</span>
+                          </div>
+                          {isSelected && <Check size={16} className="text-amber-400" />}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Tipografias Específicas do Estilo */}
+                <div className="space-y-3 pt-4 border-t border-white/10">
+                  <h4 className="text-xs font-black uppercase text-slate-400 tracking-wider">
+                    COMBINAÇÕES TIPOGRÁFICAS
+                  </h4>
+                  <div className="space-y-2">
+                    {currentDesignMeta.typographies.map((typo) => {
+                      const isSelected = config.typographyId === typo.id;
+                      return (
+                        <div
+                          key={typo.id}
+                          onClick={() => updateConfigField('typographyId', typo.id)}
+                          className={`p-3 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
+                            isSelected
+                              ? 'border-amber-400 bg-amber-500/10'
+                              : 'border-white/10 hover:border-white/20 bg-white/[0.02]'
+                          }`}
+                        >
+                          <div>
+                            <span className="text-xs font-bold text-white block">{typo.name}</span>
+                            <span className="text-[10px] text-slate-400 uppercase font-mono">{typo.fontCategory}</span>
+                          </div>
+                          {isSelected && <Check size={16} className="text-amber-400" />}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* TAB 3: FOTOS */}
+            {activeTab === 'fotos' && (
+              <div className="space-y-6 animate-fadeIn">
+                <div className="space-y-1">
+                  <h3 className="text-sm font-black text-white uppercase tracking-wider">
+                    Fotografia & Identidade Visual
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    Insira URLs de fotos diretas ou use as imagens de alta definição integradas.
+                  </p>
+                </div>
+
+                {/* 1. Logo (PNG Transparente, sem corte forçado) */}
+                <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-white">Logo (PNG Transparente)</label>
+                    {data.logoUrl && (
+                      <button
+                        type="button"
+                        onClick={() => updateDataField('logoUrl', '')}
+                        className="text-[10px] text-rose-400 hover:underline cursor-pointer"
                       >
-                        <div className="flex items-center gap-2 min-w-0">
-                          <button
-                            type="button"
-                            onClick={() => toggleSectionVisibility(secKey as SectionKey)}
-                            className={`w-5 h-5 rounded-md flex items-center justify-center border cursor-pointer shrink-0 transition-colors ${
-                              isVisible
-                                ? 'bg-amber-500 border-amber-400 text-slate-950 font-black'
-                                : 'border-white/20 text-transparent'
-                            }`}
-                          >
-                            <Check size={12} />
-                          </button>
-                          <span className="text-xs font-bold truncate">
-                            {labels[secKey] || secKey}
-                          </span>
+                        Remover
+                      </button>
+                    )}
+                  </div>
+                  <input
+                    type="text"
+                    value={data.logoUrl}
+                    onChange={(e) => updateDataField('logoUrl', e.target.value)}
+                    placeholder="URL do arquivo PNG com fundo transparente"
+                    className="w-full px-3.5 py-2 bg-black/40 border border-white/10 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400/50"
+                  />
+                  {data.logoUrl && (
+                    <div className="p-3 bg-black/50 rounded-xl border border-white/5 flex justify-center">
+                      <img src={data.logoUrl} alt="Logo" className="max-h-16 object-contain" />
+                    </div>
+                  )}
+                </div>
+
+                {/* 2. Foto Profissional Recortada (PNG) */}
+                <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-white">Foto Profissional Recortada (PNG)</label>
+                    {data.professionalPhotoUrl && (
+                      <button
+                        type="button"
+                        onClick={() => updateDataField('professionalPhotoUrl', '')}
+                        className="text-[10px] text-rose-400 hover:underline cursor-pointer"
+                      >
+                        Remover
+                      </button>
+                    )}
+                  </div>
+                  <input
+                    type="text"
+                    value={data.professionalPhotoUrl}
+                    onChange={(e) => updateDataField('professionalPhotoUrl', e.target.value)}
+                    placeholder="URL da foto recortada de pessoa/profissional"
+                    className="w-full px-3.5 py-2 bg-black/40 border border-white/10 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400/50"
+                  />
+                  {data.professionalPhotoUrl && (
+                    <div className="p-3 bg-black/50 rounded-xl border border-white/5 flex justify-center">
+                      <img src={data.professionalPhotoUrl} alt="Foto profissional" className="max-h-28 object-contain" />
+                    </div>
+                  )}
+                </div>
+
+                {/* 3. Foto de Fundo / Hero */}
+                <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-white">Foto de Fundo / Hero Banner</label>
+                    {data.heroImageUrl && (
+                      <button
+                        type="button"
+                        onClick={() => updateDataField('heroImageUrl', '')}
+                        className="text-[10px] text-rose-400 hover:underline cursor-pointer"
+                      >
+                        Remover
+                      </button>
+                    )}
+                  </div>
+                  <input
+                    type="text"
+                    value={data.heroImageUrl}
+                    onChange={(e) => updateDataField('heroImageUrl', e.target.value)}
+                    placeholder="URL da foto ampla para o fundo ou hero"
+                    className="w-full px-3.5 py-2 bg-black/40 border border-white/10 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400/50"
+                  />
+                  {data.heroImageUrl && (
+                    <div className="h-24 rounded-xl overflow-hidden border border-white/5">
+                      <img src={data.heroImageUrl} alt="Hero" className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                </div>
+
+                {/* 4. Galeria de Fotos */}
+                <div className="space-y-4 pt-4 border-t border-white/10">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-sm font-black text-white uppercase tracking-wider">
+                        Galeria de Fotos
+                      </h4>
+                      <span className="text-xs text-slate-400">{data.gallery.length} Fotos cadastradas</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleAddPhoto}
+                      className="py-1.5 px-3 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs flex items-center gap-1 cursor-pointer"
+                    >
+                      <Plus size={14} />
+                      <span>Adicionar Foto</span>
+                    </button>
+                  </div>
+
+                  <div className="space-y-3">
+                    {data.gallery.map((photo, idx) => (
+                      <div
+                        key={photo.id}
+                        className="p-3 rounded-2xl border border-white/10 bg-black/30 flex items-center gap-3"
+                      >
+                        <img src={photo.url} alt="" className="w-14 h-14 rounded-xl object-cover shrink-0 border border-white/10" />
+
+                        <div className="flex-1 min-w-0 space-y-1">
+                          <input
+                            type="text"
+                            value={photo.url}
+                            onChange={(e) => handleUpdatePhoto(photo.id, { url: e.target.value })}
+                            placeholder="URL da foto"
+                            className="w-full px-2.5 py-1 bg-white/5 border border-white/10 rounded-lg text-[11px] text-white focus:outline-none"
+                          />
+                          <input
+                            type="text"
+                            value={photo.caption || ''}
+                            onChange={(e) => handleUpdatePhoto(photo.id, { caption: e.target.value })}
+                            placeholder="Legenda da foto..."
+                            className="w-full px-2.5 py-1 bg-white/5 border border-white/10 rounded-lg text-[11px] text-slate-300 focus:outline-none"
+                          />
                         </div>
 
-                        <div className="flex items-center gap-1 shrink-0">
+                        <div className="flex flex-col gap-1 shrink-0">
                           <button
                             type="button"
                             disabled={idx === 0}
-                            onClick={() => moveSectionOrder(idx, 'up')}
-                            className="p-1 rounded bg-white/5 hover:bg-white/15 disabled:opacity-20 text-slate-300 disabled:hover:bg-white/5 cursor-pointer disabled:cursor-not-allowed"
-                            title="Mover para cima"
+                            onClick={() => handleMovePhoto(idx, 'up')}
+                            className="p-1 text-slate-400 hover:text-white disabled:opacity-30 cursor-pointer"
                           >
                             <MoveUp size={13} />
                           </button>
                           <button
                             type="button"
-                            disabled={idx === arr.length - 1}
-                            onClick={() => moveSectionOrder(idx, 'down')}
-                            className="p-1 rounded bg-white/5 hover:bg-white/15 disabled:opacity-20 text-slate-300 disabled:hover:bg-white/5 cursor-pointer disabled:cursor-not-allowed"
-                            title="Mover para baixo"
+                            disabled={idx === data.gallery.length - 1}
+                            onClick={() => handleMovePhoto(idx, 'down')}
+                            className="p-1 text-slate-400 hover:text-white disabled:opacity-30 cursor-pointer"
                           >
                             <MoveDown size={13} />
                           </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeletePhoto(photo.id)}
+                            className="p-1 text-rose-400 hover:text-rose-300 cursor-pointer"
+                          >
+                            <Trash2 size={13} />
+                          </button>
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
-
-                <div className="pt-2 flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const allKeys: SectionKey[] = ['hero', 'status', 'about', 'differentials', 'services', 'gallery', 'reviews', 'hours', 'location', 'socials', 'cta'];
-                      const newVis: Record<string, boolean> = {};
-                      allKeys.forEach((k) => (newVis[k] = true));
-                      setProject((prev) => ({
-                        ...prev,
-                        sectionsOrder: allKeys,
-                        sectionsVisibility: newVis as any
-                      }));
-                    }}
-                    className="flex-1 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-[11px] font-bold text-slate-300 hover:text-white transition-colors cursor-pointer text-center"
-                  >
-                    Ativar Todas as Seções
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      toggleAccordion('botoes');
-                    }}
-                    className="flex-1 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-[11px] font-bold text-amber-300 transition-colors cursor-pointer text-center flex items-center justify-center gap-1"
-                  >
-                    <Plus size={12} />
-                    <span>+ Botão Personalizado</span>
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* 5. CORES & PALETAS CINEMATOGRÁFICAS */}
-          <div className="rounded-2xl border border-white/10 bg-[#0D0F1C] overflow-hidden">
-            <button
-              type="button"
-              onClick={() => toggleAccordion('cores')}
-              className="w-full p-4 flex items-center justify-between text-left font-black text-xs sm:text-sm text-white hover:bg-white/5 transition-colors cursor-pointer"
-            >
-              <span className="flex items-center gap-2">
-                <Palette size={16} className="text-amber-400" />
-                CORES & ILUMINAÇÃO
-              </span>
-              {openSections.cores ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-            </button>
-
-            {openSections.cores && (
-              <div className="p-4 pt-0 space-y-3 border-t border-white/5">
-                <div>
-                  <label className="text-[11px] font-bold text-slate-400 block mb-2">Paletas de Cinema Prontas</label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {PRESET_PALETTES.map((preset, idx) => (
-                      <button
-                        key={idx}
-                        type="button"
-                        onClick={() => {
-                          setProject((prev) => ({
-                            ...prev,
-                            theme: { ...prev.theme, ...preset.colors }
-                          }));
-                        }}
-                        className="p-2.5 rounded-xl bg-white/5 border border-white/10 hover:border-amber-400/50 text-left text-[11px] font-bold text-slate-200 transition-all flex items-center justify-between cursor-pointer"
-                      >
-                        <span className="truncate pr-1">{preset.name.split(' (')[0]}</span>
-                        <div className="flex gap-1 shrink-0">
-                          <span className="w-3 h-3 rounded-full" style={{ backgroundColor: preset.colors.primary }} />
-                          <span className="w-3 h-3 rounded-full" style={{ backgroundColor: preset.colors.accent }} />
-                        </div>
-                      </button>
                     ))}
                   </div>
                 </div>
-
-                <div className="grid grid-cols-2 gap-3 pt-2">
-                  <div>
-                    <label className="text-[11px] font-bold text-slate-400 block mb-1">Cor Primária (Destaques)</label>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="color"
-                        value={project.theme.primary}
-                        onChange={(e) => updateTheme('primary', e.target.value)}
-                        className="w-8 h-8 rounded-lg border-0 cursor-pointer bg-transparent"
-                      />
-                      <input
-                        type="text"
-                        value={project.theme.primary}
-                        onChange={(e) => updateTheme('primary', e.target.value)}
-                        className="flex-1 px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/10 text-white text-xs font-mono"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-[11px] font-bold text-slate-400 block mb-1">Cor de Fundo (Background)</label>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="color"
-                        value={project.theme.background}
-                        onChange={(e) => updateTheme('background', e.target.value)}
-                        className="w-8 h-8 rounded-lg border-0 cursor-pointer bg-transparent"
-                      />
-                      <input
-                        type="text"
-                        value={project.theme.background}
-                        onChange={(e) => updateTheme('background', e.target.value)}
-                        className="flex-1 px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/10 text-white text-xs font-mono"
-                      />
-                    </div>
-                  </div>
-                </div>
               </div>
             )}
-          </div>
 
-          {/* 6. STATUS ABERTO / FECHADO (Requisito 24) */}
-          <div className="rounded-2xl border border-white/10 bg-[#0D0F1C] overflow-hidden">
-            <button
-              type="button"
-              onClick={() => toggleAccordion('status')}
-              className="w-full p-4 flex items-center justify-between text-left font-black text-xs sm:text-sm text-white hover:bg-white/5 transition-colors cursor-pointer"
-            >
-              <span className="flex items-center gap-2">
-                <Clock size={16} className="text-amber-400" />
-                STATUS (ABERTO / FECHADO)
-              </span>
-              {openSections.status ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-            </button>
-
-            {openSections.status && (
-              <div className="p-4 pt-0 space-y-3 border-t border-white/5">
-                <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-white">
-                  <input
-                    type="checkbox"
-                    checked={project.statusConfig?.enabled ?? true}
-                    onChange={(e) => updateStatusConfig({ enabled: e.target.checked })}
-                    className="accent-amber-500 rounded"
-                  />
-                  <span>Exibir Indicador de Status no Biosite</span>
-                </label>
-
-                <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-white">
-                  <input
-                    type="checkbox"
-                    checked={project.statusConfig?.autoCalculate ?? true}
-                    onChange={(e) => updateStatusConfig({ autoCalculate: e.target.checked })}
-                    className="accent-amber-500 rounded"
-                  />
-                  <span>Calcular Automaticamente com Base nos Horários</span>
-                </label>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-[11px] font-bold text-slate-400 block mb-1">Horário de Abertura</label>
-                    <input
-                      type="time"
-                      value={project.statusConfig?.openTime || '08:00'}
-                      onChange={(e) => updateStatusConfig({ openTime: e.target.value })}
-                      className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:border-amber-400 outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-[11px] font-bold text-slate-400 block mb-1">Horário de Fechamento</label>
-                    <input
-                      type="time"
-                      value={project.statusConfig?.closeTime || '20:00'}
-                      onChange={(e) => updateStatusConfig({ closeTime: e.target.value })}
-                      className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:border-amber-400 outline-none"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* 7. WHATSAPP & BOTÃO FLUTUANTE (Requisito 21) */}
-          <div className="rounded-2xl border border-white/10 bg-[#0D0F1C] overflow-hidden">
-            <button
-              type="button"
-              onClick={() => toggleAccordion('whatsapp')}
-              className="w-full p-4 flex items-center justify-between text-left font-black text-xs sm:text-sm text-white hover:bg-white/5 transition-colors cursor-pointer"
-            >
-              <span className="flex items-center gap-2">
-                <BrandWhatsApp size={16} className="text-emerald-400" />
-                WHATSAPP & BOTÃO FLUTUANTE
-              </span>
-              {openSections.whatsapp ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-            </button>
-
-            {openSections.whatsapp && (
-              <div className="p-4 pt-0 space-y-3 border-t border-white/5">
-                <div>
-                  <label className="text-[11px] font-bold text-slate-400 block mb-1">Número com DDD (Ex: 11999998888)</label>
-                  <input
-                    type="text"
-                    value={project.whatsappConfig?.number || ''}
-                    onChange={(e) => {
-                      updateWhatsAppConfig({ number: e.target.value });
-                      setProject((prev) => ({
-                        ...prev,
-                        socials: {
-                          ...prev.socials,
-                          whatsapp: { ...prev.socials.whatsapp, number: e.target.value }
-                        }
-                      }));
-                    }}
-                    placeholder="5511999998888"
-                    className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:border-amber-400 outline-none"
-                  />
+            {/* TAB 4: SEÇÕES */}
+            {activeTab === 'secoes' && (
+              <div className="space-y-6 animate-fadeIn">
+                <div className="space-y-1">
+                  <h3 className="text-sm font-black text-white uppercase tracking-wider">
+                    Organização das Seções
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    Oculte ou exiba blocos do seu biosite para moldar a experiência ideal.
+                  </p>
                 </div>
 
-                <div>
-                  <label className="text-[11px] font-bold text-slate-400 block mb-1">Mensagem Pré-configurada</label>
-                  <input
-                    type="text"
-                    value={project.whatsappConfig?.message || ''}
-                    onChange={(e) => updateWhatsAppConfig({ message: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:border-amber-400 outline-none"
-                  />
-                </div>
-
-                <div className="p-3 rounded-xl bg-white/5 border border-white/5 space-y-3">
-                  <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-white">
-                    <input
-                      type="checkbox"
-                      checked={project.whatsappConfig?.showFloating !== false}
-                      onChange={(e) => updateWhatsAppConfig({ showFloating: e.target.checked })}
-                      className="accent-emerald-500 rounded"
-                    />
-                    <span>MOSTRAR WHATSAPP FLUTUANTE [ON/OFF]</span>
-                  </label>
-
-                  <div>
-                    <label className="text-[11px] font-bold text-slate-400 block mb-1">Posição na Tela</label>
-                    <div className="grid grid-cols-2 gap-2">
-                      <button
-                        type="button"
-                        onClick={() => updateWhatsAppConfig({ floatingPosition: 'right' })}
-                        className={`py-2 rounded-xl text-xs font-bold border cursor-pointer ${
-                          project.whatsappConfig?.floatingPosition !== 'left'
-                            ? 'border-emerald-500 bg-emerald-500/10 text-emerald-300'
-                            : 'border-white/10 text-slate-400'
-                        }`}
-                      >
-                        Direita (Padrão)
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => updateWhatsAppConfig({ floatingPosition: 'left' })}
-                        className={`py-2 rounded-xl text-xs font-bold border cursor-pointer ${
-                          project.whatsappConfig?.floatingPosition === 'left'
-                            ? 'border-emerald-500 bg-emerald-500/10 text-emerald-300'
-                            : 'border-white/10 text-slate-400'
-                        }`}
-                      >
-                        Esquerda
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* 8. GOOGLE REVIEWS (Requisito 22) */}
-          <div className="rounded-2xl border border-white/10 bg-[#0D0F1C] overflow-hidden">
-            <button
-              type="button"
-              onClick={() => toggleAccordion('reviews')}
-              className="w-full p-4 flex items-center justify-between text-left font-black text-xs sm:text-sm text-white hover:bg-white/5 transition-colors cursor-pointer"
-            >
-              <span className="flex items-center gap-2">
-                <Star size={16} className="text-amber-400" />
-                GOOGLE REVIEWS (AVALIAÇÃO)
-              </span>
-              {openSections.reviews ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-            </button>
-
-            {openSections.reviews && (
-              <div className="p-4 pt-0 space-y-3 border-t border-white/5">
-                <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-white">
-                  <input
-                    type="checkbox"
-                    checked={project.googleReviewConfig?.enabled ?? true}
-                    onChange={(e) => updateGoogleReviewConfig({ enabled: e.target.checked })}
-                    className="accent-amber-500 rounded"
-                  />
-                  <span>Exibir Bloco de Avaliação Google ★★★★★</span>
-                </label>
-
-                <div>
-                  <label className="text-[11px] font-bold text-slate-400 block mb-1">Título do Card</label>
-                  <input
-                    type="text"
-                    value={project.googleReviewConfig?.title || 'NOS AVALIE NO GOOGLE'}
-                    onChange={(e) => updateGoogleReviewConfig({ title: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:border-amber-400 outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-[11px] font-bold text-slate-400 block mb-1">Link Direto da Avaliação Google</label>
-                  <input
-                    type="text"
-                    value={project.googleReviewConfig?.url || ''}
-                    onChange={(e) => updateGoogleReviewConfig({ url: e.target.value })}
-                    placeholder="https://g.page/r/.../review"
-                    className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:border-amber-400 outline-none"
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* 9. REDES SOCIAIS & ESTILOS DE ÍCONE (Requisito 20) */}
-          <div className="rounded-2xl border border-white/10 bg-[#0D0F1C] overflow-hidden">
-            <button
-              type="button"
-              onClick={() => toggleAccordion('redes')}
-              className="w-full p-4 flex items-center justify-between text-left font-black text-xs sm:text-sm text-white hover:bg-white/5 transition-colors cursor-pointer"
-            >
-              <span className="flex items-center gap-2">
-                <Globe size={16} className="text-amber-400" />
-                REDES SOCIAIS & ESTILOS DE ÍCONES
-              </span>
-              {openSections.redes ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-            </button>
-
-            {openSections.redes && (
-              <div className="p-4 pt-0 space-y-3 border-t border-white/5">
-                <div>
-                  <label className="text-[11px] font-bold text-slate-400 block mb-1">Estilo dos Ícones</label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {(['glass', '3d', 'glow', 'original', 'minimal', 'outline'] as SocialIconStyle[]).map((styleOpt) => (
-                      <button
-                        key={styleOpt}
-                        type="button"
-                        onClick={() => setProject((prev) => ({ ...prev, socialIconStyle: styleOpt }))}
-                        className={`py-2 px-1 text-center rounded-xl text-[10px] font-black uppercase border cursor-pointer ${
-                          project.socialIconStyle === styleOpt
-                            ? 'border-amber-400 bg-amber-500/10 text-amber-300'
-                            : 'border-white/10 text-slate-400'
-                        }`}
-                      >
-                        {styleOpt}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-[11px] font-bold text-slate-400 block mb-1">Link do Instagram</label>
-                  <input
-                    type="text"
-                    value={project.socials?.instagram?.url || ''}
-                    onChange={(e) =>
-                      setProject((prev) => ({
-                        ...prev,
-                        socials: {
-                          ...prev.socials,
-                          instagram: { ...prev.socials.instagram, url: e.target.value, enabled: !!e.target.value }
-                        }
-                      }))
-                    }
-                    placeholder="https://instagram.com/seuperfil"
-                    className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:border-amber-400 outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-[11px] font-bold text-slate-400 block mb-1">Link do TikTok</label>
-                  <input
-                    type="text"
-                    value={project.socials?.tiktok?.url || ''}
-                    onChange={(e) =>
-                      setProject((prev) => ({
-                        ...prev,
-                        socials: {
-                          ...prev.socials,
-                          tiktok: { ...prev.socials.tiktok, url: e.target.value, enabled: !!e.target.value }
-                        }
-                      }))
-                    }
-                    placeholder="https://tiktok.com/@seuperfil"
-                    className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:border-amber-400 outline-none"
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* 10. ESPECIALIDADES & SERVIÇOS */}
-          <div className="rounded-2xl border border-white/10 bg-[#0D0F1C] overflow-hidden">
-            <button
-              type="button"
-              onClick={() => toggleAccordion('servicos')}
-              className="w-full p-4 flex items-center justify-between text-left font-black text-xs sm:text-sm text-white hover:bg-white/5 transition-colors cursor-pointer"
-            >
-              <span className="flex items-center gap-2">
-                <Sparkles size={16} className="text-amber-400" />
-                ESPECIALIDADES & SERVIÇOS ({(project.services || []).length})
-              </span>
-              {openSections.servicos ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-            </button>
-
-            {openSections.servicos && (
-              <div className="p-4 pt-0 space-y-4 border-t border-white/5">
-                {/* Master Switch: MOSTRAR / OCULTAR PREÇOS (Bio Fácil não é cardápio) */}
-                <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div>
-                    <span className="text-xs font-bold text-white block">
-                      Exibir Preços nos Serviços
-                    </span>
-                    <span className="text-[10px] text-slate-400 leading-snug">
-                      Bio Fácil não é cardápio de preços. Desative para ocultar valores e focar em apresentação autoral e WhatsApp. O layout se reorganiza automaticamente.
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setProject((prev) => ({
-                        ...prev,
-                        priceEnabled: prev.priceEnabled === false ? true : false
-                      }))
-                    }
-                    className={`px-3 py-1.5 rounded-full text-[10px] font-black border transition-all cursor-pointer flex items-center gap-1.5 shrink-0 self-start sm:self-center ${
-                      project.priceEnabled === true
-                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-                        : 'bg-amber-500/20 text-amber-300 border-amber-500/40'
-                    }`}
-                  >
-                    <span
-                      className={`w-1.5 h-1.5 rounded-full ${
-                        project.priceEnabled === true ? 'bg-emerald-400' : 'bg-amber-400'
-                      }`}
-                    />
-                    <span>{project.priceEnabled === true ? 'Preços Visíveis' : 'Preços Ocultos'}</span>
-                  </button>
-                </div>
-
-                <div>
-                  <label className="text-[11px] font-bold text-slate-400 block mb-1.5">
-                    Estilo de Apresentação das Especialidades
-                  </label>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                    {[
-                      { key: 'cards', label: 'Cards de Luxo' },
-                      { key: 'minimal-list', label: 'Lista Editorial' },
-                      { key: 'icons-grid', label: 'Grade de Ícones' },
-                      { key: 'accordion', label: 'Accordion' },
-                      { key: 'photo-cards', label: 'Fotos em Destaque' }
-                    ].map((opt) => (
-                      <button
-                        key={opt.key}
-                        type="button"
-                        onClick={() => setProject((prev) => ({ ...prev, serviceLayout: opt.key as any }))}
-                        className={`py-2 px-2 text-center rounded-xl text-[10px] font-black uppercase border cursor-pointer ${
-                          (project.serviceLayout || 'cards') === opt.key
-                            ? 'border-amber-400 bg-amber-500/10 text-amber-300'
-                            : 'border-white/10 text-slate-400'
-                        }`}
-                      >
-                        {opt.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  {(project.services || []).map((s) => (
-                    <div key={s.id} className="p-3.5 rounded-xl bg-white/5 border border-white/10 space-y-2.5 relative">
-                      <button
-                        type="button"
-                        onClick={() => removeService(s.id)}
-                        className="absolute top-2.5 right-2.5 text-rose-400 hover:text-rose-300 p-1 cursor-pointer"
-                        title="Excluir Serviço"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pr-6">
-                        <input
-                          type="text"
-                          value={s.name}
-                          onChange={(e) => updateService(s.id, { name: e.target.value })}
-                          placeholder="Nome da Especialidade / Serviço"
-                          className="px-2.5 py-1.5 rounded-lg bg-black/40 border border-white/10 text-white text-xs font-bold"
-                        />
-                        <input
-                          type="text"
-                          value={s.ctaText || ''}
-                          onChange={(e) => updateService(s.id, { ctaText: e.target.value })}
-                          placeholder="Texto do Botão (Ex: Quero Saber Mais)"
-                          className="px-2.5 py-1.5 rounded-lg bg-black/40 border border-white/10 text-amber-300 text-xs font-bold"
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        <input
-                          type="text"
-                          value={s.price || ''}
-                          onChange={(e) => updateService(s.id, { price: e.target.value })}
-                          placeholder="Preço (Opcional - deixe vazio p/ não mostrar)"
-                          className="px-2.5 py-1.5 rounded-lg bg-black/40 border border-white/10 text-slate-300 text-xs font-mono"
-                        />
-                        <input
-                          type="text"
-                          value={s.imageUrl || ''}
-                          onChange={(e) => updateService(s.id, { imageUrl: e.target.value })}
-                          placeholder="URL da foto (opcional)"
-                          className="px-2.5 py-1.5 rounded-lg bg-black/40 border border-white/10 text-slate-400 text-xs"
-                        />
-                      </div>
-
-                      <input
-                        type="text"
-                        value={s.description}
-                        onChange={(e) => updateService(s.id, { description: e.target.value })}
-                        placeholder="Pequena descrição da especialidade"
-                        className="w-full px-2.5 py-1.5 rounded-lg bg-black/40 border border-white/10 text-slate-300 text-xs"
-                      />
+                <div className="space-y-2">
+                  {[
+                    { id: 'hero', name: 'Hero / Apresentação de Topo' },
+                    { id: 'about', name: 'Sobre / Trajetória / Manifesto' },
+                    { id: 'services', name: 'Serviços & Especialidades' },
+                    { id: 'gallery', name: 'Galeria de Fotos' },
+                    { id: 'cta', name: 'Chamada para Ação Principal (CTA)' },
+                    { id: 'location', name: 'Localização & Horários' },
+                    { id: 'reviews', name: 'Avaliações de Clientes' }
+                  ].map((sec) => (
+                    <div
+                      key={sec.id}
+                      className="p-3.5 rounded-xl border border-white/10 bg-white/[0.02] flex items-center justify-between"
+                    >
+                      <span className="text-xs font-bold text-white">{sec.name}</span>
+                      <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">
+                        Ativo
+                      </span>
                     </div>
                   ))}
                 </div>
-
-                <button
-                  type="button"
-                  onClick={addService}
-                  className="w-full py-2.5 rounded-xl border border-dashed border-white/20 hover:border-amber-400 text-slate-300 hover:text-white text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer"
-                >
-                  <Plus size={14} />
-                  <span>Adicionar Especialidade</span>
-                </button>
               </div>
             )}
-          </div>
 
-          {/* 11. GALERIA VISUAL (Requisito 16, Autonomia & Carrossel) */}
-          <div className="rounded-2xl border border-white/10 bg-[#0D0F1C] overflow-hidden">
-            <button
-              type="button"
-              onClick={() => toggleAccordion('galeria')}
-              className="w-full p-4 flex items-center justify-between text-left font-black text-xs sm:text-sm text-white hover:bg-white/5 transition-colors cursor-pointer"
-            >
-              <span className="flex items-center gap-2">
-                <ImageIcon size={16} className="text-amber-400" />
-                GALERIA & FOTOS ({(project.photos || []).length})
-              </span>
-              {openSections.galeria ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-            </button>
-
-            {openSections.galeria && (
-              <div className="p-4 pt-0 space-y-4 border-t border-white/5">
-                {/* Master Switch: USAR FOTOS [ON/OFF] */}
-                <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-between">
-                  <div>
-                    <span className="text-xs font-bold text-white block">Exibir Fotos no Biosite</span>
-                    <span className="text-[10px] text-slate-400">
-                      Desative para operar 100% sem fotos (estilo minimalista puro)
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setProject((prev) => ({ ...prev, usePhotos: prev.usePhotos === false ? true : false }))}
-                    className={`px-3 py-1 rounded-full text-[10px] font-bold border transition-colors cursor-pointer flex items-center gap-1.5 ${
-                      project.usePhotos !== false
-                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-                        : 'bg-rose-500/20 text-rose-300 border-rose-500/40'
-                    }`}
-                  >
-                    <span className={`w-1.5 h-1.5 rounded-full ${project.usePhotos !== false ? 'bg-emerald-400' : 'bg-rose-400'}`} />
-                    <span>{project.usePhotos !== false ? 'Fotos Ativas' : 'Sem Fotos'}</span>
-                  </button>
+            {/* TAB 5: CONTATO */}
+            {activeTab === 'contato' && (
+              <div className="space-y-6 animate-fadeIn">
+                <div className="space-y-1">
+                  <h3 className="text-sm font-black text-white uppercase tracking-wider">
+                    Canais de Contato & Localização
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    Conexão direta via WhatsApp, Instagram, Google e GPS.
+                  </p>
                 </div>
 
-                {project.usePhotos !== false && (
-                  <>
-                    {/* Gallery Style Selector */}
-                    <div>
-                      <label className="text-[11px] font-bold text-slate-400 block mb-1">
-                        Estilo de Apresentação da Galeria
-                      </label>
-                      <select
-                        value={project.galleryStyle || 'cards'}
-                        onChange={(e) => setProject((prev) => ({ ...prev, galleryStyle: e.target.value as any }))}
-                        className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:border-amber-400 outline-none"
-                      >
-                        <option value="carousel" className="bg-[#0D0F1C]">Carrossel Automático (Slide / Touch)</option>
-                        <option value="masonry" className="bg-[#0D0F1C]">Masonry Refinado (Alturas Dinâmicas)</option>
-                        <option value="grid" className="bg-[#0D0F1C]">Grade Simétrica (Grid 2 Colunas)</option>
-                        <option value="cards" className="bg-[#0D0F1C]">Cards com Sombra & Bordas Suaves</option>
-                        <option value="horizontal-scroll" className="bg-[#0D0F1C]">Faixa Horizontal (Swipe Suave)</option>
-                        <option value="editorial" className="bg-[#0D0F1C]">Estilo Editorial (Revista Assinada)</option>
-                        <option value="bento" className="bg-[#0D0F1C]">Mosaico Bento Grid</option>
-                        <option value="none" className="bg-[#0D0F1C]">Ocultar Galeria</option>
-                      </select>
+                {/* WhatsApp */}
+                <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 space-y-3">
+                  <span className="text-xs font-black text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <MessageCircle size={15} />
+                    WhatsApp Direto
+                  </span>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-300 block">Número (DDD + Telefone)</label>
+                    <input
+                      type="text"
+                      value={data.whatsapp?.number || ''}
+                      onChange={(e) =>
+                        updateDataField('whatsapp', { ...data.whatsapp, number: e.target.value })
+                      }
+                      placeholder="Ex: 11999999999"
+                      className="w-full px-3.5 py-2 bg-black/40 border border-white/10 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400/50"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-300 block">Mensagem Padrão de Abertura</label>
+                    <input
+                      type="text"
+                      value={data.whatsapp?.message || ''}
+                      onChange={(e) =>
+                        updateDataField('whatsapp', { ...data.whatsapp, message: e.target.value })
+                      }
+                      placeholder="Ex: Olá! Gostaria de agendar um horário."
+                      className="w-full px-3.5 py-2 bg-black/40 border border-white/10 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400/50"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-300 block">Texto do Botão</label>
+                    <input
+                      type="text"
+                      value={data.whatsapp?.label || ''}
+                      onChange={(e) =>
+                        updateDataField('whatsapp', { ...data.whatsapp, label: e.target.value })
+                      }
+                      placeholder="Ex: Agendar Atendimento via WhatsApp"
+                      className="w-full px-3.5 py-2 bg-black/40 border border-white/10 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400/50"
+                    />
+                  </div>
+                </div>
+
+                {/* Redes Sociais */}
+                <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 space-y-3">
+                  <span className="text-xs font-black text-white uppercase tracking-wider block">
+                    Redes Sociais
+                  </span>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-300 block">Instagram (URL Completa)</label>
+                    <input
+                      type="text"
+                      value={data.instagram?.url || ''}
+                      onChange={(e) =>
+                        updateDataField('instagram', { ...data.instagram, url: e.target.value })
+                      }
+                      placeholder="https://instagram.com/seu.perfil"
+                      className="w-full px-3.5 py-2 bg-black/40 border border-white/10 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-300 block">TikTok (URL Completa)</label>
+                    <input
+                      type="text"
+                      value={data.tiktok?.url || ''}
+                      onChange={(e) =>
+                        updateDataField('tiktok', { ...data.tiktok, url: e.target.value })
+                      }
+                      placeholder="https://tiktok.com/@seu.perfil"
+                      className="w-full px-3.5 py-2 bg-black/40 border border-white/10 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                {/* Endereço & Horários */}
+                <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 space-y-3">
+                  <span className="text-xs font-black text-white uppercase tracking-wider flex items-center gap-1.5">
+                    <MapPin size={15} />
+                    Localização & Funcionamento
+                  </span>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-300 block">Endereço Completo</label>
+                    <input
+                      type="text"
+                      value={data.location?.address || ''}
+                      onChange={(e) =>
+                        updateDataField('location', { ...data.location, address: e.target.value })
+                      }
+                      placeholder="Ex: Rua Oscar Freire, 1420"
+                      className="w-full px-3.5 py-2 bg-black/40 border border-white/10 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-300 block">Bairro, Cidade - Estado</label>
+                    <input
+                      type="text"
+                      value={data.location?.city || ''}
+                      onChange={(e) =>
+                        updateDataField('location', { ...data.location, city: e.target.value })
+                      }
+                      placeholder="Ex: Jardins, São Paulo - SP"
+                      className="w-full px-3.5 py-2 bg-black/40 border border-white/10 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-300 block">Horário de Atendimento</label>
+                    <input
+                      type="text"
+                      value={data.hours || ''}
+                      onChange={(e) => updateDataField('hours', e.target.value)}
+                      placeholder="Ex: Segunda a Sábado das 09:00 às 20:00"
+                      className="w-full px-3.5 py-2 bg-black/40 border border-white/10 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-300 block">Link Google Maps / Waze</label>
+                    <input
+                      type="text"
+                      value={data.location?.mapsUrl || ''}
+                      onChange={(e) =>
+                        updateDataField('location', { ...data.location, mapsUrl: e.target.value })
+                      }
+                      placeholder="https://maps.google.com/..."
+                      className="w-full px-3.5 py-2 bg-black/40 border border-white/10 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                {/* Google Reviews */}
+                <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 space-y-3">
+                  <span className="text-xs font-black text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <Star size={15} />
+                    Avaliações Google
+                  </span>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-300 block">Nota Média (ex: 5.0)</label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        min="1"
+                        max="5"
+                        value={data.googleReview?.rating || 5.0}
+                        onChange={(e) =>
+                          updateDataField('googleReview', {
+                            ...data.googleReview,
+                            rating: parseFloat(e.target.value) || 5.0
+                          })
+                        }
+                        className="w-full px-3 py-1.5 bg-black/40 border border-white/10 rounded-xl text-xs text-white font-mono"
+                      />
                     </div>
 
-                    {/* Carousel Advanced Controls if carousel chosen */}
-                    {(project.galleryStyle === 'carousel' || !project.galleryStyle) && (
-                      <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 space-y-3">
-                        <span className="text-xs font-black uppercase text-amber-300 tracking-wider block">
-                          Configurações do Carrossel Automático
-                        </span>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-300 block">Total de Avaliações</label>
+                      <input
+                        type="number"
+                        value={data.googleReview?.count || 120}
+                        onChange={(e) =>
+                          updateDataField('googleReview', {
+                            ...data.googleReview,
+                            count: parseInt(e.target.value, 10) || 0
+                          })
+                        }
+                        className="w-full px-3 py-1.5 bg-black/40 border border-white/10 rounded-xl text-xs text-white font-mono"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
-                        <div className="grid grid-cols-2 gap-2">
-                          <div>
-                            <label className="text-[10px] font-bold text-slate-300 block mb-1">Intervalo de Transição</label>
-                            <select
-                              value={project.carouselConfig?.interval || 3}
-                              onChange={(e) =>
-                                setProject((prev) => ({
-                                  ...prev,
-                                  carouselConfig: {
-                                    ...prev.carouselConfig,
-                                    interval: Number(e.target.value)
-                                  }
-                                }))
-                              }
-                              className="w-full px-2.5 py-1.5 rounded-lg bg-black/40 border border-white/15 text-white text-xs"
-                            >
-                              <option value={2}>2 Segundos (Rápido)</option>
-                              <option value={3}>3 Segundos (Recomendado)</option>
-                              <option value={4}>4 Segundos (Suave)</option>
-                              <option value={5}>5 Segundos (Lento)</option>
-                            </select>
-                          </div>
+            {/* TAB 6: EXPORTAR */}
+            {activeTab === 'exportar' && (
+              <div className="space-y-6 animate-fadeIn">
+                <div className="space-y-1">
+                  <h3 className="text-sm font-black text-white uppercase tracking-wider">
+                    Exportação Profissional
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    Seu biosite é 100% independente. Sem mensalidade, sem plataformas terceiras.
+                  </p>
+                </div>
 
-                          <div>
-                            <label className="text-[10px] font-bold text-slate-300 block mb-1">Efeito Visual</label>
-                            <select
-                              value={project.carouselConfig?.transition || 'slide'}
-                              onChange={(e) =>
-                                setProject((prev) => ({
-                                  ...prev,
-                                  carouselConfig: {
-                                    ...prev.carouselConfig,
-                                    transition: e.target.value as any
-                                  }
-                                }))
-                              }
-                              className="w-full px-2.5 py-1.5 rounded-lg bg-black/40 border border-white/15 text-white text-xs"
-                            >
-                              <option value="slide">Deslizar Lateral (Slide)</option>
-                              <option value="fade">Desvanecer (Fade)</option>
-                              <option value="scale">Zoom Sutil (Scale)</option>
-                            </select>
-                          </div>
-                        </div>
-
-                        <div className="flex flex-wrap gap-2 pt-1">
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setProject((prev) => ({
-                                ...prev,
-                                carouselConfig: {
-                                  ...prev.carouselConfig,
-                                  autoplay: prev.carouselConfig?.autoplay === false ? true : false
-                                }
-                              }))
-                            }
-                            className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-colors cursor-pointer ${
-                              project.carouselConfig?.autoplay !== false
-                                ? 'bg-amber-400 text-slate-950 border-amber-300'
-                                : 'bg-white/5 border-white/10 text-slate-400'
-                            }`}
-                          >
-                            Autoplay: {project.carouselConfig?.autoplay !== false ? 'LIGADO' : 'DESLIGADO'}
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setProject((prev) => ({
-                                ...prev,
-                                carouselConfig: {
-                                  ...prev.carouselConfig,
-                                  showArrows: prev.carouselConfig?.showArrows === false ? true : false
-                                }
-                              }))
-                            }
-                            className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-colors cursor-pointer ${
-                              project.carouselConfig?.showArrows !== false
-                                ? 'bg-amber-400 text-slate-950 border-amber-300'
-                                : 'bg-white/5 border-white/10 text-slate-400'
-                            }`}
-                          >
-                            Setas: {project.carouselConfig?.showArrows !== false ? 'LIGADO' : 'DESLIGADO'}
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setProject((prev) => ({
-                                ...prev,
-                                carouselConfig: {
-                                  ...prev.carouselConfig,
-                                  showIndicators: prev.carouselConfig?.showIndicators === false ? true : false
-                                }
-                              }))
-                            }
-                            className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-colors cursor-pointer ${
-                              project.carouselConfig?.showIndicators !== false
-                                ? 'bg-amber-400 text-slate-950 border-amber-300'
-                                : 'bg-white/5 border-white/10 text-slate-400'
-                            }`}
-                          >
-                            Pontos: {project.carouselConfig?.showIndicators !== false ? 'LIGADO' : 'DESLIGADO'}
-                          </button>
-                        </div>
+                <div className="space-y-4">
+                  <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/10 space-y-3">
+                    <div className="flex items-center gap-3 text-amber-400">
+                      <FileCode size={22} />
+                      <div>
+                        <h4 className="text-sm font-black text-white">Baixar Arquivo HTML Único</h4>
+                        <span className="text-xs text-slate-400">Pronto para qualquer hospedagem ou servidor</span>
                       </div>
-                    )}
-
-                    {/* Photos list */}
-                    <div className="space-y-3">
-                      {(project.photos || []).map((photo, pIdx) => (
-                        <div key={photo.id} className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-2">
-                          <div className="flex items-center gap-3">
-                            <img
-                              src={photo.url}
-                              alt="Thumbnail"
-                              className="w-12 h-12 rounded-lg object-cover shrink-0 border border-white/10"
-                            />
-                            <div className="flex-1 min-w-0">
-                              <span className="text-[10px] font-mono text-slate-400 uppercase block mb-1">
-                                Foto #{pIdx + 1}
-                              </span>
-                              <input
-                                type="text"
-                                value={photo.url}
-                                onChange={(e) => updatePhoto(photo.id, 'url', e.target.value)}
-                                placeholder="URL da imagem (PNG/JPG/WEBP)"
-                                className="w-full px-2.5 py-1.5 rounded-lg bg-black/40 border border-white/10 text-white text-xs font-mono"
-                              />
-                            </div>
-                            <div className="flex items-center gap-1 shrink-0">
-                              <button
-                                type="button"
-                                disabled={pIdx === 0}
-                                onClick={() => movePhoto(pIdx, 'up')}
-                                className="p-1.5 rounded bg-white/5 hover:bg-white/15 disabled:opacity-20 text-slate-300 cursor-pointer disabled:cursor-not-allowed transition-colors"
-                                title="Mover foto para cima"
-                              >
-                                <MoveUp size={13} />
-                              </button>
-                              <button
-                                type="button"
-                                disabled={pIdx === (project.photos || []).length - 1}
-                                onClick={() => movePhoto(pIdx, 'down')}
-                                className="p-1.5 rounded bg-white/5 hover:bg-white/15 disabled:opacity-20 text-slate-300 cursor-pointer disabled:cursor-not-allowed transition-colors"
-                                title="Mover foto para baixo"
-                              >
-                                <MoveDown size={13} />
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => removePhoto(photo.id)}
-                                className="p-1.5 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded-lg cursor-pointer transition-colors"
-                                title="Remover foto da galeria"
-                              >
-                                <Trash2 size={15} />
-                              </button>
-                            </div>
-                          </div>
-
-                          <div className="grid grid-cols-2 gap-2 pt-1 border-t border-white/5">
-                            <input
-                              type="text"
-                              value={photo.caption || ''}
-                              onChange={(e) => updatePhoto(photo.id, 'caption', e.target.value)}
-                              placeholder="Legenda da foto"
-                              className="w-full px-2.5 py-1 rounded bg-black/30 border border-white/10 text-white text-[11px]"
-                            />
-                            <input
-                              type="text"
-                              value={photo.alt || ''}
-                              onChange={(e) => updatePhoto(photo.id, 'alt', e.target.value)}
-                              placeholder="Texto alternativo (Alt)"
-                              className="w-full px-2.5 py-1 rounded bg-black/30 border border-white/10 text-white text-[11px]"
-                            />
-                          </div>
-                        </div>
-                      ))}
                     </div>
-
                     <button
                       type="button"
-                      onClick={addPhoto}
-                      className="w-full py-2.5 rounded-xl border border-dashed border-white/20 hover:border-amber-400 text-slate-300 hover:text-white text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer"
+                      disabled={isExporting}
+                      onClick={() => downloadStandaloneHtml(project)}
+                      className="w-full py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs uppercase flex items-center justify-center gap-2 transition-all cursor-pointer"
                     >
-                      <Plus size={14} />
-                      <span>+ Adicionar Foto na Galeria</span>
+                      <Download size={15} />
+                      <span>Baixar index.html</span>
                     </button>
-                  </>
-                )}
-              </div>
-            )}
-          </div>
+                  </div>
 
-          {/* 12. HORÁRIOS & LOCALIZAÇÃO */}
-          <div className="rounded-2xl border border-white/10 bg-[#0D0F1C] overflow-hidden">
-            <button
-              type="button"
-              onClick={() => toggleAccordion('horarios_loc')}
-              className="w-full p-4 flex items-center justify-between text-left font-black text-xs sm:text-sm text-white hover:bg-white/5 transition-colors cursor-pointer"
-            >
-              <span className="flex items-center gap-2">
-                <MapPin size={16} className="text-amber-400" />
-                LOCALIZAÇÃO & HORÁRIOS
-              </span>
-              {openSections.horarios_loc ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-            </button>
-
-            {openSections.horarios_loc && (
-              <div className="p-4 pt-0 space-y-3 border-t border-white/5">
-                <div>
-                  <label className="text-[11px] font-bold text-slate-400 block mb-1">Endereço Completo</label>
-                  <input
-                    type="text"
-                    value={project.location.address}
-                    onChange={(e) =>
-                      setProject((prev) => ({
-                        ...prev,
-                        location: { ...prev.location, address: e.target.value }
-                      }))
-                    }
-                    className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:border-amber-400 outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-[11px] font-bold text-slate-400 block mb-1">Tabela de Horários</label>
-                  <input
-                    type="text"
-                    value={project.location.hours}
-                    onChange={(e) =>
-                      setProject((prev) => ({
-                        ...prev,
-                        location: { ...prev.location, hours: e.target.value }
-                      }))
-                    }
-                    className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:border-amber-400 outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-[11px] font-bold text-slate-400 block mb-1">Link do Google Maps</label>
-                  <input
-                    type="text"
-                    value={project.location.mapsUrl}
-                    onChange={(e) =>
-                      setProject((prev) => ({
-                        ...prev,
-                        location: { ...prev.location, mapsUrl: e.target.value }
-                      }))
-                    }
-                    className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:border-amber-400 outline-none"
-                  />
+                  <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/10 space-y-3">
+                    <div className="flex items-center gap-3 text-amber-400">
+                      <Archive size={22} />
+                      <div>
+                        <h4 className="text-sm font-black text-white">Baixar Pacote ZIP Completo</h4>
+                        <span className="text-xs text-slate-400">Inclui index.html, assets e guia de publicação</span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      disabled={isExporting}
+                      onClick={async () => {
+                        setIsExporting(true);
+                        try {
+                          await exportProjectZip(project);
+                        } finally {
+                          setIsExporting(false);
+                        }
+                      }}
+                      className="w-full py-3 px-4 rounded-xl bg-white/10 hover:bg-white/20 text-white font-black text-xs uppercase flex items-center justify-center gap-2 transition-all cursor-pointer border border-white/10"
+                    >
+                      <Download size={15} />
+                      <span>Baixar Pacote ZIP (.zip)</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
           </div>
+        </div>
 
-          {/* 13. EXPORTAR & DOWNLOADS (Requisitos 27 & 28) */}
-          <div className="rounded-2xl border border-amber-500/40 bg-gradient-to-br from-amber-500/10 via-[#0D0F1C] to-[#0D0F1C] overflow-hidden">
-            <button
-              type="button"
-              onClick={() => toggleAccordion('exportar')}
-              className="w-full p-4 flex items-center justify-between text-left font-black text-xs sm:text-sm text-white hover:bg-white/5 transition-colors cursor-pointer"
-            >
-              <span className="flex items-center gap-2">
-                <Download size={16} className="text-amber-400" />
-                BAIXAR BIOSITE (ESTÁTICO & INDEPENDENTE)
-              </span>
-              {openSections.exportar ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-            </button>
-
-            {openSections.exportar && (
-              <div className="p-4 pt-0 space-y-3 border-t border-white/5">
-                <p className="text-xs text-slate-300 leading-relaxed">
-                  Exporte o seu biosite totalmente pronto para publicação na <strong>Vercel, Netlify, Cloudflare Pages ou GitHub Pages</strong> sem qualquer dependência do backend.
-                </p>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                  <button
-                    type="button"
-                    onClick={handleDownloadHtml}
-                    className="w-full py-3 px-4 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer active:scale-95"
-                  >
-                    <FileCode size={16} className="text-amber-400" />
-                    <span>Baixar index.html</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleExportZip}
-                    disabled={isExporting}
-                    className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-amber-500/25 active:scale-95"
-                  >
-                    <Archive size={16} />
-                    <span>{isExporting ? 'Gerando ZIP...' : 'Baixar ZIP Completo'}</span>
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </aside>
-
-        {/* RIGHT COLUMN: Real-Time Live Preview Frame */}
-        <main className="flex-1 bg-black/60 overflow-y-auto p-4 sm:p-8 flex justify-center items-start">
+        {/* RIGHT PANEL: LIVE RESPONSIVE PREVIEW */}
+        <div
+          className={`flex-1 bg-[#05060A] flex justify-center items-start overflow-y-auto p-4 sm:p-8 no-scrollbar ${
+            mobileViewMode === 'edit' ? 'hidden lg:flex' : 'flex'
+          }`}
+        >
           <div
-            className={`transition-all duration-300 shadow-[0_25px_60px_rgba(0,0,0,0.9)] rounded-[32px] overflow-hidden border border-white/15 ${
+            className={`w-full transition-all duration-300 shadow-2xl rounded-3xl overflow-hidden border border-white/15 my-auto ${
               viewport === 'mobile'
-                ? 'w-[390px] min-h-[780px]'
+                ? 'max-w-[430px]'
                 : viewport === 'tablet'
-                ? 'w-[768px] min-h-[900px]'
-                : 'w-full max-w-4xl min-h-[950px]'
+                ? 'max-w-[640px]'
+                : 'max-w-4xl'
             }`}
           >
             <TemplateRenderer project={project} viewport={viewport} />
           </div>
-        </main>
-      </div>
-
-      {/* Mobile Fixed Floating Button: "VER PREVIEW" (Requisito 25) */}
-      <div className="lg:hidden fixed bottom-5 right-5 z-40">
-        <button
-          type="button"
-          onClick={() => setMobilePreviewModalOpen(true)}
-          className="px-5 py-3 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-black text-xs shadow-2xl flex items-center gap-2 cursor-pointer active:scale-95 border border-white/20"
-        >
-          <Eye size={16} />
-          <span>VER PREVIEW</span>
-        </button>
-      </div>
-
-      {/* Mobile Full-Screen Preview Modal (Requisito 25) */}
-      {mobilePreviewModalOpen && (
-        <div className="lg:hidden fixed inset-0 z-50 bg-black flex flex-col animate-fadeIn">
-          <div className="h-14 px-4 bg-[#0A0C14] border-b border-white/10 flex items-center justify-between shrink-0">
-            <span className="text-xs font-black text-white">Preview do Biosite (390px)</span>
-            <button
-              onClick={() => setMobilePreviewModalOpen(false)}
-              className="p-2 rounded-xl bg-white/10 text-white cursor-pointer"
-            >
-              <X size={18} />
-            </button>
-          </div>
-          <div className="flex-1 overflow-y-auto">
-            <TemplateRenderer project={project} viewport="mobile" />
-          </div>
         </div>
-      )}
+      </div>
+
+      {/* Modal Seletor de Estilos para Troca Instantânea */}
+      <StyleSelectorModal
+        isOpen={isStyleModalOpen}
+        onClose={() => setIsStyleModalOpen(false)}
+        onSelectDesign={handleSelectNewStyle}
+      />
     </div>
   );
 };

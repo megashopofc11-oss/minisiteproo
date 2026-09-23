@@ -1,5 +1,6 @@
 import JSZip from 'jszip';
 import { ProjectData } from '../types';
+import { getDesignById } from '../designs/registry';
 
 // Helper to escape HTML to prevent XSS
 const escapeHtml = (str: string): string => {
@@ -69,6 +70,27 @@ export const generateStandaloneHtml = (project: ProjectData): string => {
   const svgMap = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>`;
   const svgStar = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
   const svgShare = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>`;
+
+  // Resolve active palette and fonts
+  let activePalette = { ...theme };
+  if (project.designConfig) {
+    try {
+      const meta = getDesignById(project.designConfig.designId);
+      const pal = meta.palettes.find(p => p.id === project.designConfig?.paletteId) || meta.palettes[0];
+      if (pal) {
+        activePalette.primary = pal.primary;
+        activePalette.secondary = pal.secondary;
+        activePalette.background = pal.background;
+        activePalette.surface = pal.surface;
+        activePalette.cardBg = pal.cardBg;
+        activePalette.border = pal.border;
+        activePalette.text = pal.text;
+        activePalette.textMuted = pal.textMuted;
+      }
+    } catch (e) {
+      // ignore
+    }
+  }
 
   // Font family determination
   let headingFontFamily = "'Plus Jakarta Sans', sans-serif";
@@ -144,10 +166,12 @@ export const generateStandaloneHtml = (project: ProjectData): string => {
     </section>
   ` : '';
 
+  const servicesTitle = escapeHtml(project.itemsTitle || project.projectData?.itemsTitle || 'Especialidades & Atendimento');
+
   const servicesHtml = (sectionsVisibility.services !== false && services.length > 0) ? `
     <section class="services-section layout-${serviceLayout}">
       <div class="section-head">
-        <h3 class="section-title">Especialidades & Atendimento</h3>
+        <h3 class="section-title">${servicesTitle}</h3>
       </div>
       <div class="services-list">
         ${services.map((s) => `
@@ -157,7 +181,7 @@ export const generateStandaloneHtml = (project: ProjectData): string => {
               <div class="service-info">
                 <div class="service-header">
                   <h4>${escapeHtml(s.name)}</h4>
-                  ${s.price ? `<span class="service-price">${escapeHtml(s.price)}</span>` : ''}
+                  ${(s.priceEnabled !== false && s.price) ? `<span class="service-price">${escapeHtml(s.price)}</span>` : ''}
                 </div>
                 <p>${escapeHtml(s.description)}</p>
                 <div class="service-action">
@@ -287,14 +311,14 @@ export const generateStandaloneHtml = (project: ProjectData): string => {
 
   <style>
     :root {
-      --primary: ${theme.primary};
-      --secondary: ${theme.secondary || '#92400E'};
-      --bg: ${theme.background || '#07080D'};
-      --surface: ${theme.surface || '#0E111C'};
-      --card-bg: ${theme.cardBg || '#0E111C'};
-      --border: ${theme.border || 'rgba(255, 255, 255, 0.1)'};
-      --text: ${theme.text || '#F8FAFC'};
-      --text-muted: ${theme.textMuted || '#94A3B8'};
+      --primary: ${activePalette.primary};
+      --secondary: ${activePalette.secondary || '#92400E'};
+      --bg: ${activePalette.background || '#07080D'};
+      --surface: ${activePalette.surface || '#0E111C'};
+      --card-bg: ${activePalette.cardBg || '#0E111C'};
+      --border: ${activePalette.border || 'rgba(255, 255, 255, 0.1)'};
+      --text: ${activePalette.text || '#F8FAFC'};
+      --text-muted: ${activePalette.textMuted || '#94A3B8'};
       --font-heading: ${headingFontFamily};
       --font-body: 'Plus Jakarta Sans', sans-serif;
     }
