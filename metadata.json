@@ -1,0 +1,6 @@
+{
+  "name": "BioSite Pro 2.0",
+  "description": "Construtor profissional de biosites SaaS premium com 10 nichos, 100 templates de alto padrão, editor em tempo real e exportação estática independente.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
