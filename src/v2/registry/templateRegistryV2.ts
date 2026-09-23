@@ -10,9 +10,13 @@ import { renderNova } from '../engine/families/nova';
 import { renderElite } from '../engine/families/elite';
 import { renderOrbit } from '../engine/families/orbit';
 import { getRendererForFamily } from '../engine/families/familyEngines';
+import { BARBEARIA_DESIGNS } from './barbeariaDesigns';
 
-// 50 Official Design Definitions
+export { BARBEARIA_DESIGNS };
+
+// Official Design Definitions (including the 10 Bespoke Barbearia Designs)
 export const V2_DESIGNS: V2DesignMeta[] = [
+  ...BARBEARIA_DESIGNS,
   // 01 AURA (Cinematic)
   {
     id: '01-aura',

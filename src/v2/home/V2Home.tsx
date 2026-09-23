@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useRef } from 'react';
 import { V2DesignMeta, V2Tone } from '../types';
-import { V2_DESIGNS, getV2DesignById } from '../registry/templateRegistryV2';
+import { V2_DESIGNS, BARBEARIA_DESIGNS, getV2DesignById } from '../registry/templateRegistryV2';
 import { V2Hero } from '../components/V2Hero';
 import { StreamingRail } from '../components/StreamingRail';
 import { StreamingCoverCard } from '../components/StreamingCoverCard';
@@ -26,7 +26,7 @@ interface V2HomeProps {
   hasProjects?: boolean;
 }
 
-type FilterTag = 'todos' | 'claros' | 'escuros' | 'editoriais' | 'fotograficos' | 'criativos' | 'minimalistas';
+type FilterTag = 'todos' | 'barbearia' | 'claros' | 'escuros' | 'editoriais' | 'fotograficos' | 'criativos' | 'minimalistas';
 
 export const V2Home: React.FC<V2HomeProps> = ({
   onSelectDesign,
@@ -65,6 +65,7 @@ export const V2Home: React.FC<V2HomeProps> = ({
       }
 
       // Filter chips
+      if (activeFilter === 'barbearia') return d.tags.includes('barbearia') || d.id.startsWith('barbearia-');
       if (activeFilter === 'claros') return d.tone === 'claro';
       if (activeFilter === 'escuros') return d.tone === 'escuro';
       if (activeFilter === 'editoriais') return d.family === 'editorial';
@@ -239,6 +240,7 @@ export const V2Home: React.FC<V2HomeProps> = ({
           </span>
           {[
             { id: 'todos', label: 'Todos' },
+            { id: 'barbearia', label: 'Barbearia (10 Modelos)' },
             { id: 'claros', label: 'Claros & Marfim' },
             { id: 'escuros', label: 'Escuros & Noturnos' },
             { id: 'editoriais', label: 'Editoriais' },
@@ -317,6 +319,14 @@ export const V2Home: React.FC<V2HomeProps> = ({
         ) : (
           /* Streaming Rails (Netflix/Spotify Discovery Style) */
           <div className="pt-6">
+            <StreamingRail
+              title="Coleção Barbearia — 10 Experiências Únicas"
+              subtitle="Direção de arte completa: do Noir cinematográfico ao Pôster brutalista e Visagismo VIP"
+              designs={BARBEARIA_DESIGNS}
+              onPreview={(d) => setPreviewDesign(d)}
+              onSelect={(d) => onSelectDesign(d)}
+            />
+
             <StreamingRail
               title="Destaques para Você"
               subtitle="Os designs mais admirados e com maior impacto de conversão"
