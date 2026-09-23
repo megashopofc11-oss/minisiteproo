@@ -85,7 +85,7 @@ export const generateStandaloneHtml = (project: ProjectData): string => {
 
   const heroHtml = `
     <header class="hero-section">
-      ${identity.logoUrl ? `
+      ${identity.logoUrl && project.showLogo !== false ? `
         <div class="hero-logo-container align-${logoAlign}">
           <div class="hero-logo-box bg-${logoBg}">
             <img src="${sanitizeUrl(identity.logoUrl)}" alt="${escapeHtml(identity.name)}" class="hero-logo size-${logoSize}" />
@@ -172,15 +172,16 @@ export const generateStandaloneHtml = (project: ProjectData): string => {
     </section>
   ` : '';
 
-  const galleryHtml = (sectionsVisibility.gallery !== false && photos.length > 0) ? `
-    <section class="gallery-section">
+  const galleryHtml = (sectionsVisibility.gallery !== false && project.usePhotos !== false && photos.length > 0) ? `
+    <section class="gallery-section style-${escapeHtml(project.galleryStyle || 'cards')}">
       <div class="section-head">
         <h3 class="section-title">Galeria Visual</h3>
       </div>
       <div class="gallery-grid">
         ${photos.map((p) => `
           <div class="photo-item" onclick="openModal('${sanitizeUrl(p.url)}')">
-            <img src="${sanitizeUrl(p.url)}" alt="${escapeHtml(p.alt || p.caption)}" loading="lazy" />
+            <img src="${sanitizeUrl(p.url)}" alt="${escapeHtml(p.alt || p.caption || identity.name)}" loading="lazy" />
+            ${p.caption ? `<span class="photo-caption">${escapeHtml(p.caption)}</span>` : ''}
           </div>
         `).join('')}
       </div>

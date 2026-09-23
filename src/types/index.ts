@@ -41,6 +41,7 @@ export type TemplateLayout =
   | 'signature'
   | 'urban'
   | 'classic-club'
+  | 'social-profile'
   | 'motion'
   | 'profile'
   // Backward compatibility aliases
@@ -112,7 +113,8 @@ export type SectionKey =
   | 'hours'
   | 'location'
   | 'socials'
-  | 'cta';
+  | 'cta'
+  | 'faq';
 
 export interface ThemeConfig {
   primary: string;
@@ -144,7 +146,21 @@ export type GalleryStyle =
   | 'horizontal-scroll'
   | 'collage'
   | 'overlap'
-  | 'full-width';
+  | 'full-width'
+  | 'grid'
+  | 'polaroid'
+  | 'bento'
+  | 'none';
+
+export interface CarouselConfig {
+  autoplay?: boolean;
+  interval?: number; // 2, 3, 4, 5, 6 seconds
+  loop?: boolean;
+  showIndicators?: boolean;
+  showArrows?: boolean;
+  pauseOnHover?: boolean;
+  transition?: 'slide' | 'fade' | 'scale';
+}
 
 export interface ServiceItem {
   id: string;
@@ -267,6 +283,9 @@ export interface ProjectData {
   seo: SeoConfig;
 
   // Premium Features & Upgrades
+  usePhotos?: boolean;
+  showLogo?: boolean;
+  carouselConfig?: CarouselConfig;
   logoConfig?: LogoConfig;
   fontCategory?: FontCategory;
   socialIconStyle?: SocialIconStyle;

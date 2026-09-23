@@ -244,36 +244,36 @@ export const DESIGN_STYLES: DesignStyleConfig[] = [
   },
   {
     index: 7,
-    layout: 'bento',
-    serviceLayout: 'cards',
+    layout: 'classic-club',
+    serviceLayout: 'accordion',
     galleryStyle: 'cards',
-    fontCategory: 'MODERNA',
-    socialIconStyle: 'glass',
-    styleName: 'Modern Bento Grid',
-    tagline: 'Composição modular assimétrica em blocos bento interativos.',
-    description: 'Grid inteligente que reúne status, avaliações, serviços e fotos em mosaicos dinâmicos.'
+    fontCategory: 'ELEGANTE',
+    socialIconStyle: 'outline',
+    styleName: "Classic Gentlemen's Club",
+    tagline: 'Marrom couro escuro, detalhes em ouro e mogno, rituais clássicos e timeline.',
+    description: 'Atmosfera vintage de clube britânico com carimbo clássico, rituais tradicionais e acabamento nobre.'
   },
   {
     index: 8,
-    layout: 'immersive',
-    serviceLayout: 'photo-cards',
-    galleryStyle: 'full-width',
-    fontCategory: 'BOLD',
-    socialIconStyle: 'original',
-    styleName: 'Immersive Photo Chapters',
-    tagline: 'Experiência baseada em capítulos visuais onde cada scroll revela uma fotografia.',
-    description: 'Fotografia dominante em tela cheia com textos e serviços integrados à imagem.'
+    layout: 'bento',
+    serviceLayout: 'cards',
+    galleryStyle: 'bento',
+    fontCategory: 'MODERNA',
+    socialIconStyle: 'glass',
+    styleName: 'Modern Bento Grid',
+    tagline: 'Composição modular em blocos assimétricos dinâmicos (2x2, 1x2, 1x1, 2x1).',
+    description: 'Grid inteligente de alta precisão que reúne status ao vivo, avaliações 5.0, serviços e localização.'
   },
   {
     index: 9,
-    layout: 'orbital',
+    layout: 'social-profile',
     serviceLayout: 'cards',
-    galleryStyle: 'cards',
-    fontCategory: 'MODERNA',
+    galleryStyle: 'grid',
+    fontCategory: 'BOLD',
     socialIconStyle: 'glow',
-    styleName: 'Orbital Live Motion',
-    tagline: 'Iluminação viva, badges pulsantes e alta energia visual.',
-    description: 'Transições visuais dinâmicas, relevos luminosos e botões com aura pulsante.'
+    styleName: 'Social Profile Specialist',
+    tagline: 'Foco total no especialista, autoridade marcante, bio autoral e links gigantes.',
+    description: 'Layout orientado à conversão direta de seguidores em clientes com WhatsApp e Instagram em destaque.'
   },
   {
     index: 10,
@@ -282,9 +282,9 @@ export const DESIGN_STYLES: DesignStyleConfig[] = [
     galleryStyle: 'editorial',
     fontCategory: 'ELEGANTE',
     socialIconStyle: '3d',
-    styleName: 'Signature Exclusive',
-    tagline: 'O modelo mais exclusivo com selo de autenticidade, reviews VIP e concierge.',
-    description: 'Composição assimétrica de alto luxo, selo dourado de assinatura e botão direto de concierge VIP.'
+    styleName: 'Signature Luxury Concierge',
+    tagline: 'O modelo mais exclusivo com selo de autenticidade 24K, reviews VIP e concierge.',
+    description: 'Composição de alto prestígio com selo de garantia em ouro, avaliações Google 5.0 e atendimento privativo.'
   }
 ];
 
@@ -872,8 +872,19 @@ function getNicheModelTheme(nichoId: string, modelIndex: number, primaryAccent: 
           accent: '#FDE68A'
         };
       }
-    case 4: // Urban Brutalist (Raw Concrete, Industrial, Stark High Contrast)
-      if (nichoId === 'pizzaria') {
+    case 4: // Urban Brutalist (Raw Concrete or Deep Bordeaux / Stark Contrast)
+      if (nichoId === '01-barbearia' || nichoId === 'barbearia') {
+        return {
+          background: '#2A080C',
+          surface: '#3D0E13',
+          text: '#FFFFFF',
+          textMuted: '#E2B8BD',
+          border: '#FFFFFF',
+          primary: '#EF4444',
+          secondary: '#FFFFFF',
+          accent: '#FDE047'
+        };
+      } else if (nichoId === 'pizzaria') {
         return {
           background: '#F5E6CA',
           surface: '#FFFFFF',
@@ -907,7 +918,7 @@ function getNicheModelTheme(nichoId: string, modelIndex: number, primaryAccent: 
           accent: '#EAB308'
         };
       }
-    case 5: // Glass Experience (Petroleum Blue, Emerald, Sapphire, Frosted Crystal)
+    case 5: // Glass Experience (Petroleum Blue #081B26, Frosted Crystal)
       if (nichoId === 'manicure' || nichoId === 'confeitaria') {
         return {
           background: '#160B24',
@@ -921,7 +932,7 @@ function getNicheModelTheme(nichoId: string, modelIndex: number, primaryAccent: 
         };
       } else {
         return {
-          background: '#0C1E2E',
+          background: '#081B26',
           surface: 'rgba(255, 255, 255, 0.1)',
           text: '#F0F9FF',
           textMuted: '#BAE6FD',
@@ -942,71 +953,47 @@ function getNicheModelTheme(nichoId: string, modelIndex: number, primaryAccent: 
         secondary: '#334155',
         accent: '#D97706'
       };
-    case 7: // Modern Bento Grid (Asymmetric Modular)
-      if (nichoId === 'manicure' || nichoId === 'confeitaria') {
-        return {
-          background: '#FDF2F8',
-          surface: '#FFFFFF',
-          text: '#371B26',
-          textMuted: '#83475E',
-          border: 'rgba(236, 72, 153, 0.18)',
-          primary: '#EC4899',
-          secondary: '#DB2777',
-          accent: '#BE185D'
-        };
-      } else if (nichoId === 'corretor' || nichoId === 'motorista' || nichoId === 'mecanica') {
-        return {
-          background: '#F1F5F9',
-          surface: '#FFFFFF',
-          text: '#0F172A',
-          textMuted: '#475569',
-          border: 'rgba(15, 23, 42, 0.12)',
-          primary: '#2563EB',
-          secondary: '#1D4ED8',
-          accent: '#3B82F6'
-        };
-      } else {
-        return {
-          background: '#0B0C10',
-          surface: '#13151D',
-          text: '#FFFFFF',
-          textMuted: '#94A3B8',
-          border: 'rgba(255, 255, 255, 0.12)',
-          primary: primaryAccent,
-          secondary: secondaryAccent,
-          accent: '#F59E0B'
-        };
-      }
-    case 8: // Immersive Photo Chapters
+    case 7: // Classic Gentlemen's Club (Dark Leather / Mahogany #160E0A & Aged Gold)
       return {
-        background: '#050608',
-        surface: '#0A0C12',
-        text: '#FFFFFF',
+        background: '#160E0A',
+        surface: '#221610',
+        text: '#FDFBF7',
+        textMuted: '#C9B5A3',
+        border: '#3F281B',
+        primary: '#D4AF37',
+        secondary: '#B48A14',
+        accent: '#F3E5AB'
+      };
+    case 8: // Modern Bento Grid (Asymmetric Modular, Modern Graphite #0E1015)
+      return {
+        background: '#0E1015',
+        surface: '#181A22',
+        text: '#F8FAFC',
         textMuted: '#94A3B8',
         border: 'rgba(255, 255, 255, 0.12)',
         primary: primaryAccent,
         secondary: secondaryAccent,
         accent: '#F59E0B'
       };
-    case 9: // Orbital Live Motion (High-Energy Neon & Dynamic Rings)
+    case 9: // Social Specialist Profile (#0D1117 & High-Conversion Action Cards)
       return {
-        background: '#07090E',
-        surface: '#0E111C',
-        text: '#FFFFFF',
-        textMuted: '#94A3B8',
-        border: 'rgba(255, 255, 255, 0.15)',
-        primary: '#FF6B00',
-        secondary: '#F59E0B',
-        accent: '#FF8A00'
+        background: '#0D1117',
+        surface: '#161B22',
+        text: '#F0F6FC',
+        textMuted: '#8B949E',
+        border: '#30363D',
+        primary: primaryAccent || '#58A6FF',
+        secondary: '#1F6FEB',
+        accent: '#79C0FF'
       };
-    case 10: // Signature Luxury (Wax Seal, Prestige Concierge, 24K Gold)
+    case 10: // Signature Luxury (Wax Seal, Prestige Concierge, 24K Gold & Onyx)
     default:
       return {
-        background: '#06070B',
+        background: '#050608',
         surface: '#0E1018',
         text: '#FFFDF5',
         textMuted: '#CBD5E1',
-        border: 'rgba(234, 179, 8, 0.25)',
+        border: 'rgba(234, 179, 8, 0.3)',
         primary: '#EAB308',
         secondary: '#CA8A04',
         accent: '#FDE047'
@@ -1067,10 +1054,26 @@ NICHOS_LIST.forEach((nicho) => {
       position: pIdx
     }));
 
+    const isNoPhotoModel = templateIndex === 6;
+    const isEditorialModel = templateIndex === 2;
+
     const defaultData: TemplateDefinition['defaultData'] = {
       nicho: nicho.id,
       templateId,
+      layout: style.layout,
       nome: brandName,
+      usePhotos: !isNoPhotoModel,
+      showLogo: true,
+      carouselConfig: {
+        autoplay: true,
+        interval: 3,
+        loop: true,
+        showIndicators: true,
+        showArrows: true,
+        pauseOnHover: true,
+        transition: 'slide'
+      },
+      heroLayout: isEditorialModel ? 'minimal' : isNoPhotoModel ? 'minimal' : 'full-photo',
       identity: {
         name: brandName,
         slogan,
@@ -1080,12 +1083,12 @@ NICHOS_LIST.forEach((nicho) => {
         description: about,
         about,
         logoUrl: domain.photos[0],
-        avatarUrl: domain.photos[1],
-        bannerUrl: domain.photos[0]
+        avatarUrl: isNoPhotoModel ? '' : domain.photos[1],
+        bannerUrl: isNoPhotoModel ? '' : domain.photos[0]
       },
       theme: defaultTheme,
-      photos,
-      galleryStyle: style.galleryStyle,
+      photos: isNoPhotoModel ? [] : photos,
+      galleryStyle: isNoPhotoModel ? 'none' : style.galleryStyle,
       services,
       buttons: [
         {
@@ -1154,7 +1157,7 @@ NICHOS_LIST.forEach((nicho) => {
         about: true,
         differentials: true,
         services: true,
-        gallery: true,
+        gallery: !isNoPhotoModel,
         reviews: true,
         hours: true,
         location: true,

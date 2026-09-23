@@ -6,10 +6,12 @@ import { StorytellingEngine } from './engines/StorytellingEngine';
 import { BrutalistEngine } from './engines/BrutalistEngine';
 import { GlassEngine } from './engines/GlassEngine';
 import { MinimalLightEngine } from './engines/MinimalLightEngine';
+import { ClassicClubEngine } from './engines/ClassicClubEngine';
 import { BentoEngine } from './engines/BentoEngine';
+import { SocialProfileEngine } from './engines/SocialProfileEngine';
+import { SignatureLuxuryEngine } from './engines/SignatureLuxuryEngine';
 import { ImmersiveEngine } from './engines/ImmersiveEngine';
 import { OrbitalMotionEngine } from './engines/OrbitalMotionEngine';
-import { SignatureLuxuryEngine } from './engines/SignatureLuxuryEngine';
 import { X } from 'lucide-react';
 
 interface TemplateRendererProps {
@@ -35,9 +37,9 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
     if (templateId.endsWith('-04')) return <BrutalistEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
     if (templateId.endsWith('-05')) return <GlassEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
     if (templateId.endsWith('-06')) return <MinimalLightEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
-    if (templateId.endsWith('-07')) return <BentoEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
-    if (templateId.endsWith('-08')) return <ImmersiveEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
-    if (templateId.endsWith('-09')) return <OrbitalMotionEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
+    if (templateId.endsWith('-07')) return <ClassicClubEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
+    if (templateId.endsWith('-08')) return <BentoEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
+    if (templateId.endsWith('-09')) return <SocialProfileEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
     if (templateId.endsWith('-10')) return <SignatureLuxuryEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
 
     // 2. Fallback based on layout property
@@ -52,15 +54,18 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
         return <ImmersiveEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
       case 'bento':
         return <BentoEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
-      case 'storytelling':
       case 'classic-club':
+        return <ClassicClubEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
+      case 'storytelling':
         return <StorytellingEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
       case 'brutalist':
       case 'urban':
         return <BrutalistEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
+      case 'social-profile':
+      case 'profile':
+        return <SocialProfileEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
       case 'orbital':
       case 'motion':
-      case 'profile':
         return <OrbitalMotionEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
       case 'signature':
         return <SignatureLuxuryEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;

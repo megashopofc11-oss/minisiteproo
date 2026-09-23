@@ -422,6 +422,7 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({
     hours: 'Horários de Atendimento',
     location: 'Endereço & Google Maps',
     socials: 'Redes Sociais & Canais',
+    faq: 'Perguntas Frequentes',
     cta: 'Rodapé & Botão Final'
   };
 
@@ -625,7 +626,18 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({
                     <span className="text-xs font-black text-amber-400 uppercase tracking-wider">
                       Logo da Marca / Empresa
                     </span>
-                    <span className="text-[10px] text-slate-400">PNG transparente</span>
+                    <button
+                      type="button"
+                      onClick={() => setProject((prev) => ({ ...prev, showLogo: prev.showLogo === false ? true : false }))}
+                      className={`px-2.5 py-1 rounded-full text-[10px] font-bold border transition-colors cursor-pointer flex items-center gap-1.5 ${
+                        project.showLogo !== false
+                          ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                          : 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                      }`}
+                    >
+                      <span className={`w-1.5 h-1.5 rounded-full ${project.showLogo !== false ? 'bg-emerald-400' : 'bg-rose-400'}`} />
+                      <span>{project.showLogo !== false ? 'Logo Visível' : 'Logo Oculta'}</span>
+                    </button>
                   </div>
 
                   <div>
@@ -870,6 +882,97 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({
                         >
                           {fp.sample}
                         </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* 4.5. ORDEM & VISIBILIDADE DAS SEÇÕES (Requisito 18 & Autonomia dos Modelos) */}
+          <div className="rounded-2xl border border-white/10 bg-[#0D0F1C] overflow-hidden">
+            <button
+              type="button"
+              onClick={() => toggleAccordion('secoes')}
+              className="w-full p-4 flex items-center justify-between text-left font-black text-xs sm:text-sm text-white hover:bg-white/5 transition-colors cursor-pointer"
+            >
+              <span className="flex items-center gap-2">
+                <Layers size={16} className="text-amber-400" />
+                ORDEM & VISIBILIDADE DAS SEÇÕES
+              </span>
+              {openSections.secoes ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            </button>
+
+            {openSections.secoes && (
+              <div className="p-4 pt-0 space-y-3 border-t border-white/5">
+                <p className="text-[11px] text-slate-400 leading-relaxed">
+                  Adicione, oculte ou reordene as seções do seu biosite. O layout se adapta automaticamente a cada alteração.
+                </p>
+
+                <div className="space-y-2">
+                  {(project.sectionsOrder || ['hero', 'status', 'about', 'differentials', 'services', 'gallery', 'reviews', 'hours', 'location', 'socials', 'cta']).map((secKey, idx, arr) => {
+                    const isVisible = project.sectionsVisibility?.[secKey as SectionKey] !== false;
+                    const labels: Record<string, string> = {
+                      hero: 'Hero / Cabeçalho Principal',
+                      status: 'Status Aberto / Fechado',
+                      about: 'Sobre Nós / Apresentação',
+                      differentials: 'Diferenciais da Marca',
+                      services: 'Especialidades & Atendimento',
+                      gallery: 'Galeria Visual de Fotos',
+                      reviews: 'Avaliações Google 5.0',
+                      hours: 'Horários de Funcionamento',
+                      location: 'Localização & Endereço',
+                      socials: 'Redes Sociais & Contato',
+                      cta: 'Rodapé & Botão de Conversão'
+                    };
+
+                    return (
+                      <div
+                        key={secKey}
+                        className={`p-2.5 rounded-xl border flex items-center justify-between gap-2 transition-all ${
+                          isVisible
+                            ? 'bg-white/5 border-white/10 text-white'
+                            : 'bg-black/30 border-white/5 text-slate-500 opacity-60'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          <button
+                            type="button"
+                            onClick={() => toggleSectionVisibility(secKey as SectionKey)}
+                            className={`w-5 h-5 rounded-md flex items-center justify-center border cursor-pointer shrink-0 transition-colors ${
+                              isVisible
+                                ? 'bg-amber-500 border-amber-400 text-slate-950 font-black'
+                                : 'border-white/20 text-transparent'
+                            }`}
+                          >
+                            <Check size={12} />
+                          </button>
+                          <span className="text-xs font-bold truncate">
+                            {labels[secKey] || secKey}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-1 shrink-0">
+                          <button
+                            type="button"
+                            disabled={idx === 0}
+                            onClick={() => moveSectionOrder(idx, 'up')}
+                            className="p-1 rounded bg-white/5 hover:bg-white/15 disabled:opacity-20 text-slate-300 disabled:hover:bg-white/5 cursor-pointer disabled:cursor-not-allowed"
+                            title="Mover para cima"
+                          >
+                            <MoveUp size={13} />
+                          </button>
+                          <button
+                            type="button"
+                            disabled={idx === arr.length - 1}
+                            onClick={() => moveSectionOrder(idx, 'down')}
+                            className="p-1 rounded bg-white/5 hover:bg-white/15 disabled:opacity-20 text-slate-300 disabled:hover:bg-white/5 cursor-pointer disabled:cursor-not-allowed"
+                            title="Mover para baixo"
+                          >
+                            <MoveDown size={13} />
+                          </button>
+                        </div>
                       </div>
                     );
                   })}
@@ -1350,7 +1453,7 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({
             )}
           </div>
 
-          {/* 11. GALERIA VISUAL (Requisito 16) */}
+          {/* 11. GALERIA VISUAL (Requisito 16, Autonomia & Carrossel) */}
           <div className="rounded-2xl border border-white/10 bg-[#0D0F1C] overflow-hidden">
             <button
               type="button"
@@ -1359,41 +1462,236 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({
             >
               <span className="flex items-center gap-2">
                 <ImageIcon size={16} className="text-amber-400" />
-                GALERIA DE FOTOS ({(project.photos || []).length})
+                GALERIA & FOTOS ({(project.photos || []).length})
               </span>
               {openSections.galeria ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
             </button>
 
             {openSections.galeria && (
-              <div className="p-4 pt-0 space-y-3 border-t border-white/5">
-                {(project.photos || []).map((photo) => (
-                  <div key={photo.id} className="flex items-center gap-2 p-2 rounded-xl bg-white/5 border border-white/10">
-                    <img src={photo.url} alt="Thumbnail" className="w-10 h-10 rounded-lg object-cover shrink-0" />
-                    <input
-                      type="text"
-                      value={photo.url}
-                      onChange={(e) => updatePhoto(photo.id, 'url', e.target.value)}
-                      placeholder="URL da imagem (PNG/JPG/WEBP)"
-                      className="flex-1 px-2.5 py-1.5 rounded-lg bg-black/40 border border-white/10 text-white text-xs"
-                    />
+              <div className="p-4 pt-0 space-y-4 border-t border-white/5">
+                {/* Master Switch: USAR FOTOS [ON/OFF] */}
+                <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-between">
+                  <div>
+                    <span className="text-xs font-bold text-white block">Exibir Fotos no Biosite</span>
+                    <span className="text-[10px] text-slate-400">
+                      Desative para operar 100% sem fotos (estilo minimalista puro)
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setProject((prev) => ({ ...prev, usePhotos: prev.usePhotos === false ? true : false }))}
+                    className={`px-3 py-1 rounded-full text-[10px] font-bold border transition-colors cursor-pointer flex items-center gap-1.5 ${
+                      project.usePhotos !== false
+                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                        : 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                    }`}
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full ${project.usePhotos !== false ? 'bg-emerald-400' : 'bg-rose-400'}`} />
+                    <span>{project.usePhotos !== false ? 'Fotos Ativas' : 'Sem Fotos'}</span>
+                  </button>
+                </div>
+
+                {project.usePhotos !== false && (
+                  <>
+                    {/* Gallery Style Selector */}
+                    <div>
+                      <label className="text-[11px] font-bold text-slate-400 block mb-1">
+                        Estilo de Apresentação da Galeria
+                      </label>
+                      <select
+                        value={project.galleryStyle || 'cards'}
+                        onChange={(e) => setProject((prev) => ({ ...prev, galleryStyle: e.target.value as any }))}
+                        className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:border-amber-400 outline-none"
+                      >
+                        <option value="carousel" className="bg-[#0D0F1C]">Carrossel Automático (Slide / Touch)</option>
+                        <option value="masonry" className="bg-[#0D0F1C]">Masonry Refinado (Alturas Dinâmicas)</option>
+                        <option value="grid" className="bg-[#0D0F1C]">Grade Simétrica (Grid 2 Colunas)</option>
+                        <option value="cards" className="bg-[#0D0F1C]">Cards com Sombra & Bordas Suaves</option>
+                        <option value="horizontal-scroll" className="bg-[#0D0F1C]">Faixa Horizontal (Swipe Suave)</option>
+                        <option value="editorial" className="bg-[#0D0F1C]">Estilo Editorial (Revista Assinada)</option>
+                        <option value="bento" className="bg-[#0D0F1C]">Mosaico Bento Grid</option>
+                        <option value="none" className="bg-[#0D0F1C]">Ocultar Galeria</option>
+                      </select>
+                    </div>
+
+                    {/* Carousel Advanced Controls if carousel chosen */}
+                    {(project.galleryStyle === 'carousel' || !project.galleryStyle) && (
+                      <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 space-y-3">
+                        <span className="text-xs font-black uppercase text-amber-300 tracking-wider block">
+                          Configurações do Carrossel Automático
+                        </span>
+
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="text-[10px] font-bold text-slate-300 block mb-1">Intervalo de Transição</label>
+                            <select
+                              value={project.carouselConfig?.interval || 3}
+                              onChange={(e) =>
+                                setProject((prev) => ({
+                                  ...prev,
+                                  carouselConfig: {
+                                    ...prev.carouselConfig,
+                                    interval: Number(e.target.value)
+                                  }
+                                }))
+                              }
+                              className="w-full px-2.5 py-1.5 rounded-lg bg-black/40 border border-white/15 text-white text-xs"
+                            >
+                              <option value={2}>2 Segundos (Rápido)</option>
+                              <option value={3}>3 Segundos (Recomendado)</option>
+                              <option value={4}>4 Segundos (Suave)</option>
+                              <option value={5}>5 Segundos (Lento)</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            <label className="text-[10px] font-bold text-slate-300 block mb-1">Efeito Visual</label>
+                            <select
+                              value={project.carouselConfig?.transition || 'slide'}
+                              onChange={(e) =>
+                                setProject((prev) => ({
+                                  ...prev,
+                                  carouselConfig: {
+                                    ...prev.carouselConfig,
+                                    transition: e.target.value as any
+                                  }
+                                }))
+                              }
+                              className="w-full px-2.5 py-1.5 rounded-lg bg-black/40 border border-white/15 text-white text-xs"
+                            >
+                              <option value="slide">Deslizar Lateral (Slide)</option>
+                              <option value="fade">Desvanecer (Fade)</option>
+                              <option value="scale">Zoom Sutil (Scale)</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2 pt-1">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setProject((prev) => ({
+                                ...prev,
+                                carouselConfig: {
+                                  ...prev.carouselConfig,
+                                  autoplay: prev.carouselConfig?.autoplay === false ? true : false
+                                }
+                              }))
+                            }
+                            className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-colors cursor-pointer ${
+                              project.carouselConfig?.autoplay !== false
+                                ? 'bg-amber-400 text-slate-950 border-amber-300'
+                                : 'bg-white/5 border-white/10 text-slate-400'
+                            }`}
+                          >
+                            Autoplay: {project.carouselConfig?.autoplay !== false ? 'LIGADO' : 'DESLIGADO'}
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setProject((prev) => ({
+                                ...prev,
+                                carouselConfig: {
+                                  ...prev.carouselConfig,
+                                  showArrows: prev.carouselConfig?.showArrows === false ? true : false
+                                }
+                              }))
+                            }
+                            className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-colors cursor-pointer ${
+                              project.carouselConfig?.showArrows !== false
+                                ? 'bg-amber-400 text-slate-950 border-amber-300'
+                                : 'bg-white/5 border-white/10 text-slate-400'
+                            }`}
+                          >
+                            Setas: {project.carouselConfig?.showArrows !== false ? 'LIGADO' : 'DESLIGADO'}
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setProject((prev) => ({
+                                ...prev,
+                                carouselConfig: {
+                                  ...prev.carouselConfig,
+                                  showIndicators: prev.carouselConfig?.showIndicators === false ? true : false
+                                }
+                              }))
+                            }
+                            className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-colors cursor-pointer ${
+                              project.carouselConfig?.showIndicators !== false
+                                ? 'bg-amber-400 text-slate-950 border-amber-300'
+                                : 'bg-white/5 border-white/10 text-slate-400'
+                            }`}
+                          >
+                            Pontos: {project.carouselConfig?.showIndicators !== false ? 'LIGADO' : 'DESLIGADO'}
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Photos list */}
+                    <div className="space-y-3">
+                      {(project.photos || []).map((photo, pIdx) => (
+                        <div key={photo.id} className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-2">
+                          <div className="flex items-center gap-3">
+                            <img
+                              src={photo.url}
+                              alt="Thumbnail"
+                              className="w-12 h-12 rounded-lg object-cover shrink-0 border border-white/10"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <span className="text-[10px] font-mono text-slate-400 uppercase block mb-1">
+                                Foto #{pIdx + 1}
+                              </span>
+                              <input
+                                type="text"
+                                value={photo.url}
+                                onChange={(e) => updatePhoto(photo.id, 'url', e.target.value)}
+                                placeholder="URL da imagem (PNG/JPG/WEBP)"
+                                className="w-full px-2.5 py-1.5 rounded-lg bg-black/40 border border-white/10 text-white text-xs font-mono"
+                              />
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => removePhoto(photo.id)}
+                              className="p-2 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded-lg cursor-pointer transition-colors"
+                              title="Remover foto da galeria"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-2 pt-1 border-t border-white/5">
+                            <input
+                              type="text"
+                              value={photo.caption || ''}
+                              onChange={(e) => updatePhoto(photo.id, 'caption', e.target.value)}
+                              placeholder="Legenda da foto"
+                              className="w-full px-2.5 py-1 rounded bg-black/30 border border-white/10 text-white text-[11px]"
+                            />
+                            <input
+                              type="text"
+                              value={photo.alt || ''}
+                              onChange={(e) => updatePhoto(photo.id, 'alt', e.target.value)}
+                              placeholder="Texto alternativo (Alt)"
+                              className="w-full px-2.5 py-1 rounded bg-black/30 border border-white/10 text-white text-[11px]"
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
                     <button
                       type="button"
-                      onClick={() => removePhoto(photo.id)}
-                      className="p-1.5 text-rose-400 hover:text-rose-300 cursor-pointer"
+                      onClick={addPhoto}
+                      className="w-full py-2.5 rounded-xl border border-dashed border-white/20 hover:border-amber-400 text-slate-300 hover:text-white text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer"
                     >
-                      <Trash2 size={15} />
+                      <Plus size={14} />
+                      <span>+ Adicionar Foto na Galeria</span>
                     </button>
-                  </div>
-                ))}
-
-                <button
-                  type="button"
-                  onClick={addPhoto}
-                  className="w-full py-2.5 rounded-xl border border-dashed border-white/20 hover:border-amber-400 text-slate-300 hover:text-white text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer"
-                >
-                  <Plus size={14} />
-                  <span>Adicionar Foto na Galeria</span>
-                </button>
+                  </>
+                )}
               </div>
             )}
           </div>

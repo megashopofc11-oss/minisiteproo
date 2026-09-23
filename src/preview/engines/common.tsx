@@ -40,6 +40,7 @@ export const renderFreeLogo = (
   customClasses = '',
   forceAlign?: 'left' | 'center' | 'right'
 ) => {
+  if (project.showLogo === false) return null;
   const { identity, logoConfig } = project;
   if (!identity.logoUrl) return null;
 
