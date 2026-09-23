@@ -30,6 +30,7 @@ export type NichoId =
 
 export type TemplateLayout =
   | 'cinematic'
+  | 'graphic-bio'
   | 'editorial'
   | 'glass'
   | 'immersive'
@@ -41,6 +42,12 @@ export type TemplateLayout =
   | 'signature'
   | 'urban'
   | 'classic-club'
+  | 'profile-poster'
+  | 'sport'
+  | 'magazine'
+  | 'nordic'
+  | 'split-screen'
+  | 'ice-white'
   | 'social-profile'
   | 'authority'
   | 'compact-profile'
@@ -177,10 +184,14 @@ export interface ServiceItem {
   description: string;
   price?: string; // Optional! No forced price
   imageUrl?: string;
+  thumbnailUrl?: string;
   iconName?: string;
   ctaText?: string;
   ctaUrl?: string;
   featured?: boolean;
+  tag?: string; // e.g. "🔥 Clique para saber mais", "📞 Pedir de agora", "📍 Abrir google maps"
+  visualType?: 'pizza' | 'whatsapp' | 'maps' | 'phone' | 'laptop' | 'image' | 'custom';
+  actionText?: string; // e.g. "CLIQUE AQUI", "SAIBA MAIS"
 }
 
 export interface DifferentialItem {
@@ -236,6 +247,12 @@ export interface ProjectIdentity {
   logoUrl: string;
   avatarUrl: string;
   bannerUrl: string;
+  quote?: string;
+  highlightWord?: string;
+  verifiedBadge?: boolean;
+  signatureWord?: string;
+  signatureFont?: boolean;
+  categoryTags?: string[];
 }
 
 export interface StatusConfig {
@@ -315,6 +332,7 @@ export interface TemplateDefinition {
   index: number;
   name: string;
   styleName: string;
+  tagline?: string;
   description: string;
   layout: TemplateLayout;
   galleryStyle: GalleryStyle;

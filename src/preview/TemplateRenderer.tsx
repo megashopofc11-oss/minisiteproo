@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
 import { ProjectData } from '../types';
+import { GraphicBioEngine } from './engines/GraphicBioEngine';
 import { CinematicEngine } from './engines/CinematicEngine';
 import { MinimalLightEngine } from './engines/MinimalLightEngine';
 import { EditorialEngine } from './engines/EditorialEngine';
 import { ClassicClubEngine } from './engines/ClassicClubEngine';
 import { BrutalistEngine } from './engines/BrutalistEngine';
+import { SportProfileEngine } from './engines/SportProfileEngine';
+import { NordicSandEngine } from './engines/NordicSandEngine';
+import { IceWhiteEngine } from './engines/IceWhiteEngine';
 import { ProfessionalAuthorityEngine } from './engines/ProfessionalAuthorityEngine';
 import { CompactProfileEngine } from './engines/CompactProfileEngine';
 import { BentoEngine } from './engines/BentoEngine';
@@ -93,27 +97,36 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
   const waUrl = getWhatsAppUrl(project);
 
   const getEngine = () => {
-    // 1. Direct template index matching (THE 5 DIVERSE ENGINES PER NICHE)
-    // MODELO 01 — CINEMATIC / IMPACT
-    if (templateId.endsWith('-01')) return <CinematicEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
-    // MODELO 02 — EDITORIAL / LIGHT (Off-white, magazine serif, vertical photo)
+    // 1. Direct template index matching (THE 10 AUTHENTIC ENGINES PER NICHE)
+    // MODELO 01 — GRAPHIC BIO / HIGH CONVERSION (Ad blocks, 3D mockups, verified badge)
+    if (templateId.endsWith('-01')) {
+      return layout === 'cinematic'
+        ? <CinematicEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />
+        : <GraphicBioEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
+    }
+    // MODELO 02 — EDITORIAL ATELIER / IVORY LIGHT (100% Light, off-white, magazine serif)
     if (templateId.endsWith('-02')) return <EditorialEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
-    // MODELO 03 — URBAN / BRUTALIST (Industrial graphite, punchy accents, sharp boxes)
+    // MODELO 03 — URBAN / BRUTALIST (Industrial graphite, hazard amber, 0px border-radius, technical codes)
     if (templateId.endsWith('-03')) return <BrutalistEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
-    // MODELO 04 — MINIMAL / CLEAN (100% pure white, zero photos required)
+    // MODELO 04 — MINIMAL CLEAN / PURE WHITE (100% Light, #FFFFFF, zero photos required)
     if (templateId.endsWith('-04')) return <MinimalLightEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
-    // MODELO 05 — SIGNATURE / EXPERIMENTAL (Jewel/petroleum tones, wax seal, chrome)
-    if (templateId.endsWith('-05')) return <SignatureLuxuryEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
-
-    // 2. Backward compatibility mapping for legacy projects (06..10)
-    if (templateId.endsWith('-06')) return <ProfessionalAuthorityEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
-    if (templateId.endsWith('-07')) return <CompactProfileEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
+    // MODELO 05 — VINTAGE HERITAGE / CLASSIC CLUB (Dark tobacco, bourbon copper, crest emblem)
+    if (templateId.endsWith('-05')) return <ClassicClubEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
+    // MODELO 06 — SPORT & PERFORMANCE / PROFILE POSTER (Navy blue, flame orange, athletic manifesto)
+    if (templateId.endsWith('-06')) return <SportProfileEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
+    // MODELO 07 — NORDIC SAND / SCANDINAVIAN LIGHT (100% Light, warm sand #F4F1EA, lookbook slider)
+    if (templateId.endsWith('-07')) return <NordicSandEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
+    // MODELO 08 — BENTO GRID / MODERN MOSAIC (Midnight teal, neon cyan, asymmetric tiles)
     if (templateId.endsWith('-08')) return <BentoEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
-    if (templateId.endsWith('-09')) return <StorytellingEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
-    if (templateId.endsWith('-10')) return <ImmersiveEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
+    // MODELO 09 — ICE WHITE / LUXURY BARBERSHOP (100% Light, #F8FAFC ice white, interactive concierge selector)
+    if (templateId.endsWith('-09')) return <IceWhiteEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
+    // MODELO 10 — SIGNATURE PRESTIGE / BLACK & PLATINUM (Theatrical spot, cursive signature, VIP lounge)
+    if (templateId.endsWith('-10')) return <SignatureLuxuryEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
 
-    // 3. Fallback based on layout property
+    // 2. Fallback based on layout property
     switch (layout) {
+      case 'graphic-bio':
+        return <GraphicBioEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
       case 'editorial':
         return <EditorialEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
       case 'brutalist':
@@ -121,16 +134,25 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
         return <BrutalistEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
       case 'minimal':
         return <MinimalLightEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
-      case 'signature':
-        return <SignatureLuxuryEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
       case 'classic-club':
         return <ClassicClubEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
+      case 'profile-poster':
+      case 'sport':
+        return <SportProfileEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
+      case 'magazine':
+      case 'nordic':
+        return <NordicSandEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
+      case 'bento':
+        return <BentoEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
+      case 'split-screen':
+      case 'ice-white':
+        return <IceWhiteEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
+      case 'signature':
+        return <SignatureLuxuryEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
       case 'authority':
         return <ProfessionalAuthorityEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
       case 'compact-profile':
         return <CompactProfileEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
-      case 'bento':
-        return <BentoEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
       case 'storytelling':
         return <StorytellingEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
       case 'immersive':

@@ -178,14 +178,14 @@ export interface DesignStyleConfig {
 export const DESIGN_STYLES: DesignStyleConfig[] = [
   {
     index: 1,
-    layout: 'cinematic',
+    layout: 'graphic-bio',
     serviceLayout: 'cards',
     galleryStyle: 'masonry',
     fontCategory: 'MODERNA',
     socialIconStyle: 'glass',
-    styleName: 'Cinematic / Impact',
-    tagline: 'Hero fotográfico grande, logo livre, contrastes nobres e presença marcante.',
-    description: 'Visual cinematográfico com iluminação de estúdio, logo PNG fluida, carrossel de fotos e alta conversão.'
+    styleName: 'Graphic Bio / Premiere',
+    tagline: 'Composição publicitária com banners de ação, recortes 3D e alta conversão.',
+    description: 'Visual cinematográfico com iluminação de estúdio, banners publicitários com tags de ação, mockups 3D de WhatsApp e Google Maps, e selo verificado.'
   },
   {
     index: 2,
@@ -194,8 +194,8 @@ export const DESIGN_STYLES: DesignStyleConfig[] = [
     galleryStyle: 'editorial',
     fontCategory: 'EDITORIAL',
     socialIconStyle: 'minimal',
-    styleName: 'Editorial / Light',
-    tagline: 'Fundo off-white/creme, tipografia serif de revista e fotografia vertical.',
+    styleName: 'Editorial Atelier / Ivory Light',
+    tagline: '100% Claro: Fundo off-white/creme, tipografia serif de revista e fotografia vertical.',
     description: 'Estilo editorial autoral com títulos display imponentes, respiro refinado, apresentação em texto e zero cards repetitivos.'
   },
   {
@@ -205,8 +205,8 @@ export const DESIGN_STYLES: DesignStyleConfig[] = [
     galleryStyle: 'horizontal-scroll',
     fontCategory: 'BOLD',
     socialIconStyle: 'solid',
-    styleName: 'Urban / Brutalist',
-    tagline: 'Grafite industrial, alto contraste, numeração técnica e bordas retas.',
+    styleName: 'Urban / Neo-Brutalist',
+    tagline: 'Grafite industrial, alto contraste, numeração técnica [01] e bordas retas.',
     description: 'Estética contemporânea com tipografia condensada e pesada, caixas estruturadas [01], energia urbana e impacto imediato.'
   },
   {
@@ -216,20 +216,75 @@ export const DESIGN_STYLES: DesignStyleConfig[] = [
     galleryStyle: 'cards',
     fontCategory: 'MINIMAL',
     socialIconStyle: 'outline',
-    styleName: 'Minimal / Clean (Zero Fotos)',
-    tagline: 'Fundo 100% branco puro, respiro amplo e funciona perfeitamente sem fotos.',
+    styleName: 'Minimal Clean / Pure White',
+    tagline: '100% Claro: Fundo 100% branco puro, respiro amplo e funciona perfeitamente sem fotos.',
     description: 'Minimalismo requintado com logo PNG em destaque, foco absoluto na tipografia, serviços essenciais e contato ágil.'
   },
   {
     index: 5,
+    layout: 'classic-club',
+    serviceLayout: 'cards',
+    galleryStyle: 'carousel',
+    fontCategory: 'ELEGANTE',
+    socialIconStyle: 'glass',
+    styleName: 'Vintage Heritage / Classic Club',
+    tagline: 'Couro escuro, mogno e cobre envelhecido, brasão clássico e clima cavalheiro.',
+    description: 'Tradição artesanal com textura de madeira nobre, cartão de visitas vintage, brasão heráldico e avaliações de prestígio.'
+  },
+  {
+    index: 6,
+    layout: 'profile-poster',
+    serviceLayout: 'minimal-list',
+    galleryStyle: 'horizontal-scroll',
+    fontCategory: 'BOLD',
+    socialIconStyle: 'glass',
+    styleName: 'Sport & Performance / Poster',
+    tagline: 'Azul marinho e laranja flamejante, foto recortada protagonista e manifesto atlético.',
+    description: 'Pôster de alto impacto inspirado em referências de atletas e treinadores, com contadores de performance, manifesto marcante e logo em itálico 3D.'
+  },
+  {
+    index: 7,
+    layout: 'magazine',
+    serviceLayout: 'editorial',
+    galleryStyle: 'horizontal-scroll',
+    fontCategory: 'MODERNA',
+    socialIconStyle: 'minimal',
+    styleName: 'Nordic Sand / Scandinavian Light',
+    tagline: '100% Claro: Areia suave e linho #F4F1EA, split screen e lookbook horizontal.',
+    description: 'Design escandinavo calmo e acolhedor, com molduras orgânicas curvas, tipografia humanista e cardápio em acordeão elegante.'
+  },
+  {
+    index: 8,
+    layout: 'bento',
+    serviceLayout: 'cards',
+    galleryStyle: 'masonry',
+    fontCategory: 'MODERNA',
+    socialIconStyle: 'solid',
+    styleName: 'Bento Grid / Modern Mosaic',
+    tagline: 'Mosaico assimétrico, midnight teal e neon cyan, status ao vivo e GPS.',
+    description: 'Organização modular ultra-moderna em blocos bento interligados, com badge pulsante de status em tempo real e atalhos táteis.'
+  },
+  {
+    index: 9,
+    layout: 'split-screen',
+    serviceLayout: 'cards',
+    galleryStyle: 'carousel',
+    fontCategory: 'MODERNA',
+    socialIconStyle: 'outline',
+    styleName: 'Ice White / Luxury Barbershop',
+    tagline: '100% Claro: Gelo e titânio #F8FAFC, seletor de serviços interativo sincronizado.',
+    description: 'Atendimento executivo de alta patente com seletor interativo que atualiza em tempo real a mensagem enviada ao WhatsApp.'
+  },
+  {
+    index: 10,
     layout: 'signature',
     serviceLayout: 'cards',
     galleryStyle: 'carousel',
     fontCategory: 'ELEGANTE',
     socialIconStyle: 'glass',
-    styleName: 'Signature / Experimental',
-    tagline: 'Azul petróleo / tons jóia, glass/chrome, selo VIP e avaliações 5.0.',
-    description: 'Composição assimétrica de prestígio, profundidade visual, carrossel de fotos, selo de autoridade e Google Review.'
+    styleName: 'Signature Prestige / Black & Platinum',
+    tagline: 'Preto nobre, platina, assinatura cursiva, luz de cinema e lounge VIP.',
+    description: 'Composição de alto luxo com iluminação cenográfica de holofote, selo de cera com acabamento em platina e comodidades VIP exclusivas.'
   }
 ];
 
@@ -875,63 +930,80 @@ function getNicheModelTheme(nichoId: string, modelIndex: number, primaryAccent: 
         accent: primaryAccent || '#0F172A'
       };
 
-    case 5: // MODELO 05 — SIGNATURE / EXPERIMENTAL (Deep jewel tones, chrome/gold glass, prestige)
-      let sigBg = '#081426';
-      let sigSurface = '#0E1A2E';
-      let sigPrimary = '#EAB308';
-
-      if (nichoId === '02-manicure') {
-        sigBg = '#150818';
-        sigSurface = '#200E25';
-        sigPrimary = '#F472B6';
-      } else if (nichoId === '03-salao') {
-        sigBg = '#0A0806';
-        sigSurface = '#16120E';
-        sigPrimary = '#F59E0B';
-      } else if (nichoId === '04-pizzaria') {
-        sigBg = '#18080A';
-        sigSurface = '#260E12';
-        sigPrimary = '#EF4444';
-      } else if (nichoId === '05-boutique') {
-        sigBg = '#0F0A1A';
-        sigSurface = '#181128';
-        sigPrimary = '#C084FC';
-      } else if (nichoId === '06-corretor') {
-        sigBg = '#070E1E';
-        sigSurface = '#0E1830';
-        sigPrimary = '#38BDF8';
-      } else if (nichoId === '07-personal') {
-        sigBg = '#0A0E17';
-        sigSurface = '#121824';
-        sigPrimary = '#22C55E';
-      } else if (nichoId === '08-motorista') {
-        sigBg = '#070B18';
-        sigSurface = '#0E152B';
-        sigPrimary = '#60A5FA';
-      } else if (nichoId === '09-mecanica') {
-        sigBg = '#0A0F1A';
-        sigSurface = '#121929';
-        sigPrimary = '#FB923C';
-      } else if (nichoId === '10-confeitaria') {
-        sigBg = '#180F14';
-        sigSurface = '#261821';
-        sigPrimary = '#F472B6';
-      }
-
+    case 5: // MODELO 05 — VINTAGE HERITAGE / CLASSIC CLUB (Dark tobacco, aged mahogany, copper & brass)
       return {
-        background: sigBg,
-        surface: sigSurface,
+        background: '#160E0A',
+        surface: '#221610',
+        text: '#FDFBF7',
+        textMuted: '#C9B5A3',
+        border: 'rgba(194, 120, 56, 0.25)',
+        primary: '#D4AF37',
+        secondary: '#A16207',
+        accent: '#C27838'
+      };
+
+    case 6: // MODELO 06 — SPORT & PERFORMANCE / POSTER (Athletic deep navy & flame orange, Marcos Willian inspired)
+      return {
+        background: '#0A1329',
+        surface: '#102046',
+        text: '#FFFFFF',
+        textMuted: '#94A3B8',
+        border: 'rgba(255, 94, 0, 0.25)',
+        primary: '#FF5E00',
+        secondary: '#EA580C',
+        accent: '#F97316'
+      };
+
+    case 7: // MODELO 07 — NORDIC SAND / SCANDINAVIAN LIGHT (100% CLARO - Warm sand, linen, muted charcoal)
+      return {
+        background: '#F4F1EA',
+        surface: '#FFFFFF',
+        text: '#22252A',
+        textMuted: '#6B7280',
+        border: 'rgba(34, 37, 42, 0.1)',
+        primary: '#556B2F',
+        secondary: '#3F4E22',
+        accent: '#606C38'
+      };
+
+    case 8: // MODELO 08 — BENTO GRID / MODERN MOSAIC (Midnight teal, neon cyan, glowing glass)
+      return {
+        background: '#091E24',
+        surface: '#0E2930',
+        text: '#F0FDFA',
+        textMuted: '#99F6E4',
+        border: 'rgba(0, 240, 255, 0.2)',
+        primary: '#00F0FF',
+        secondary: '#0891B2',
+        accent: '#2DD4BF'
+      };
+
+    case 9: // MODELO 09 — ICE WHITE / LUXURY BARBERSHOP (100% CLARO - Pure ice white #F8FAFC, titanium slate)
+      return {
+        background: '#F8FAFC',
+        surface: '#FFFFFF',
+        text: '#0F172A',
+        textMuted: '#64748B',
+        border: 'rgba(15, 23, 42, 0.08)',
+        primary: '#0284C7',
+        secondary: '#0369A1',
+        accent: '#38BDF8'
+      };
+
+    case 10: // MODELO 10 — SIGNATURE PRESTIGE / BLACK & PLATINUM (Theatrical spotlight, obsidian, platinum)
+      return {
+        background: '#050507',
+        surface: '#0D0E15',
         text: '#FFFDF5',
         textMuted: '#94A3B8',
-        border: 'rgba(234, 179, 8, 0.3)',
-        primary: sigPrimary,
-        secondary: '#CA8A04',
-        accent: '#FDE047'
+        border: 'rgba(226, 232, 240, 0.2)',
+        primary: '#E2E8F0',
+        secondary: '#94A3B8',
+        accent: '#F8FAFC'
       };
 
     default:
-      // Backward compatibility for legacy templates 06..10
-      return getNicheModelTheme(nichoId, ((modelIndex - 1) % 5) + 1, primaryAccent, secondaryAccent);
+      return getNicheModelTheme(nichoId, ((modelIndex - 1) % 10) + 1, primaryAccent, secondaryAccent);
   }
 }
 
@@ -1137,6 +1209,7 @@ NICHOS_LIST.forEach((nicho) => {
       index: templateIndex,
       name: `${brandName}`,
       styleName: `${style.styleName}`,
+      tagline: `${style.tagline}`,
       description: `${style.tagline}`,
       layout: style.layout,
       galleryStyle: style.galleryStyle,
