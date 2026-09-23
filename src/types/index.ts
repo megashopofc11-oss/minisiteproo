@@ -34,13 +34,16 @@ export type TemplateLayout =
   | 'glass'
   | 'immersive'
   | 'minimal'
+  | 'bento'
+  | 'storytelling'
+  | 'brutalist'
+  | 'orbital'
+  | 'signature'
   | 'urban'
   | 'classic-club'
   | 'motion'
   | 'profile'
-  | 'signature'
   // Backward compatibility aliases
-  | 'orbital'
   | 'story'
   | 'cards'
   | 'neon'
@@ -73,7 +76,8 @@ export type ServiceLayoutStyle =
   | 'horizontal-scroll'
   | 'accordion'
   | 'tags'
-  | 'photo-cards';
+  | 'photo-cards'
+  | 'timeline';
 
 export type FontCategory =
   | 'MODERNA'
@@ -249,6 +253,7 @@ export interface ProjectData {
   nome: string;
   nicho: NichoId;
   templateId: string;
+  layout?: TemplateLayout;
   createdAt: number;
   updatedAt: number;
   identity: ProjectIdentity;

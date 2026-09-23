@@ -187,21 +187,22 @@ export const generateStandaloneHtml = (project: ProjectData): string => {
     </section>
   ` : '';
 
-  const hoursLocationHtml = ((sectionsVisibility.hours !== false && location.hours) || (sectionsVisibility.location !== false && location.address)) ? `
+  const hoursHtml = (sectionsVisibility.hours !== false && location.hours) ? `
     <section class="location-card">
-      ${(sectionsVisibility.hours !== false && location.hours) ? `
-        <div class="loc-item">
-          <strong>Horário de Funcionamento</strong>
-          <p>${escapeHtml(location.hours)}</p>
-        </div>
-      ` : ''}
-      ${(sectionsVisibility.location !== false && location.address) ? `
-        <div class="loc-item">
-          <strong>Localização Privilegiada</strong>
-          <p>${escapeHtml(location.address)}</p>
-          ${location.mapsUrl ? `<a href="${sanitizeUrl(location.mapsUrl)}" target="_blank" class="map-link">Ver rota no Google Maps →</a>` : ''}
-        </div>
-      ` : ''}
+      <div class="loc-item">
+        <strong>Horário de Funcionamento</strong>
+        <p>${escapeHtml(location.hours)}</p>
+      </div>
+    </section>
+  ` : '';
+
+  const locationHtml = (sectionsVisibility.location !== false && location.address) ? `
+    <section class="location-card">
+      <div class="loc-item">
+        <strong>Localização Privilegiada</strong>
+        <p>${escapeHtml(location.address)}</p>
+        ${location.mapsUrl ? `<a href="${sanitizeUrl(location.mapsUrl)}" target="_blank" class="map-link">Ver rota no Google Maps →</a>` : ''}
+      </div>
     </section>
   ` : '';
 
@@ -250,8 +251,8 @@ export const generateStandaloneHtml = (project: ProjectData): string => {
       case 'services': return servicesHtml;
       case 'gallery': return galleryHtml;
       case 'reviews': return reviewsHtml;
-      case 'hours':
-      case 'location': return hoursLocationHtml;
+      case 'hours': return hoursHtml;
+      case 'location': return locationHtml;
       case 'socials': return socialsHtml;
       case 'cta': return ctaHtml;
       default: return '';

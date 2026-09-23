@@ -200,80 +200,80 @@ export const DESIGN_STYLES: DesignStyleConfig[] = [
   },
   {
     index: 3,
+    layout: 'storytelling',
+    serviceLayout: 'timeline',
+    galleryStyle: 'cards',
+    fontCategory: 'ELEGANTE',
+    socialIconStyle: 'glass',
+    styleName: 'Storytelling Narrative',
+    tagline: 'Jornada cronológica com apresentação, especialista e timeline de serviços.',
+    description: 'Composição narrativa inspirada em lounges e clubes com linha do tempo sequencial.'
+  },
+  {
+    index: 4,
+    layout: 'brutalist',
+    serviceLayout: 'minimal-list',
+    galleryStyle: 'collage',
+    fontCategory: 'BOLD',
+    socialIconStyle: '3d',
+    styleName: 'Urban Brutalist',
+    tagline: 'Tipografia de impacto, numeração técnica [01] e palavras gigantes sem cards.',
+    description: 'Estética industrial de alta presença com blocos marcantes e forte contraste.'
+  },
+  {
+    index: 5,
     layout: 'glass',
     serviceLayout: 'cards',
     galleryStyle: 'cards',
     fontCategory: 'MODERNA',
     socialIconStyle: 'glass',
     styleName: 'Glass Experience',
-    tagline: 'Hero full-screen com card translúcido flutuante e botões de vidro fosco.',
+    tagline: 'Hero com card translúcido flutuante, desfoque e botões de vidro fosco.',
     description: 'Glassmorphism de alto padrão com bordas luminosas, botões glass e sensação de profundidade 3D.'
   },
   {
-    index: 4,
-    layout: 'immersive',
-    serviceLayout: 'photo-cards',
-    galleryStyle: 'full-width',
-    fontCategory: 'BOLD',
-    socialIconStyle: 'original',
-    styleName: 'Immersive Photo',
-    tagline: 'Experiência baseada em capítulos visuais onde cada scroll revela uma fotografia.',
-    description: 'Pouquíssimos cards, fotografia dominante em tela cheia com textos integrados diretamente à imagem.'
-  },
-  {
-    index: 5,
+    index: 6,
     layout: 'minimal',
     serviceLayout: 'minimal-list',
     galleryStyle: 'horizontal-scroll',
     fontCategory: 'MINIMAL',
     socialIconStyle: 'outline',
-    styleName: 'Minimal Luxury',
-    tagline: 'Fundo off-white luminoso, tipografia preta elegante e espaço negativo nobre.',
+    styleName: 'Minimal Light',
+    tagline: 'Fundo claro/branco luminoso, tipografia preta elegante e espaço negativo nobre.',
     description: 'Visual diurno e silencioso com logo em respiro amplo, ausência de ruídos e detalhes discretos.'
   },
   {
-    index: 6,
-    layout: 'urban',
-    serviceLayout: 'icons-grid',
-    galleryStyle: 'collage',
-    fontCategory: 'BOLD',
-    socialIconStyle: '3d',
-    styleName: 'Urban Brutalist',
-    tagline: 'Preto e cinzas industriais, tipografia marcante em blocos e atmosfera jovem.',
-    description: 'Grids visuais, linhas de alta atitude, fotografia urbana e numeração técnica direta.'
-  },
-  {
     index: 7,
-    layout: 'classic-club',
-    serviceLayout: 'accordion',
-    galleryStyle: 'overlap',
-    fontCategory: 'ELEGANTE',
+    layout: 'bento',
+    serviceLayout: 'cards',
+    galleryStyle: 'cards',
+    fontCategory: 'MODERNA',
     socialIconStyle: 'glass',
-    styleName: 'Classic Club',
-    tagline: 'Marrom escuro, couro nobre, dourado envelhecido e visual de clube exclusivo.',
-    description: 'Composição acolhedora inspirada em ateliês e lounges clássicos com serifas requintadas.'
+    styleName: 'Modern Bento Grid',
+    tagline: 'Composição modular assimétrica em blocos bento interativos.',
+    description: 'Grid inteligente que reúne status, avaliações, serviços e fotos em mosaicos dinâmicos.'
   },
   {
     index: 8,
-    layout: 'motion',
+    layout: 'immersive',
+    serviceLayout: 'photo-cards',
+    galleryStyle: 'full-width',
+    fontCategory: 'BOLD',
+    socialIconStyle: 'original',
+    styleName: 'Immersive Photo Chapters',
+    tagline: 'Experiência baseada em capítulos visuais onde cada scroll revela uma fotografia.',
+    description: 'Fotografia dominante em tela cheia com textos e serviços integrados à imagem.'
+  },
+  {
+    index: 9,
+    layout: 'orbital',
     serviceLayout: 'cards',
     galleryStyle: 'cards',
     fontCategory: 'MODERNA',
     socialIconStyle: 'glow',
-    styleName: 'Motion Dynamic',
-    tagline: 'Elementos com iluminação viva, cards com microinterações e visual energético.',
-    description: 'Transições visuais suaves, relevos luminosos e botões que saltam aos olhos do cliente.'
-  },
-  {
-    index: 9,
-    layout: 'profile',
-    serviceLayout: 'tags',
-    galleryStyle: 'carousel',
-    fontCategory: 'MODERNA',
-    socialIconStyle: 'glass',
-    styleName: 'Profile do Especialista',
-    tagline: 'Foco no profissional, sua foto de destaque, história autoral e agenda direta.',
-    description: 'Destaque pessoal do fundador ou especialista, conectando autoridade e atendimento individual.'
+    styleName: 'Orbital Live Motion',
+    tagline: 'Iluminação viva, badges pulsantes e alta energia visual.',
+    description: 'Transições visuais dinâmicas, relevos luminosos e botões com aura pulsante.'
   },
   {
     index: 10,
@@ -766,6 +766,254 @@ const NICHE_DOMAIN_DATA: Record<NichoId, NicheDomainConfig> = {
   }
 };
 
+// Distinct color palettes per model & niche (Dark, Light, Cream, Pastel, Brutalist, Jewel tones)
+function getNicheModelTheme(nichoId: string, modelIndex: number, primaryAccent: string, secondaryAccent: string) {
+  switch (modelIndex) {
+    case 1: // Cinematic Hero
+      return {
+        background: '#07080D',
+        surface: '#0E111C',
+        text: '#F8FAFC',
+        textMuted: '#94A3B8',
+        border: 'rgba(255, 255, 255, 0.1)',
+        primary: primaryAccent,
+        secondary: secondaryAccent,
+        accent: '#F59E0B'
+      };
+    case 2: // Editorial Magazine (Light / Cream / Off-White)
+      if (nichoId === 'manicure') {
+        return {
+          background: '#FDF6F0',
+          surface: '#FFFFFF',
+          text: '#2A171F',
+          textMuted: '#785A65',
+          border: 'rgba(42, 23, 31, 0.12)',
+          primary: '#831843',
+          secondary: '#BE185D',
+          accent: '#DB2777'
+        };
+      } else if (nichoId === 'confeitaria') {
+        return {
+          background: '#FCF8F2',
+          surface: '#FFFFFF',
+          text: '#29180E',
+          textMuted: '#7C6757',
+          border: 'rgba(41, 24, 14, 0.12)',
+          primary: '#78350F',
+          secondary: '#B45309',
+          accent: '#D97706'
+        };
+      } else if (nichoId === 'pizzaria') {
+        return {
+          background: '#FAF6ED',
+          surface: '#FFFFFF',
+          text: '#1C1917',
+          textMuted: '#57534E',
+          border: 'rgba(28, 25, 23, 0.12)',
+          primary: '#9A3412',
+          secondary: '#365314',
+          accent: '#C2410C'
+        };
+      } else if (nichoId === 'boutique') {
+        return {
+          background: '#F9F9F9',
+          surface: '#FFFFFF',
+          text: '#111111',
+          textMuted: '#666666',
+          border: 'rgba(0, 0, 0, 0.12)',
+          primary: '#111111',
+          secondary: '#555555',
+          accent: '#A87132'
+        };
+      } else {
+        return {
+          background: '#FAF8F5',
+          surface: '#FFFFFF',
+          text: '#111111',
+          textMuted: '#57534E',
+          border: 'rgba(0, 0, 0, 0.12)',
+          primary: '#A87132',
+          secondary: '#78350F',
+          accent: '#C59B27'
+        };
+      }
+    case 3: // Storytelling Timeline (Caramel, Vintage Leather, Tuscan)
+      if (nichoId === 'boutique') {
+        return {
+          background: '#F5F2EB',
+          surface: '#FFFFFF',
+          text: '#292524',
+          textMuted: '#78716C',
+          border: 'rgba(41, 37, 36, 0.12)',
+          primary: '#44403C',
+          secondary: '#78716C',
+          accent: '#A87132'
+        };
+      } else if (nichoId === 'manicure') {
+        return {
+          background: '#FFF7F2',
+          surface: '#FFFFFF',
+          text: '#4A1D2F',
+          textMuted: '#83475E',
+          border: 'rgba(74, 29, 47, 0.12)',
+          primary: '#BE123C',
+          secondary: '#FB7185',
+          accent: '#E11D48'
+        };
+      } else {
+        return {
+          background: '#1C1008',
+          surface: '#27170C',
+          text: '#FDFBF7',
+          textMuted: '#D7C2B2',
+          border: '#452A18',
+          primary: '#D97706',
+          secondary: '#F59E0B',
+          accent: '#FDE68A'
+        };
+      }
+    case 4: // Urban Brutalist (Raw Concrete, Industrial, Stark High Contrast)
+      if (nichoId === 'pizzaria') {
+        return {
+          background: '#F5E6CA',
+          surface: '#FFFFFF',
+          text: '#111111',
+          textMuted: '#444444',
+          border: '#111111',
+          primary: '#DC2626',
+          secondary: '#111111',
+          accent: '#B91C1C'
+        };
+      } else if (nichoId === 'manicure' || nichoId === 'confeitaria') {
+        return {
+          background: '#F9FAFB',
+          surface: '#FFFFFF',
+          text: '#111111',
+          textMuted: '#4B5563',
+          border: '#111111',
+          primary: '#DB2777',
+          secondary: '#111111',
+          accent: '#E11D48'
+        };
+      } else {
+        return {
+          background: '#EFEFEF',
+          surface: '#FFFFFF',
+          text: '#111111',
+          textMuted: '#4B5563',
+          border: '#111111',
+          primary: '#111111',
+          secondary: '#DC2626',
+          accent: '#EAB308'
+        };
+      }
+    case 5: // Glass Experience (Petroleum Blue, Emerald, Sapphire, Frosted Crystal)
+      if (nichoId === 'manicure' || nichoId === 'confeitaria') {
+        return {
+          background: '#160B24',
+          surface: 'rgba(255, 255, 255, 0.1)',
+          text: '#FAF5FF',
+          textMuted: '#E9D5FF',
+          border: 'rgba(255, 255, 255, 0.2)',
+          primary: '#C084FC',
+          secondary: '#A855F7',
+          accent: '#E879F9'
+        };
+      } else {
+        return {
+          background: '#0C1E2E',
+          surface: 'rgba(255, 255, 255, 0.1)',
+          text: '#F0F9FF',
+          textMuted: '#BAE6FD',
+          border: 'rgba(255, 255, 255, 0.2)',
+          primary: '#38BDF8',
+          secondary: '#0284C7',
+          accent: '#7DD3FC'
+        };
+      }
+    case 6: // Minimal Light (Pure White #FFFFFF Daylight Luxury)
+      return {
+        background: '#FFFFFF',
+        surface: '#FFFFFF',
+        text: '#0F172A',
+        textMuted: '#64748B',
+        border: 'rgba(15, 23, 42, 0.08)',
+        primary: primaryAccent || '#0F172A',
+        secondary: '#334155',
+        accent: '#D97706'
+      };
+    case 7: // Modern Bento Grid (Asymmetric Modular)
+      if (nichoId === 'manicure' || nichoId === 'confeitaria') {
+        return {
+          background: '#FDF2F8',
+          surface: '#FFFFFF',
+          text: '#371B26',
+          textMuted: '#83475E',
+          border: 'rgba(236, 72, 153, 0.18)',
+          primary: '#EC4899',
+          secondary: '#DB2777',
+          accent: '#BE185D'
+        };
+      } else if (nichoId === 'corretor' || nichoId === 'motorista' || nichoId === 'mecanica') {
+        return {
+          background: '#F1F5F9',
+          surface: '#FFFFFF',
+          text: '#0F172A',
+          textMuted: '#475569',
+          border: 'rgba(15, 23, 42, 0.12)',
+          primary: '#2563EB',
+          secondary: '#1D4ED8',
+          accent: '#3B82F6'
+        };
+      } else {
+        return {
+          background: '#0B0C10',
+          surface: '#13151D',
+          text: '#FFFFFF',
+          textMuted: '#94A3B8',
+          border: 'rgba(255, 255, 255, 0.12)',
+          primary: primaryAccent,
+          secondary: secondaryAccent,
+          accent: '#F59E0B'
+        };
+      }
+    case 8: // Immersive Photo Chapters
+      return {
+        background: '#050608',
+        surface: '#0A0C12',
+        text: '#FFFFFF',
+        textMuted: '#94A3B8',
+        border: 'rgba(255, 255, 255, 0.12)',
+        primary: primaryAccent,
+        secondary: secondaryAccent,
+        accent: '#F59E0B'
+      };
+    case 9: // Orbital Live Motion (High-Energy Neon & Dynamic Rings)
+      return {
+        background: '#07090E',
+        surface: '#0E111C',
+        text: '#FFFFFF',
+        textMuted: '#94A3B8',
+        border: 'rgba(255, 255, 255, 0.15)',
+        primary: '#FF6B00',
+        secondary: '#F59E0B',
+        accent: '#FF8A00'
+      };
+    case 10: // Signature Luxury (Wax Seal, Prestige Concierge, 24K Gold)
+    default:
+      return {
+        background: '#06070B',
+        surface: '#0E1018',
+        text: '#FFFDF5',
+        textMuted: '#CBD5E1',
+        border: 'rgba(234, 179, 8, 0.25)',
+        primary: '#EAB308',
+        secondary: '#CA8A04',
+        accent: '#FDE047'
+      };
+  }
+}
+
 // Generates 100 complete, distinct, authentic templates (10 niches × 10 experiences)
 export const ALL_TEMPLATES: TemplateDefinition[] = [];
 
@@ -783,60 +1031,19 @@ NICHOS_LIST.forEach((nicho) => {
     const badge = domain.badges[idx % domain.badges.length];
     const about = domain.abouts[0];
 
-    // Colors adjusted by layout vibe while respecting niche personality
-    let themeBg = '#07080D';
-    let themeSurface = '#0E111C';
-    let themeText = '#F8FAFC';
-    let themeTextMuted = '#94A3B8';
-    let themeBorder = 'rgba(255, 255, 255, 0.1)';
-
-    if (style.layout === 'minimal') {
-      // 05 — Minimal Luxury (Off-White Luminoso)
-      themeBg = '#FAF9F6';
-      themeSurface = '#FFFFFF';
-      themeText = '#0F172A';
-      themeTextMuted = '#64748B';
-      themeBorder = 'rgba(0, 0, 0, 0.08)';
-    } else if (style.layout === 'classic-club') {
-      // 07 — Classic Club (Couro & Mogno Escuro com Dourado Envelhecido)
-      themeBg = '#130C08';
-      themeSurface = '#1E140E';
-      themeText = '#FDFBF7';
-      themeTextMuted = '#D7C2B2';
-      themeBorder = '#3E2718';
-    } else if (style.layout === 'urban') {
-      // 06 — Urban Brutalist (Concreto Industrial)
-      themeBg = '#090A0F';
-      themeSurface = '#131520';
-      themeText = '#F8FAFC';
-      themeTextMuted = '#94A3B8';
-      themeBorder = 'rgba(255, 255, 255, 0.15)';
-    } else if (style.layout === 'editorial') {
-      // 02 — Editorial Magazine
-      themeBg = '#0A0B10';
-      themeSurface = '#12141F';
-      themeText = '#FFFFFF';
-      themeTextMuted = '#94A3B8';
-      themeBorder = 'rgba(255, 255, 255, 0.12)';
-    } else if (style.layout === 'signature') {
-      // 10 — Signature Exclusive
-      themeBg = '#06070B';
-      themeSurface = '#0E1018';
-      themeText = '#FFFDF5';
-      themeTextMuted = '#CBD5E1';
-      themeBorder = 'rgba(245, 158, 11, 0.25)';
-    }
+    // Rich thematic palette dynamically tailored to niche + model engine (Diverse light, dark, pastel, brutalist, and jewel tones)
+    const customTheme = getNicheModelTheme(nicho.id, idx + 1, nicho.accentColor, nicho.secondaryColor || '#D97706');
 
     const defaultTheme = {
-      primary: nicho.accentColor,
-      secondary: nicho.secondaryColor || '#D97706',
-      accent: style.layout === 'minimal' ? '#B45309' : '#FDE68A',
-      background: themeBg,
-      surface: themeSurface,
-      text: themeText,
-      textMuted: themeTextMuted,
-      cardBg: themeSurface,
-      border: themeBorder,
+      primary: customTheme.primary,
+      secondary: customTheme.secondary,
+      accent: customTheme.accent,
+      background: customTheme.background,
+      surface: customTheme.surface,
+      text: customTheme.text,
+      textMuted: customTheme.textMuted,
+      cardBg: customTheme.surface,
+      border: customTheme.border,
       fontHeading: style.fontCategory === 'EDITORIAL' ? 'Bodoni Moda' : style.fontCategory === 'ELEGANTE' ? 'Playfair Display' : 'Plus Jakarta Sans',
       fontBody: 'Plus Jakarta Sans'
     };
