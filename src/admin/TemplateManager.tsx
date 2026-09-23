@@ -7,6 +7,7 @@ import {
 } from '../types/biofacil';
 import {
   fetchAllTemplates,
+  fetchTemplateById,
   saveTemplate,
   updateTemplateStatus,
   deleteTemplate,
@@ -20,7 +21,9 @@ import {
 import {
   uploadTemplateZip,
   uploadThumbnailImage,
-  checkStorageStatus
+  checkStorageStatus,
+  saveAssetsToIndexedDb,
+  optimizeThumbnailDataUrl
 } from '../services/modelStorageService';
 import { BioFacilEditor } from '../editor/BioFacilEditor';
 import {
@@ -90,6 +93,7 @@ export const TemplateManager: React.FC = () => {
   // Saving state
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
+  const [successNotification, setSuccessNotification] = useState('');
 
   const zipInputRef = useRef<HTMLInputElement>(null);
   const thumbnailInputRef = useRef<HTMLInputElement>(null);
@@ -132,7 +136,7 @@ export const TemplateManager: React.FC = () => {
     setFormCustomNicho('');
     setFormDemoUrl('');
     setFormThumbnailUrl('');
-    setFormStatus('draft');
+    setFormStatus('published');
     setZipFile(null);
     setZipValidation(null);
     setParsedManifest(null);
@@ -208,10 +212,22 @@ export const TemplateManager: React.FC = () => {
 
   // Handle Thumbnail image selection
   const handleThumbnailSelected = async (file: File) => {
+    try {
+      const targetId = parsedManifest?.templateId || editingTemplate?.templateId || 'thumb_temp';
+      const uploadRes = await uploadThumbnailImage(targetId, file);
+      if (uploadRes.url) {
+        setFormThumbnailUrl(uploadRes.url);
+        return;
+      }
+    } catch {
+      // fallback
+    }
+
     const reader = new FileReader();
-    reader.onload = () => {
+    reader.onload = async () => {
       if (reader.result) {
-        setFormThumbnailUrl(reader.result as string);
+        const optimized = await optimizeThumbnailDataUrl(reader.result as string);
+        setFormThumbnailUrl(optimized);
       }
     };
     reader.readAsDataURL(file);
@@ -245,8 +261,13 @@ export const TemplateManager: React.FC = () => {
     setTestingTemplate(testTemplateObj);
   };
 
-  // Submit Save
+  // Submit Save with strict robust try-catch-finally and exact 8-step logs
   const handleSaveTemplate = async () => {
+    if (isSaving) return; // Prevent duplicate clicks
+
+    console.log('[1] Iniciando cadastro');
+
+    // 1. Validate Form Fields
     if (!formName.trim()) {
       setSaveError('Informe o nome do modelo.');
       return;
@@ -264,7 +285,11 @@ export const TemplateManager: React.FC = () => {
     }
 
     if (zipValidation && !zipValidation.valid) {
-      setSaveError('O arquivo ZIP possui erros críticos. Corrija o arquivo antes de publicar.');
+      setSaveError(
+        zipValidation.errors?.length
+          ? zipValidation.errors.join(' | ')
+          : 'O arquivo ZIP possui erros críticos. Corrija o arquivo antes de cadastrar.'
+      );
       return;
     }
 
@@ -273,13 +298,17 @@ export const TemplateManager: React.FC = () => {
       editingTemplate?.templateId ||
       `BF-${selectedCategoryId.toUpperCase().slice(0, 6)}-${Date.now().toString(36).toUpperCase()}`;
 
+    console.log('[2] Dados validados');
+
     setIsSaving(true);
     setSaveError('');
 
     try {
-      let sourceRef = editingTemplate?.sourceFileReference || '';
+      console.log('[3] Iniciando armazenamento do arquivo');
 
-      // Upload or cache ZIP if new file was selected
+      let sourceRef = editingTemplate?.sourceFileReference || `indexeddb://${templateId}`;
+
+      // Upload or cache ZIP in IndexedDB and storage with timeout (never stalls)
       if (zipFile) {
         const uploadRes = await uploadTemplateZip(templateId, zipFile);
         if (uploadRes.url) {
@@ -287,8 +316,46 @@ export const TemplateManager: React.FC = () => {
         }
       }
 
+      // Store extracted assets in IndexedDB so all images/fonts are safely cached
+      if (extractedAssets && Object.keys(extractedAssets).length > 0) {
+        await saveAssetsToIndexedDb(templateId, extractedAssets);
+      }
+
+      // Process and optimize thumbnail data URL
+      let processedThumbnail = formThumbnailUrl;
+      if (processedThumbnail && processedThumbnail.startsWith('data:image/')) {
+        processedThumbnail = await optimizeThumbnailDataUrl(processedThumbnail);
+      }
+      if (!processedThumbnail) {
+        processedThumbnail = 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=800';
+      }
+
+      console.log('[4] Arquivo armazenado');
+
+      console.log('[5] Salvando documento do template');
+
       const categoryObj = INITIAL_NICHES.find((n) => n.id === selectedCategoryId);
       const categoryDisplayName = categoryObj ? categoryObj.name : selectedCategoryId;
+
+      // Filter assets to keep Firestore document comfortably under 1MB limit:
+      // Lightweight text assets (CSS, SVG, small fonts) stay in Firestore.
+      // Large binary assets are in IndexedDB and parsed from the cached ZIP on-demand.
+      let firestoreAssets: Record<string, string> | undefined = undefined;
+      const assetsSource = Object.keys(extractedAssets).length > 0 ? extractedAssets : editingTemplate?.assets;
+      if (assetsSource && Object.keys(assetsSource).length > 0) {
+        const assetsJson = JSON.stringify(assetsSource);
+        if (assetsJson.length < 500000) {
+          firestoreAssets = assetsSource;
+        } else {
+          const lightAssets: Record<string, string> = {};
+          for (const [k, v] of Object.entries(assetsSource)) {
+            if (k.endsWith('.css') || k.endsWith('.svg') || v.length < 35000) {
+              lightAssets[k] = v;
+            }
+          }
+          firestoreAssets = Object.keys(lightAssets).length > 0 ? lightAssets : undefined;
+        }
+      }
 
       const templateToSave: BioFacilTemplate = {
         templateId,
@@ -297,25 +364,70 @@ export const TemplateManager: React.FC = () => {
         categoryId: selectedCategoryId,
         categoryName: categoryDisplayName,
         demoUrl: formDemoUrl.trim(),
-        thumbnailUrl: formThumbnailUrl || 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=800',
+        thumbnailUrl: processedThumbnail,
         sourceFileReference: sourceRef,
-        status: formStatus,
+        status: formStatus, // "published" | "draft" | "disabled"
         version: parsedManifest?.version || editingTemplate?.version || 1,
         createdAt: editingTemplate?.createdAt || Date.now(),
         updatedAt: Date.now(),
         createdBy: editingTemplate?.createdBy || 'admin',
         biofacilSchema: parsedManifest || editingTemplate!.biofacilSchema,
         htmlContent: parsedHtml || editingTemplate?.htmlContent || '',
-        assets: Object.keys(extractedAssets).length > 0 ? extractedAssets : editingTemplate?.assets,
-        hasSourceZip: !!zipFile || !!editingTemplate?.hasSourceZip
+        hasSourceZip: !!zipFile || !!editingTemplate?.hasSourceZip,
+        ...(firestoreAssets ? { assets: firestoreAssets } : {})
       };
 
+      // Save to Firestore
       await saveTemplate(templateToSave);
+
+      // Verify and confirm that document exists
+      const savedDoc = await fetchTemplateById(templateId);
+      if (!savedDoc) {
+        throw new Error('Não foi possível confirmar a gravação do modelo no banco de dados.');
+      }
+
+      console.log('[6] Documento salvo');
+
+      if (formStatus === 'published') {
+        console.log('[7] Status published confirmado');
+      } else {
+        console.log(`[7] Status ${formStatus} confirmado`);
+      }
+
+      console.log('[8] Cadastro concluído');
+
+      // Success notification feedback
+      const successMsg =
+        formStatus === 'published'
+          ? '✓ MODELO PUBLICADO COM SUCESSO'
+          : formStatus === 'draft'
+          ? '✓ MODELO SALVO COM SUCESSO (RASCUNHO)'
+          : '✓ MODELO SALVO COM SUCESSO';
+
+      setSuccessNotification(successMsg);
       setIsModalOpen(false);
+
+      // Refresh admin list immediately
       await loadTemplates();
-    } catch (err: any) {
-      console.error('Error saving template:', err);
-      setSaveError(`Falha ao salvar o modelo: ${err.message || 'Erro inesperado'}`);
+    } catch (error: any) {
+      console.error('ERRO AO CADASTRAR MODELO:', error);
+      let errorMsg = 'Erro ao cadastrar modelo.';
+      if (error?.message) {
+        try {
+          const parsed = JSON.parse(error.message);
+          if (
+            parsed.error?.includes('permission-denied') ||
+            parsed.error?.includes('Missing or insufficient permissions')
+          ) {
+            errorMsg = 'Permissão negada pelo Firebase. Verifique privilégios de administrador.';
+          } else {
+            errorMsg = parsed.error || error.message;
+          }
+        } catch {
+          errorMsg = error.message;
+        }
+      }
+      setSaveError(errorMsg);
     } finally {
       setIsSaving(false);
     }
@@ -392,6 +504,23 @@ export const TemplateManager: React.FC = () => {
           <span>+ Adicionar Modelo</span>
         </button>
       </div>
+
+      {/* Success Notification Banner */}
+      {successNotification && (
+        <div className="p-4 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-200 flex items-center justify-between shadow-lg shadow-emerald-500/10">
+          <div className="flex items-center gap-3">
+            <CheckCircle2 size={18} className="text-emerald-400 shrink-0" />
+            <span className="font-bold text-xs sm:text-sm tracking-wide">{successNotification}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setSuccessNotification('')}
+            className="p-1 rounded-lg hover:bg-emerald-500/20 text-emerald-300 hover:text-white transition-colors cursor-pointer"
+          >
+            <X size={16} />
+          </button>
+        </div>
+      )}
 
       {/* Storage info notice */}
       {storageStatusMsg && (

@@ -163,22 +163,25 @@ export const fetchAllTemplates = async (statusFilter?: TemplateStatus): Promise<
   const path = 'templates';
   try {
     const templatesRef = collection(db, path);
-    const q = statusFilter
-      ? query(templatesRef, where('status', '==', statusFilter), orderBy('updatedAt', 'desc'))
-      : query(templatesRef, orderBy('updatedAt', 'desc'));
-    const snapshot = await getDocs(q);
-    const templates: BioFacilTemplate[] = [];
+    const snapshot = await getDocs(templatesRef);
+    let templates: BioFacilTemplate[] = [];
     snapshot.forEach((d) => {
       templates.push(d.data() as BioFacilTemplate);
     });
 
-    if (!templates.some((t) => t.templateId === 'BF-BARBER-001')) {
-      if (!statusFilter || statusFilter === 'published') {
+    if (statusFilter) {
+      templates = templates.filter((t) => t.status === statusFilter);
+    }
+
+    // Only inject seed if DB collection is completely empty on initial setup
+    if (templates.length === 0 && (!statusFilter || statusFilter === 'published')) {
+      const allDocs = await getDocs(templatesRef).catch(() => null);
+      if (!allDocs || allDocs.empty) {
         templates.push(SEED_BARBER_TEMPLATE);
       }
     }
 
-    return templates;
+    return templates.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
   } catch (error) {
     console.warn('Firestore fetchAllTemplates notice:', error);
     return [SEED_BARBER_TEMPLATE];
@@ -197,8 +200,12 @@ export const fetchPublishedTemplates = async (): Promise<BioFacilTemplate[]> => 
       templates.push(d.data() as BioFacilTemplate);
     });
 
-    if (!templates.some((t) => t.templateId === 'BF-BARBER-001')) {
-      templates.push(SEED_BARBER_TEMPLATE);
+    // If no published templates returned, verify if DB has any templates at all
+    if (templates.length === 0) {
+      const allDocs = await getDocs(templatesRef).catch(() => null);
+      if (!allDocs || allDocs.empty) {
+        templates.push(SEED_BARBER_TEMPLATE);
+      }
     }
 
     // Sort in memory by updatedAt descending
@@ -211,25 +218,21 @@ export const fetchPublishedTemplates = async (): Promise<BioFacilTemplate[]> => 
 
 // Fetch single template by ID
 export const fetchTemplateById = async (templateId: string): Promise<BioFacilTemplate | null> => {
-  if (templateId === 'BF-BARBER-001') {
-    const path = `templates/${templateId}`;
-    try {
-      const templateRef = doc(db, 'templates', templateId);
-      const snapshot = await getDoc(templateRef);
-      if (snapshot.exists()) return snapshot.data() as BioFacilTemplate;
-    } catch {
-      // Fallback to seed
-    }
-    return SEED_BARBER_TEMPLATE;
-  }
-
   const path = `templates/${templateId}`;
   try {
     const templateRef = doc(db, 'templates', templateId);
     const snapshot = await getDoc(templateRef);
-    if (!snapshot.exists()) return null;
-    return snapshot.data() as BioFacilTemplate;
+    if (snapshot.exists()) {
+      return snapshot.data() as BioFacilTemplate;
+    }
+    if (templateId === 'BF-BARBER-001') {
+      return SEED_BARBER_TEMPLATE;
+    }
+    return null;
   } catch (error) {
+    if (templateId === 'BF-BARBER-001') {
+      return SEED_BARBER_TEMPLATE;
+    }
     handleFirestoreError(error, OperationType.GET, path);
   }
 };
@@ -239,11 +242,15 @@ export const saveTemplate = async (template: BioFacilTemplate): Promise<void> =>
   const path = `templates/${template.templateId}`;
   try {
     const templateRef = doc(db, 'templates', template.templateId);
-    const dataToSave: BioFacilTemplate = {
-      ...template,
-      updatedAt: Date.now()
-    };
-    await setDoc(templateRef, dataToSave, { merge: true });
+    // Sanitize any undefined properties to avoid Firestore unsupported value errors
+    const cleanedData: Record<string, any> = {};
+    for (const [k, v] of Object.entries(template)) {
+      if (v !== undefined) {
+        cleanedData[k] = v;
+      }
+    }
+    cleanedData.updatedAt = Date.now();
+    await setDoc(templateRef, cleanedData, { merge: true });
   } catch (error) {
     handleFirestoreError(error, OperationType.WRITE, path);
   }

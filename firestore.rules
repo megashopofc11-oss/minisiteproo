@@ -12,9 +12,10 @@ service cloud.firestore {
     }
 
     // Role-based administrative verification based on secure Firestore user role or token claims
-    // NO hardcoded emails or secrets in rules
+    // Bootstrapped admin email and role check
     function isAdmin() {
       return isAuthenticated() && (
+        request.auth.token.email == 'megashopofc11@gmail.com' ||
         request.auth.token.admin == true ||
         request.auth.token.role == 'admin' ||
         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
