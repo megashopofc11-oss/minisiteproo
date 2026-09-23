@@ -54,8 +54,8 @@ export const MinimalLightEngine: React.FC<EngineProps> = ({ project, onPhotoClic
         </div>
       </section>
 
-      {/* 2. MINIMAL HERO IMAGE (Single pristine landscape/portrait frame) */}
-      {(photos[0]?.url || identity.bannerUrl) && (
+      {/* 2. MINIMAL HERO IMAGE (Single pristine landscape/portrait frame - only if usePhotos is enabled) */}
+      {project.usePhotos !== false && (photos[0]?.url || identity.bannerUrl) && (
         <section
           className="rounded-2xl overflow-hidden aspect-[16/10] shadow-sm border cursor-pointer group"
           style={{ borderColor: lightBorder }}
@@ -137,7 +137,7 @@ export const MinimalLightEngine: React.FC<EngineProps> = ({ project, onPhotoClic
       )}
 
       {/* 6. MINIMAL HORIZONTAL GALLERY */}
-      {photos.length > 1 && (
+      {project.usePhotos !== false && photos.length > 1 && (
         <section className="space-y-3">
           <span className="text-[10px] font-mono tracking-widest uppercase text-slate-400 block">
             PORTFÓLIO

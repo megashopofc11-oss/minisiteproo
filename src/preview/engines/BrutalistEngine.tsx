@@ -7,10 +7,17 @@ export const BrutalistEngine: React.FC<EngineProps> = ({ project, onPhotoClick }
   const { identity, theme, photos = [], services = [], location } = project;
   const waUrl = getWhatsAppUrl(project);
 
-  const brutBg = theme.background || '#EFEFEF';
-  const brutText = theme.text || '#111111';
-  const brutBorder = 'border-2 border-black';
-  const brutShadow = 'shadow-[4px_4px_0px_#000000]';
+  const brutBg = theme.background || '#121214';
+  const isDark = !brutBg.toLowerCase().startsWith('#f') && brutBg.toLowerCase() !== '#ffffff';
+
+  const brutText = isDark ? '#FFFFFF' : '#111111';
+  const brutSurface = isDark ? '#1C1C22' : '#FFFFFF';
+  const brutBorder = isDark ? 'border-2 border-white/25' : 'border-2 border-black';
+  const brutShadow = isDark
+    ? 'shadow-[4px_4px_0px_rgba(255,255,255,0.2)]'
+    : 'shadow-[4px_4px_0px_#000000]';
+  const accent = theme.primary || '#EF4444';
+  const dividerBorder = isDark ? 'border-white/20' : 'border-black';
 
   return (
     <div
@@ -18,13 +25,19 @@ export const BrutalistEngine: React.FC<EngineProps> = ({ project, onPhotoClick }
       style={{ backgroundColor: brutBg, color: brutText }}
     >
       {/* 1. BRUTALIST HERO BOX */}
-      <section className={`p-6 sm:p-10 bg-white ${brutBorder} ${brutShadow} space-y-6`}>
-        <div className="flex items-center justify-between border-b-2 border-black pb-3">
-          <span className="text-xs font-black uppercase tracking-wider">
+      <section
+        className={`p-6 sm:p-10 ${brutBorder} ${brutShadow} space-y-6`}
+        style={{ backgroundColor: brutSurface, color: brutText }}
+      >
+        <div className={`flex items-center justify-between border-b-2 ${dividerBorder} pb-3`}>
+          <span className="text-xs font-black uppercase tracking-wider opacity-70">
             [SYS_VER: 2024.1]
           </span>
-          <span className="text-xs font-black uppercase bg-black text-white px-2 py-0.5">
-            {identity.badge || 'RAW EDITION'}
+          <span
+            className="text-xs font-black uppercase px-2.5 py-0.5 text-white"
+            style={{ backgroundColor: accent }}
+          >
+            {identity.badge || 'RAW URBAN'}
           </span>
         </div>
 
@@ -34,7 +47,7 @@ export const BrutalistEngine: React.FC<EngineProps> = ({ project, onPhotoClick }
           <h1 className="text-3xl sm:text-6xl font-black uppercase tracking-tighter leading-none">
             {identity.name}
           </h1>
-          <p className="text-xs sm:text-sm font-bold uppercase leading-relaxed max-w-lg">
+          <p className="text-xs sm:text-sm font-bold uppercase leading-relaxed max-w-lg opacity-85">
             {identity.slogan}
           </p>
         </div>
@@ -44,7 +57,8 @@ export const BrutalistEngine: React.FC<EngineProps> = ({ project, onPhotoClick }
             href={waUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className={`inline-flex items-center gap-2 px-6 py-4 bg-black text-white font-black text-xs uppercase tracking-wider ${brutShadow} hover:bg-neutral-800 transition-all active:translate-x-1 active:translate-y-1 active:shadow-none`}
+            className={`inline-flex items-center gap-2 px-6 py-4 text-white font-black text-xs uppercase tracking-wider ${brutShadow} transition-all active:translate-x-1 active:translate-y-1 active:shadow-none`}
+            style={{ backgroundColor: accent }}
           >
             <span>{identity.title || 'ENTRAR EM CONTATO'}</span>
             <ArrowRight size={16} />
@@ -54,8 +68,11 @@ export const BrutalistEngine: React.FC<EngineProps> = ({ project, onPhotoClick }
 
       {/* 2. BRUTALIST MANIFESTO */}
       {identity.about && (
-        <section className={`p-6 bg-yellow-300 text-black ${brutBorder} ${brutShadow} space-y-2`}>
-          <span className="text-xs font-black uppercase tracking-widest block">
+        <section
+          className={`p-6 ${brutBorder} ${brutShadow} space-y-2`}
+          style={{ backgroundColor: isDark ? '#26262E' : '#FEF08A', color: isDark ? '#FFF' : '#000' }}
+        >
+          <span className="text-xs font-black uppercase tracking-widest block opacity-75">
             // MANIFESTO & DIRETRIZ
           </span>
           <p className="text-xs sm:text-sm font-bold uppercase leading-snug">
@@ -67,7 +84,7 @@ export const BrutalistEngine: React.FC<EngineProps> = ({ project, onPhotoClick }
       {/* 3. RAW SERVICES (WORDS WITHOUT SOFT CARDS) */}
       {services.length > 0 && (
         <section className="space-y-4">
-          <div className="flex items-center justify-between border-b-2 border-black pb-2">
+          <div className={`flex items-center justify-between border-b-2 ${dividerBorder} pb-2`}>
             <h3 className="text-base sm:text-lg font-black uppercase">
               // ESPECIALIDADES [{services.length}]
             </h3>
@@ -77,22 +94,27 @@ export const BrutalistEngine: React.FC<EngineProps> = ({ project, onPhotoClick }
             {services.map((svc, idx) => (
               <div
                 key={svc.id}
-                className={`p-4 bg-white ${brutBorder} ${brutShadow} flex flex-col sm:flex-row sm:items-center justify-between gap-4`}
+                className={`p-4 ${brutBorder} ${brutShadow} flex flex-col sm:flex-row sm:items-center justify-between gap-4`}
+                style={{ backgroundColor: brutSurface, color: brutText }}
               >
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-black bg-black text-white px-2 py-0.5">
+                    <span
+                      className="text-xs font-black px-2 py-0.5 text-white"
+                      style={{ backgroundColor: accent }}
+                    >
                       0{idx + 1}
                     </span>
                     <h4 className="text-sm sm:text-base font-black uppercase">{svc.name}</h4>
                   </div>
-                  <p className="text-xs text-neutral-600 font-bold uppercase">{svc.description}</p>
+                  <p className="text-xs opacity-75 font-bold uppercase">{svc.description}</p>
                 </div>
                 <a
                   href={waUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-black text-white text-xs font-black uppercase self-start sm:self-auto hover:bg-neutral-800"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-white text-xs font-black uppercase self-start sm:self-auto transition-transform active:scale-95"
+                  style={{ backgroundColor: accent }}
                 >
                   <span>AGENDAR</span>
                   <CornerDownRight size={13} />
@@ -106,11 +128,11 @@ export const BrutalistEngine: React.FC<EngineProps> = ({ project, onPhotoClick }
       {/* 4. PHOTOGRAPHY GRID */}
       {photos.length > 0 && (
         <section className="space-y-4">
-          <div className="border-b-2 border-black pb-2">
+          <div className={`border-b-2 ${dividerBorder} pb-2`}>
             <h3 className="text-base sm:text-lg font-black uppercase">// ARQUIVO VISUAL</h3>
           </div>
           <div className="grid grid-cols-2 gap-3">
-            {photos.map((p, idx) => (
+            {photos.map((p) => (
               <div
                 key={p.id}
                 onClick={() => onPhotoClick && onPhotoClick(p.url)}
@@ -127,23 +149,27 @@ export const BrutalistEngine: React.FC<EngineProps> = ({ project, onPhotoClick }
         </section>
       )}
 
-      {/* 5. LOCATION (SEPARATE - NO DUPLICATION) */}
+      {/* 5. LOCATION */}
       {location?.address && (
-        <section className={`p-5 bg-white ${brutBorder} ${brutShadow} space-y-2`}>
+        <section
+          className={`p-5 ${brutBorder} ${brutShadow} space-y-2`}
+          style={{ backgroundColor: brutSurface, color: brutText }}
+        >
           <div className="flex items-start gap-3">
-            <MapPin size={20} className="shrink-0 mt-0.5 text-black" />
+            <MapPin size={20} className="shrink-0 mt-0.5" style={{ color: accent }} />
             <div className="space-y-1">
-              <span className="text-[10px] font-black uppercase tracking-wider block text-neutral-500">
+              <span className="text-[10px] font-black uppercase tracking-wider block opacity-60">
                 // LOCALIZAÇÃO
               </span>
               <p className="text-xs sm:text-sm font-black uppercase">{location.address}</p>
-              {location.city && <p className="text-xs text-neutral-600 font-bold">{location.city}</p>}
+              {location.city && <p className="text-xs opacity-75 font-bold">{location.city}</p>}
               {location.mapsUrl && (
                 <a
                   href={location.mapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 text-xs font-black underline pt-1"
+                  style={{ color: accent }}
                 >
                   <BrandGoogleMaps size={13} />
                   <span>[ ABRIR MAPA ]</span>
@@ -154,12 +180,15 @@ export const BrutalistEngine: React.FC<EngineProps> = ({ project, onPhotoClick }
         </section>
       )}
 
-      {/* 6. HOURS (SEPARATE - NO DUPLICATION) */}
+      {/* 6. HOURS */}
       {location?.hours && (
-        <section className={`p-4 bg-white ${brutBorder} ${brutShadow} flex items-center gap-3`}>
-          <Clock size={18} className="shrink-0 text-black" />
+        <section
+          className={`p-4 ${brutBorder} ${brutShadow} flex items-center gap-3`}
+          style={{ backgroundColor: brutSurface, color: brutText }}
+        >
+          <Clock size={18} className="shrink-0" style={{ color: accent }} />
           <div>
-            <span className="text-[10px] font-black uppercase text-neutral-500 block">// EXPEDIENTE</span>
+            <span className="text-[10px] font-black uppercase opacity-60 block">// EXPEDIENTE</span>
             <p className="text-xs font-black uppercase">{location.hours}</p>
           </div>
         </section>
@@ -171,7 +200,8 @@ export const BrutalistEngine: React.FC<EngineProps> = ({ project, onPhotoClick }
           href={waUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className={`w-full py-5 bg-black text-white font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 ${brutShadow} hover:bg-neutral-900`}
+          className={`w-full py-5 text-white font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 ${brutShadow} transition-transform active:scale-95`}
+          style={{ backgroundColor: accent }}
         >
           <BrandWhatsApp size={16} />
           <span>{identity.title || 'SOLICITAR VIA WHATSAPP'}</span>

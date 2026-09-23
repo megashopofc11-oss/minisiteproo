@@ -99,6 +99,7 @@ export type SocialIconStyle =
   | 'gradient'
   | 'duotone'
   | 'original'
+  | 'solid'
   | 'glow';
 
 export type WhatsAppStyle =

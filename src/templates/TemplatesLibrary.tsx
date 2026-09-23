@@ -11,12 +11,7 @@ import {
   X,
   Smartphone,
   Tablet,
-  Monitor,
-  CheckCircle2,
-  ChevronRight,
-  ShieldCheck,
-  Star,
-  Award
+  Monitor
 } from 'lucide-react';
 
 interface TemplatesLibraryProps {
@@ -34,12 +29,13 @@ const ModelLayoutWireframe: React.FC<{
   nicho: NichoInfo;
 }> = ({ template, nicho }) => {
   const layout = template.layout;
+  const modelIndex = template.index;
   const primaryColor = template.defaultTheme.primary || nicho.accentColor;
   const photoUrl = template.defaultData.photos[0]?.url || nicho.coverImage;
   const secondPhotoUrl = template.defaultData.photos[1]?.url || photoUrl;
 
-  // 01 — CINEMATIC: Logo solta, hero escuro com iluminação, fotografia grande, preto + dourado
-  if (layout === 'cinematic') {
+  // MODELO 01 — CINEMATIC / IMPACT
+  if (modelIndex === 1 || layout === 'cinematic') {
     return (
       <div className="w-full aspect-[9/13] rounded-2xl overflow-hidden bg-[#07080D] border border-white/15 relative p-3 flex flex-col justify-between shadow-2xl group-hover:border-amber-400/60 transition-all duration-300">
         <div
@@ -48,29 +44,26 @@ const ModelLayoutWireframe: React.FC<{
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#07080D] via-[#07080D]/60 to-transparent" />
         <div
-          className="absolute top-1/4 left-1/2 -translate-x-1/2 w-28 h-28 rounded-full blur-2xl opacity-40 pointer-events-none"
+          className="absolute top-1/4 left-1/2 -translate-x-1/2 w-24 h-24 rounded-full blur-2xl opacity-40 pointer-events-none"
           style={{ backgroundColor: primaryColor }}
         />
 
-        {/* Top Floating Logo (Livre, contain, sem círculo forçado) */}
         <div className="relative z-10 text-center pt-2">
           <div className="w-8 h-8 mx-auto flex items-center justify-center">
             <NicheIcon3D nichoId={nicho.id} size="sm" />
           </div>
           <span className="text-[7px] font-mono tracking-widest uppercase block mt-1" style={{ color: primaryColor }}>
-            {template.defaultData.identity.badge || 'PREMIUM'}
+            {template.defaultData.identity.badge || 'CINEMATIC'}
           </span>
-          <div className="text-[11px] font-black text-white tracking-tight uppercase line-clamp-1">
+          <div className="text-[10px] font-black text-white tracking-tight uppercase line-clamp-1">
             {template.name}
           </div>
         </div>
 
-        {/* Hero Photo & Content */}
         <div className="relative z-10 space-y-1.5 pb-1">
           <div className="h-1.5 w-16 bg-white/40 rounded-full mx-auto" />
           <div className="h-1 w-24 bg-white/20 rounded-full mx-auto" />
 
-          {/* Noble CTA Button */}
           <div
             className="w-full py-1.5 rounded-lg text-[9px] font-black text-slate-950 text-center shadow-lg uppercase tracking-wider flex items-center justify-center gap-1"
             style={{ backgroundColor: primaryColor }}
@@ -78,7 +71,6 @@ const ModelLayoutWireframe: React.FC<{
             <span>WhatsApp Direto</span>
           </div>
 
-          {/* Mini Cards preview */}
           <div className="grid grid-cols-2 gap-1 pt-1">
             <div className="p-1 rounded bg-white/5 border border-white/10 text-[6px] text-slate-300 truncate">
               {template.defaultData.services[0]?.name || 'Especialidade'}
@@ -92,48 +84,50 @@ const ModelLayoutWireframe: React.FC<{
     );
   }
 
-  // 02 — EDITORIAL: Tipografia gigante, foto vertical assimétrica, estilo revista de luxo, sem cards
-  if (layout === 'editorial') {
+  // MODELO 02 — EDITORIAL / LIGHT (Off-white / Cream, Magazine Serif, Vertical Frame)
+  if (modelIndex === 2 || layout === 'editorial') {
+    const editBg = template.defaultTheme.background || '#FAF8F5';
+    const editText = template.defaultTheme.text || '#111111';
+
     return (
-      <div className="w-full aspect-[9/13] rounded-2xl overflow-hidden bg-[#0A0B10] border border-white/15 relative p-3 flex flex-col justify-between shadow-2xl group-hover:border-amber-400/60 transition-all duration-300">
-        {/* Editorial Header bar */}
-        <div className="flex items-center justify-between border-b border-white/15 pb-1">
-          <div className="text-[7px] font-mono tracking-widest text-slate-400 uppercase">ED. 2026</div>
+      <div
+        className="w-full aspect-[9/13] rounded-2xl overflow-hidden border border-stone-300 relative p-3 flex flex-col justify-between shadow-2xl group-hover:border-stone-500 transition-all duration-300"
+        style={{ backgroundColor: editBg, color: editText }}
+      >
+        <div className="flex items-center justify-between border-b border-stone-300/80 pb-1">
+          <div className="text-[7px] font-mono tracking-widest text-stone-500 uppercase">REVISTA ED. 2026</div>
           <div className="text-[7px] font-black uppercase" style={{ color: primaryColor }}>
-            ATELIER
+            AUTORAL
           </div>
         </div>
 
-        {/* Huge Display Typography */}
         <div className="space-y-1 my-auto">
-          <div className="text-sm font-light text-white tracking-tighter uppercase leading-none font-serif">
+          <div className="text-[11px] sm:text-xs font-light tracking-tighter uppercase leading-none font-serif text-stone-900">
             {template.name.split(' ')[0]} <br />
             <span className="font-bold italic" style={{ color: primaryColor }}>
-              {template.name.split(' ')[1] || 'EXPERIENCE'}
+              {template.name.split(' ')[1] || 'ATELIER'}
             </span>
           </div>
           <div className="w-8 h-0.5" style={{ backgroundColor: primaryColor }} />
         </div>
 
-        {/* Asymmetrical Vertical Photo */}
-        <div className="relative rounded-lg overflow-hidden h-20 border border-white/15 my-1">
+        <div className="relative rounded-lg overflow-hidden h-16 border border-stone-200 my-1">
           <img
             src={secondPhotoUrl}
             alt=""
-            className="w-full h-full object-cover filter contrast-125 grayscale hover:grayscale-0 transition-all"
+            className="w-full h-full object-cover filter contrast-110"
           />
-          <div className="absolute bottom-1 left-1.5 px-1 py-0.5 rounded bg-black/70 text-[6px] font-mono text-white">
+          <div className="absolute bottom-1 left-1.5 px-1 py-0.5 rounded bg-stone-900/80 text-[6px] font-mono text-white">
             PROPOSTA OFICIAL
           </div>
         </div>
 
-        {/* Services as large text words (NO cards) */}
-        <div className="space-y-0.5 border-t border-white/10 pt-1.5">
-          <div className="text-[7px] font-bold text-white tracking-wider uppercase truncate">
+        <div className="space-y-0.5 border-t border-stone-200 pt-1.5">
+          <div className="text-[7px] font-bold tracking-wider uppercase truncate text-stone-900">
             {template.defaultData.services[0]?.name || 'SERVIÇO PRINCIPAL'}
           </div>
-          <div className="text-[6px] text-slate-400 truncate">
-            {template.defaultData.services[1]?.name || 'TRATAMENTO VIP'}
+          <div className="text-[6px] text-stone-500 truncate">
+            {template.defaultData.services[1]?.name || 'TRATAMENTO EXCLUSIVO'}
           </div>
           <div className="pt-1 flex items-center justify-between text-[7px] font-bold" style={{ color: primaryColor }}>
             <span>CONHECER PROPOSTA</span>
@@ -144,175 +138,40 @@ const ModelLayoutWireframe: React.FC<{
     );
   }
 
-  // 03 — GLASS: Hero full-screen fotográfico, card translúcido flutuante com blur, botões de vidro
-  if (layout === 'glass') {
+  // MODELO 03 — URBAN / BRUTALIST (Industrial graphite, technical [01] boxes, sharp borders)
+  if (modelIndex === 3 || layout === 'brutalist' || layout === 'urban') {
     return (
-      <div className="w-full aspect-[9/13] rounded-2xl overflow-hidden bg-slate-950 border border-white/15 relative p-3 flex flex-col justify-between shadow-2xl group-hover:border-amber-400/60 transition-all duration-300">
-        <div
-          className="absolute inset-0 bg-cover bg-center filter brightness-[0.4] blur-[1px]"
-          style={{ backgroundImage: `url(${photoUrl})` }}
-        />
-        <div className="absolute inset-0 bg-black/40" />
-
-        {/* Top Free PNG Logo */}
-        <div className="relative z-10 flex justify-between items-center">
-          <div className="w-6 h-6 flex items-center justify-center">
-            <NicheIcon3D nichoId={nicho.id} size="sm" />
-          </div>
-          <span className="px-1.5 py-0.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[6px] text-white font-bold uppercase">
-            Glass Look
-          </span>
-        </div>
-
-        {/* Floating Translucent Glass Card */}
-        <div className="relative z-10 p-2.5 rounded-xl bg-white/10 backdrop-blur-xl border border-white/25 shadow-2xl text-center space-y-1">
-          <div className="text-[10px] font-extrabold text-white truncate">{template.name}</div>
-          <div className="text-[6px] text-slate-200 line-clamp-1">{template.defaultData.location.city}</div>
-          <div className="flex gap-1 justify-center pt-1">
-            <div className="px-1.5 py-0.5 rounded-md bg-white/15 border border-white/20 text-[6px] text-white">
-              WhatsApp
-            </div>
-            <div className="px-1.5 py-0.5 rounded-md bg-white/15 border border-white/20 text-[6px] text-white">
-              Instagram
-            </div>
-          </div>
-        </div>
-
-        {/* Frosted Services preview */}
-        <div className="relative z-10 space-y-1">
-          <div className="p-1 rounded-lg bg-white/10 backdrop-blur-md border border-white/15 text-[6px] text-white flex justify-between">
-            <span className="truncate">{template.defaultData.services[0]?.name || 'Especialidade'}</span>
-            <span className="text-amber-300">★</span>
-          </div>
-          <div className="p-1 rounded-lg bg-white/10 backdrop-blur-md border border-white/15 text-[6px] text-white flex justify-between">
-            <span className="truncate">{template.defaultData.services[1]?.name || 'Especialidade'}</span>
-            <span className="text-amber-300">★</span>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // 04 — IMMERSIVE: Capítulos visuais com fotografia dominante em tela cheia
-  if (layout === 'immersive') {
-    return (
-      <div className="w-full aspect-[9/13] rounded-2xl overflow-hidden bg-black border border-white/15 relative p-3 flex flex-col justify-between shadow-2xl group-hover:border-amber-400/60 transition-all duration-300">
-        <div
-          className="absolute inset-0 bg-cover bg-center filter brightness-[0.45] saturate-[1.2]"
-          style={{ backgroundImage: `url(${photoUrl})` }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80" />
-
-        {/* Chapter 1: Logo & Title directly on photo */}
-        <div className="relative z-10 space-y-1">
-          <div className="w-7 h-7">
-            <NicheIcon3D nichoId={nicho.id} size="sm" />
-          </div>
-          <div className="text-[12px] font-black text-white uppercase leading-none drop-shadow-md">
-            {template.name}
-          </div>
-        </div>
-
-        {/* Chapter 2: The Manifesto */}
-        <div className="relative z-10 p-2 rounded-xl bg-black/60 backdrop-blur-md border border-white/10 space-y-1">
-          <div className="text-[6px] font-mono tracking-widest text-amber-300 uppercase">MANIFESTO</div>
-          <div className="text-[8px] font-light text-slate-100 italic leading-tight">
-            "Mais que um serviço, uma assinatura de excelência."
-          </div>
-        </div>
-
-        {/* Chapter 3: Photo cards */}
-        <div className="relative z-10 flex gap-1">
-          <div className="flex-1 h-10 rounded-lg overflow-hidden border border-white/20 relative">
-            <img src={secondPhotoUrl} alt="" className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-black/40 flex items-center justify-center p-0.5 text-[6px] text-white font-bold text-center">
-              Especialidades
-            </div>
-          </div>
-          <div
-            className="w-10 h-10 rounded-lg flex items-center justify-center text-[7px] font-bold text-slate-950 text-center"
-            style={{ backgroundColor: primaryColor }}
-          >
-            VIP
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // 05 — MINIMAL LUXURY: Fundo CLARO / OFF-WHITE, preto, detalhes discretos, muito respiro
-  if (layout === 'minimal') {
-    return (
-      <div className="w-full aspect-[9/13] rounded-2xl overflow-hidden bg-[#FAF9F6] border border-stone-300/80 relative p-3 flex flex-col justify-between shadow-2xl group-hover:border-stone-500 transition-all duration-300">
-        {/* Generous negative space & Minimal Header */}
-        <div className="text-center pt-2 space-y-1">
-          <div className="w-7 h-7 mx-auto flex items-center justify-center">
-            <NicheIcon3D nichoId={nicho.id} size="sm" />
-          </div>
-          <div className="text-[6px] tracking-[0.25em] text-stone-500 uppercase font-mono">
-            ESTABELECIMENTO AUTORAL
-          </div>
-          <div className="text-xs font-medium text-stone-900 tracking-tight font-serif">
-            {template.name}
-          </div>
-        </div>
-
-        {/* Clean Photography Frame */}
-        <div className="rounded-xl overflow-hidden aspect-[16/10] border border-stone-200 shadow-sm my-1">
-          <img src={photoUrl} alt="" className="w-full h-full object-cover" />
-        </div>
-
-        {/* Minimal Typographic Services with Hairlines */}
-        <div className="space-y-1.5 border-t border-stone-200 pt-2">
-          <div className="flex justify-between items-center text-[7px] text-stone-800">
-            <span className="font-medium truncate">{template.defaultData.services[0]?.name || 'Especialidade 01'}</span>
-            <span className="text-stone-400 font-serif">●</span>
-          </div>
-          <div className="flex justify-between items-center text-[7px] text-stone-800">
-            <span className="font-medium truncate">{template.defaultData.services[1]?.name || 'Especialidade 02'}</span>
-            <span className="text-stone-400 font-serif">●</span>
-          </div>
-
-          <div className="pt-1">
-            <div className="w-full py-1.5 rounded-lg bg-stone-900 text-stone-50 text-[7px] font-bold text-center tracking-wider uppercase">
-              Contato Direto
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // 05 — URBAN BRUTALIST: Preto, cinzas industriais, tipografia marcante em blocos, numeração [01]
-  if (layout === 'brutalist' || layout === 'urban') {
-    return (
-      <div className="w-full aspect-[9/13] rounded-2xl overflow-hidden bg-[#121214] border border-white/20 relative p-3 flex flex-col justify-between shadow-2xl group-hover:border-red-500/60 transition-all duration-300">
+      <div className="w-full aspect-[9/13] rounded-2xl overflow-hidden bg-[#121214] border border-white/20 relative p-3 flex flex-col justify-between shadow-2xl group-hover:border-red-500/60 transition-all duration-300 font-mono">
         <div className="flex justify-between items-center border-b border-white/10 pb-1">
-          <span className="text-[6px] font-mono text-red-500 tracking-widest font-black">[05] BRUTALIST</span>
-          <span className="text-[6px] font-mono text-slate-400">URBAN</span>
+          <span className="text-[6px] tracking-widest font-black" style={{ color: primaryColor }}>
+            [03] BRUTALIST
+          </span>
+          <span className="text-[6px] text-slate-400">URBAN RAW</span>
         </div>
 
         <div className="space-y-1 my-1">
-          <div className="text-xs font-black text-white uppercase tracking-tighter leading-none font-mono">
+          <div className="text-[11px] font-black text-white uppercase tracking-tighter leading-none">
             {template.name}
           </div>
-          <div className="h-0.5 w-10 bg-red-500" />
+          <div className="h-0.5 w-10" style={{ backgroundColor: primaryColor }} />
         </div>
 
-        {/* Industrial Grids */}
         <div className="grid grid-cols-2 gap-1 my-1">
-          <div className="h-14 rounded-none bg-white/5 border border-white/20 overflow-hidden">
+          <div className="h-12 rounded-none bg-white/5 border border-white/20 overflow-hidden">
             <img src={photoUrl} alt="" className="w-full h-full object-cover filter contrast-150" />
           </div>
-          <div className="h-14 rounded-none bg-[#1A1A1E] border border-white/10 p-1 flex flex-col justify-between text-[6px] font-mono text-slate-300">
+          <div className="h-12 rounded-none bg-[#1A1A1E] border border-white/10 p-1 flex flex-col justify-between text-[6px] text-slate-300">
             <span>[01] TÉCNICA</span>
             <span>[02] PRECISÃO</span>
-            <span className="text-red-500 font-bold">100% INDUSTRIAL</span>
+            <span className="font-bold" style={{ color: primaryColor }}>100% INDUSTRIAL</span>
           </div>
         </div>
 
         <div className="space-y-1">
-          <div className="w-full py-1.5 rounded-none bg-red-600 text-white text-[8px] font-mono font-black text-center uppercase tracking-wider">
+          <div
+            className="w-full py-1.5 rounded-none text-white text-[7px] font-black text-center uppercase tracking-wider"
+            style={{ backgroundColor: primaryColor }}
+          >
             CHAMAR AGORA // WA
           </div>
         </div>
@@ -320,301 +179,75 @@ const ModelLayoutWireframe: React.FC<{
     );
   }
 
-  // 06 — AUTHORITY: Foco no barbeiro/profissional de elite, corte de estúdio, credenciais
-  if (layout === 'authority') {
+  // MODELO 04 — MINIMAL / CLEAN (100% PURE WHITE, ZERO FOTOS OBRIGATÓRIAS)
+  if (modelIndex === 4 || layout === 'minimal') {
     return (
-      <div className="w-full aspect-[9/13] rounded-2xl overflow-hidden bg-[#080C14] border border-white/15 relative p-3 flex flex-col justify-between shadow-2xl group-hover:border-cyan-400/60 transition-all duration-300">
-        <div className="flex justify-between items-center">
-          <span className="text-[6px] font-mono uppercase tracking-widest text-cyan-400">
-            MESTRE PROFISSIONAL
-          </span>
-          <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-        </div>
-
-        {/* Portrait Cutout of Master Barber */}
-        <div className="text-center space-y-1 my-1 relative">
-          <div className="w-14 h-14 rounded-full p-0.5 mx-auto bg-gradient-to-tr from-cyan-400 to-blue-600 shadow-xl overflow-hidden">
-            <img src={secondPhotoUrl} alt="" className="w-full h-full object-cover rounded-full" />
-          </div>
-          <div className="text-xs font-black text-white leading-none">
-            {template.defaultData.identity.name}
-          </div>
-          <div className="text-[6px] text-cyan-300 font-semibold line-clamp-1">
-            Referência & Especialista VIP
-          </div>
-        </div>
-
-        {/* Bio Manifesto */}
-        <div className="p-1.5 rounded-xl bg-white/5 border border-white/10 text-[6px] text-slate-300 leading-relaxed text-center line-clamp-2">
-          "Não é apenas um serviço. É a assinatura e presença da sua imagem pessoal."
-        </div>
-
-        {/* Direct Booking */}
-        <div className="space-y-1">
-          <div className="w-full py-1.5 rounded-xl bg-cyan-500 text-slate-950 text-[7px] font-black text-center uppercase tracking-wider shadow-lg flex items-center justify-center gap-1">
-            <span>Cadeira VIP no WhatsApp</span>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // 07 — COMPACT PROFILE: Biosite compacto de alta conversão, botões empilhados
-  if (layout === 'compact-profile') {
-    return (
-      <div className="w-full aspect-[9/13] rounded-2xl overflow-hidden bg-[#090A0F] border border-white/15 relative p-3 flex flex-col justify-between shadow-2xl group-hover:border-amber-400/60 transition-all duration-300">
-        <div className="flex justify-between items-center pb-1">
-          <span className="px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[6px] font-bold">
-            ● ABERTO AGORA
-          </span>
-          <div className="text-[6px] text-amber-400 font-bold">★ 5.0 GOOGLE</div>
-        </div>
-
-        {/* Profile Card Header */}
-        <div className="text-center space-y-1">
-          <div className="w-10 h-10 rounded-full mx-auto border-2 border-amber-500 overflow-hidden shadow-lg">
-            <img src={photoUrl} alt="" className="w-full h-full object-cover" />
-          </div>
-          <div className="text-[11px] font-black text-white uppercase">{template.name}</div>
-          <div className="text-[6px] text-slate-400">{template.defaultData.identity.slogan || 'Atendimento Premium'}</div>
-        </div>
-
-        {/* Stacked Compact Action Buttons */}
-        <div className="space-y-1 pt-1">
-          <div className="w-full py-1.5 rounded-lg bg-amber-500 text-slate-950 text-[7px] font-black text-center uppercase tracking-wider flex items-center justify-center gap-1">
-            <span>WhatsApp Direto</span>
-          </div>
-          <div className="w-full py-1.5 rounded-lg bg-white/5 border border-white/10 text-white text-[7px] font-bold text-center flex items-center justify-center gap-1">
-            <span>Instagram Oficial</span>
-          </div>
-          <div className="w-full py-1.5 rounded-lg bg-white/5 border border-white/10 text-white text-[7px] font-bold text-center flex items-center justify-center gap-1">
-            <span>Como Chegar (Maps)</span>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // 08 — BENTO: Grid modular dinâmico 2x2, 1x2, 1x1
-  if (layout === 'bento') {
-    return (
-      <div className="w-full aspect-[9/13] rounded-2xl overflow-hidden bg-[#0E1015] border border-white/15 relative p-2.5 flex flex-col justify-between shadow-2xl group-hover:border-amber-400/60 transition-all duration-300">
-        <div className="flex justify-between items-center pb-1">
-          <span className="text-[6px] font-mono text-slate-400">[BENTO MODULAR]</span>
-          <span className="text-[6px] font-bold text-amber-400">#08</span>
-        </div>
-
-        {/* Bento Grid layout */}
-        <div className="grid grid-cols-2 gap-1 my-1">
-          {/* Tile 1: Photo */}
-          <div className="h-14 rounded-xl overflow-hidden border border-white/10 relative">
-            <img src={photoUrl} alt="" className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-black/40 p-1 flex items-end">
-              <span className="text-[6px] font-bold text-white uppercase">Portfólio</span>
-            </div>
-          </div>
-          {/* Tile 2: Google 5.0 */}
-          <div className="h-14 rounded-xl bg-white/5 border border-white/10 p-1.5 flex flex-col justify-between">
-            <span className="text-[6px] font-mono text-slate-400">AVALIAÇÃO</span>
-            <div className="text-[12px] font-black text-white leading-none">5.0 ★</div>
-            <span className="text-[5px] text-amber-400">Google Reviews</span>
-          </div>
-          {/* Tile 3: Live Status */}
-          <div className="h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-1 flex items-center gap-1">
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-[6px] font-bold text-emerald-400">ABERTO HOJE</span>
-          </div>
-          {/* Tile 4: Service */}
-          <div className="h-10 rounded-xl bg-white/5 border border-white/10 p-1 flex flex-col justify-center text-[6px] text-slate-300">
-            <span className="font-bold text-white truncate">{template.defaultData.services[0]?.name || 'Corte'}</span>
-            <span className="text-[5px] text-slate-400">Agendar</span>
-          </div>
-        </div>
-
-        <div className="w-full py-1.5 rounded-xl bg-amber-500 text-slate-950 text-[7px] font-black text-center uppercase tracking-wider shadow-md">
-          Chamar no WhatsApp
-        </div>
-      </div>
-    );
-  }
-
-  // 09 — STORYTELLING: Linha do tempo em capítulos narrativos
-  if (layout === 'storytelling') {
-    return (
-      <div className="w-full aspect-[9/13] rounded-2xl overflow-hidden bg-[#140D08] border border-[#3D2214] relative p-3 flex flex-col justify-between shadow-2xl group-hover:border-amber-500/60 transition-all duration-300">
-        <div className="text-center pb-1 border-b border-[#3D2214]">
-          <span className="text-[6px] font-mono uppercase tracking-widest text-amber-400">
-            JORNADA & CAPÍTULOS
-          </span>
-          <div className="text-xs font-black text-white uppercase">{template.name}</div>
-        </div>
-
-        {/* Narrative Chapter Cards */}
-        <div className="space-y-1.5 my-1">
-          <div className="p-1.5 rounded-lg bg-black/40 border border-[#3D2214] flex items-center gap-1.5">
-            <span className="text-[8px] font-mono font-bold text-amber-400">I.</span>
-            <div className="text-[6px] text-slate-200">
-              <div className="font-bold text-white">A Tradição da Lâmina</div>
-              <div className="text-slate-400 text-[5px]">Origem e propósito</div>
-            </div>
-          </div>
-          <div className="p-1.5 rounded-lg bg-black/40 border border-[#3D2214] flex items-center gap-1.5">
-            <span className="text-[8px] font-mono font-bold text-amber-400">II.</span>
-            <div className="text-[6px] text-slate-200">
-              <div className="font-bold text-white">O Ritual Quente</div>
-              <div className="text-slate-400 text-[5px]">Toalha e hidratação</div>
-            </div>
-          </div>
-        </div>
-
-        <div className="w-full py-1.5 rounded-lg bg-amber-500 text-slate-950 text-[7px] font-black text-center uppercase tracking-wider shadow-md">
-          Viver a Experiência
-        </div>
-      </div>
-    );
-  }
-
-  // 07 — CLASSIC CLUB: Marrom escuro, couro (#130C08), dourado envelhecido, serifas nobres
-  if (layout === 'classic-club') {
-    return (
-      <div className="w-full aspect-[9/13] rounded-2xl overflow-hidden bg-[#130C08] border border-[#3E2718] relative p-3 flex flex-col justify-between shadow-2xl group-hover:border-[#C59B27] transition-all duration-300">
-        <div className="text-center pt-1 border-b border-[#3E2718] pb-1.5">
+      <div className="w-full aspect-[9/13] rounded-2xl overflow-hidden bg-white border border-slate-200 relative p-3 flex flex-col justify-between shadow-2xl group-hover:border-slate-400 transition-all duration-300">
+        <div className="text-center pt-2 space-y-1">
           <div className="w-7 h-7 mx-auto flex items-center justify-center">
             <NicheIcon3D nichoId={nicho.id} size="sm" />
           </div>
-          <div className="text-[6px] font-serif tracking-[0.2em] text-[#C59B27] uppercase">
-            TRADIÇÃO & CLUBE PRIVADO
+          <div className="text-[6px] tracking-[0.25em] text-slate-400 uppercase font-mono">
+            ESTABELECIMENTO AUTORAL
           </div>
-          <div className="text-xs font-serif font-bold text-[#FDFBF7] tracking-tight">
+          <div className="text-[11px] font-semibold text-slate-900 tracking-tight">
             {template.name}
           </div>
-        </div>
-
-        {/* Leather textured frame */}
-        <div className="rounded-lg overflow-hidden h-18 border border-[#4A301E] relative my-1">
-          <img src={secondPhotoUrl} alt="" className="w-full h-full object-cover filter sepia-[0.3]" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#130C08] via-transparent to-transparent" />
-        </div>
-
-        {/* Classic Specialties */}
-        <div className="space-y-1 border-t border-[#3E2718] pt-1.5">
-          <div className="text-[6px] font-serif text-[#D7C2B2] truncate">
-            ✦ {template.defaultData.services[0]?.name || 'Atendimento Nobre'}
-          </div>
-          <div className="text-[6px] font-serif text-[#D7C2B2] truncate">
-            ✦ {template.defaultData.services[1]?.name || 'Experiência Tradicional'}
-          </div>
-
-          <div className="w-full py-1.5 rounded bg-[#C59B27] text-[#130C08] text-[7px] font-serif font-bold text-center tracking-wider uppercase shadow-md">
-            Agendar Atendimento
+          <div className="text-[6px] text-slate-500 font-light px-2 line-clamp-2">
+            {template.defaultData.identity.slogan}
           </div>
         </div>
-      </div>
-    );
-  }
 
-  // 08 — MOTION: Efeitos luminosos dinâmicos, cards com alto contraste e botões vibrantes
-  if (layout === 'motion') {
-    return (
-      <div className="w-full aspect-[9/13] rounded-2xl overflow-hidden bg-[#0A0714] border border-fuchsia-500/30 relative p-3 flex flex-col justify-between shadow-2xl group-hover:border-fuchsia-400 transition-all duration-300">
-        <div className="absolute -top-10 -right-10 w-24 h-24 bg-fuchsia-600/30 rounded-full blur-xl pointer-events-none" />
-
-        <div className="relative z-10 flex items-center justify-between">
-          <div className="w-7 h-7 flex items-center justify-center">
-            <NicheIcon3D nichoId={nicho.id} size="sm" />
+        <div className="p-2 rounded-xl bg-slate-50 border border-slate-100 my-1 space-y-1">
+          <div className="flex justify-between items-center text-[7px] text-slate-800">
+            <span className="font-medium truncate">{template.defaultData.services[0]?.name || 'Especialidade 01'}</span>
+            <span className="text-slate-400">●</span>
           </div>
-          <span className="px-1.5 py-0.5 rounded-full bg-fuchsia-500/20 text-fuchsia-300 text-[6px] font-bold uppercase animate-pulse">
-            LIVE MOTION
-          </span>
+          <div className="flex justify-between items-center text-[7px] text-slate-800">
+            <span className="font-medium truncate">{template.defaultData.services[1]?.name || 'Especialidade 02'}</span>
+            <span className="text-slate-400">●</span>
+          </div>
+          <div className="flex justify-between items-center text-[7px] text-slate-800">
+            <span className="font-medium truncate">{template.defaultData.services[2]?.name || 'Especialidade 03'}</span>
+            <span className="text-slate-400">●</span>
+          </div>
         </div>
 
-        <div className="relative z-10 space-y-1 my-1">
-          <div className="text-xs font-black text-white uppercase tracking-tight">
-            {template.name}
-          </div>
-          <div className="h-1 w-full bg-gradient-to-r from-fuchsia-500 to-amber-400 rounded-full" />
-        </div>
-
-        {/* Dynamic Photo Showcase */}
-        <div className="relative z-10 rounded-xl overflow-hidden h-18 border border-white/20 shadow-lg">
-          <img src={photoUrl} alt="" className="w-full h-full object-cover" />
-        </div>
-
-        <div className="relative z-10 space-y-1">
-          <div className="p-1 rounded-lg bg-white/10 backdrop-blur-md border border-fuchsia-400/40 text-[6px] text-white flex justify-between items-center">
-            <span className="truncate">{template.defaultData.services[0]?.name || 'Especialidade'}</span>
-            <span className="text-fuchsia-400 font-bold">⚡</span>
-          </div>
-
-          <div className="w-full py-1.5 rounded-lg bg-gradient-to-r from-fuchsia-500 to-amber-400 text-slate-950 text-[7px] font-black text-center uppercase tracking-wider shadow-lg shadow-fuchsia-500/25">
-            CONECTAR AGORA
+        <div className="space-y-1 border-t border-slate-100 pt-1.5">
+          <div className="w-full py-1.5 rounded-lg bg-slate-900 text-white text-[7px] font-bold text-center tracking-wider uppercase">
+            Contato Direto
           </div>
         </div>
       </div>
     );
   }
 
-  // 09 — PROFILE: Foco no profissional individual, foto de perfil grande, história pessoal e agenda
-  if (layout === 'profile') {
-    return (
-      <div className="w-full aspect-[9/13] rounded-2xl overflow-hidden bg-[#080A12] border border-white/15 relative p-3 flex flex-col justify-between shadow-2xl group-hover:border-amber-400/60 transition-all duration-300">
-        {/* Top Tag */}
-        <div className="flex justify-between items-center">
-          <span className="text-[6px] font-mono uppercase tracking-widest text-amber-400">
-            ESPECIALISTA OFICIAL
-          </span>
-          <div className="w-2 h-2 rounded-full bg-emerald-400" />
-        </div>
-
-        {/* Large Portrait Cutout of the Specialist */}
-        <div className="text-center space-y-1 my-1">
-          <div className="w-14 h-14 rounded-full p-0.5 mx-auto bg-gradient-to-tr from-amber-400 to-amber-600 shadow-xl overflow-hidden">
-            <img src={secondPhotoUrl} alt="" className="w-full h-full object-cover rounded-full" />
-          </div>
-          <div className="text-xs font-black text-white leading-none">
-            {template.defaultData.identity.name}
-          </div>
-          <div className="text-[6px] text-slate-400 line-clamp-1">
-            {template.defaultData.identity.badge || 'Consultor / Especialista Autorizado'}
-          </div>
-        </div>
-
-        {/* Bio Manifesto */}
-        <div className="p-1.5 rounded-xl bg-white/5 border border-white/10 text-[6px] text-slate-300 leading-relaxed text-center line-clamp-2">
-          "Mais de 10 anos de experiência transformando expectativas em resultados excepcionais."
-        </div>
-
-        {/* Direct Specialist WhatsApp */}
-        <div className="space-y-1">
-          <div className="w-full py-1.5 rounded-xl bg-emerald-500 text-white text-[7px] font-black text-center uppercase tracking-wider shadow-lg flex items-center justify-center gap-1">
-            <span>Falar com o Profissional</span>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // 10 — SIGNATURE: Modelo mais sofisticado, assimétrico, selo de assinatura, reviews VIP, concierge
+  // MODELO 05 — SIGNATURE / EXPERIMENTAL (Azul Petróleo / Tons Jóia, Selo VIP, Google 5.0)
   return (
-    <div className="w-full aspect-[9/13] rounded-2xl overflow-hidden bg-[#06070B] border border-amber-500/30 relative p-3 flex flex-col justify-between shadow-2xl group-hover:border-amber-400 transition-all duration-300">
+    <div
+      className="w-full aspect-[9/13] rounded-2xl overflow-hidden border border-white/20 relative p-3 flex flex-col justify-between shadow-2xl group-hover:border-amber-400/60 transition-all duration-300"
+      style={{ backgroundColor: template.defaultTheme.background || '#081426' }}
+    >
       <div className="flex justify-between items-center">
-        <span className="text-[6px] font-serif tracking-[0.2em] text-amber-300 uppercase">
+        <span className="text-[6px] font-serif tracking-[0.2em] uppercase" style={{ color: primaryColor }}>
           SIGNATURE SERIES
         </span>
         <div className="flex items-center text-amber-400 text-[8px]">★★★★★</div>
       </div>
 
       <div className="space-y-1 my-1">
-        <div className="text-xs font-black text-white tracking-tight uppercase">
+        <div className="text-[11px] font-black text-white tracking-tight uppercase">
           {template.name}
         </div>
-        <div className="text-[6px] text-slate-400 italic">Edição Exclusiva de Alto Padrão</div>
+        <div className="text-[6px] text-slate-300 italic">Edição Exclusiva de Alto Padrão</div>
       </div>
 
-      {/* Asymmetric Photo Frame with Signature Seal */}
-      <div className="relative rounded-xl overflow-hidden h-18 border border-amber-500/40 shadow-xl">
+      <div className="relative rounded-xl overflow-hidden h-16 border border-white/20 shadow-xl">
         <img src={photoUrl} alt="" className="w-full h-full object-cover" />
-        <div className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-full bg-amber-500 text-slate-950 text-[6px] font-black uppercase shadow-lg">
+        <div
+          className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-full text-slate-950 text-[6px] font-black uppercase shadow-lg"
+          style={{ backgroundColor: primaryColor }}
+        >
           SELO VIP
         </div>
       </div>
@@ -622,10 +255,13 @@ const ModelLayoutWireframe: React.FC<{
       <div className="space-y-1 border-t border-white/10 pt-1.5">
         <div className="flex items-center justify-between text-[6px] text-slate-300">
           <span>Avaliação Google (5.0)</span>
-          <span className="text-amber-400 font-bold">100% Recomendado</span>
+          <span className="font-bold" style={{ color: primaryColor }}>100% Recomendado</span>
         </div>
 
-        <div className="w-full py-1.5 rounded-xl bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 text-slate-950 text-[7px] font-black text-center uppercase tracking-wider shadow-lg shadow-amber-500/20">
+        <div
+          className="w-full py-1.5 rounded-xl text-slate-950 text-[7px] font-black text-center uppercase tracking-wider shadow-lg"
+          style={{ backgroundColor: primaryColor }}
+        >
           Concierge WhatsApp VIP
         </div>
       </div>
@@ -635,7 +271,7 @@ const ModelLayoutWireframe: React.FC<{
 
 export const TemplatesLibrary: React.FC<TemplatesLibraryProps> = ({
   onSelectTemplate,
-  userId,
+  userId: _userId,
   initialNichoId = null,
   onClearInitialNicho
 }) => {
@@ -650,7 +286,7 @@ export const TemplatesLibrary: React.FC<TemplatesLibraryProps> = ({
   const [previewViewport, setPreviewViewport] = useState<'mobile' | 'tablet' | 'desktop'>('mobile');
 
   // ==========================================
-  // VIEW: 10 MODELS FOR SELECTED NICHE
+  // VIEW: 5 MODELS FOR SELECTED NICHE
   // ==========================================
   if (selectedNicho) {
     const templates = getTemplatesByNicho(selectedNicho.id);
@@ -679,7 +315,7 @@ export const TemplatesLibrary: React.FC<TemplatesLibraryProps> = ({
           </div>
         </div>
 
-        {/* Niche Header (Clean, Premium, Direct) */}
+        {/* Niche Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-6 rounded-3xl bg-[#090B14] border border-white/10 shadow-2xl">
           <div className="flex items-center gap-4">
             <div className="p-3 rounded-2xl bg-black/60 border border-white/15 backdrop-blur-md shadow-xl">
@@ -696,12 +332,12 @@ export const TemplatesLibrary: React.FC<TemplatesLibraryProps> = ({
           </div>
 
           <div className="px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-bold font-mono">
-            10 Modelos Disponíveis
+            5 Modelos Profissionais
           </div>
         </div>
 
-        {/* Grid of 10 Distinct Models */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
+        {/* Responsive Grid: 2 columns on mobile, 5 on desktop */}
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-5">
           {templates.map((tmpl, idx) => {
             const modelNumber = String(idx + 1).padStart(2, '0');
 
@@ -718,10 +354,10 @@ export const TemplatesLibrary: React.FC<TemplatesLibraryProps> = ({
                 {/* Model Title & Style */}
                 <div className="space-y-1 mb-3 px-1">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-black uppercase text-amber-400 font-mono">
+                    <span className="text-[10px] font-mono font-bold text-amber-400">
                       MODELO {modelNumber}
                     </span>
-                    <span className="text-[9px] font-bold text-slate-400 uppercase">
+                    <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 bg-white/5 px-2 py-0.5 rounded-full border border-white/10">
                       {tmpl.styleName.split(' ')[0]}
                     </span>
                   </div>
@@ -757,7 +393,7 @@ export const TemplatesLibrary: React.FC<TemplatesLibraryProps> = ({
           })}
         </div>
 
-        {/* Live Preview Modal (Mobile 390px, Tablet, Desktop) */}
+        {/* Live Preview Modal */}
         {previewTemplate && (
           <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-2 sm:p-6 animate-fadeIn">
             <div className="w-full max-w-5xl h-[92vh] bg-[#07080D] border border-white/20 rounded-3xl shadow-2xl flex flex-col overflow-hidden relative">
@@ -769,18 +405,18 @@ export const TemplatesLibrary: React.FC<TemplatesLibraryProps> = ({
                     Preview: {previewTemplate.name}
                   </span>
                   <span className="text-xs text-slate-400 hidden sm:inline">
-                    • {selectedNicho.name} ({previewTemplate.styleName})
+                    • {previewTemplate.styleName}
                   </span>
                 </div>
 
-                {/* Viewport Toggles (Default: Mobile 390px) */}
+                {/* Viewport Selector */}
                 <div className="flex items-center gap-1 bg-white/5 p-1 rounded-xl border border-white/10">
                   <button
                     type="button"
                     onClick={() => setPreviewViewport('mobile')}
-                    className={`p-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                       previewViewport === 'mobile'
-                        ? 'bg-amber-500 text-slate-950'
+                        ? 'bg-amber-500 text-slate-950 font-bold'
                         : 'text-slate-400 hover:text-white'
                     }`}
                     title="Visualização Mobile (390px)"
@@ -790,9 +426,9 @@ export const TemplatesLibrary: React.FC<TemplatesLibraryProps> = ({
                   <button
                     type="button"
                     onClick={() => setPreviewViewport('tablet')}
-                    className={`p-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                       previewViewport === 'tablet'
-                        ? 'bg-amber-500 text-slate-950'
+                        ? 'bg-amber-500 text-slate-950 font-bold'
                         : 'text-slate-400 hover:text-white'
                     }`}
                     title="Visualização Tablet"
@@ -802,9 +438,9 @@ export const TemplatesLibrary: React.FC<TemplatesLibraryProps> = ({
                   <button
                     type="button"
                     onClick={() => setPreviewViewport('desktop')}
-                    className={`p-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                       previewViewport === 'desktop'
-                        ? 'bg-amber-500 text-slate-950'
+                        ? 'bg-amber-500 text-slate-950 font-bold'
                         : 'text-slate-400 hover:text-white'
                     }`}
                     title="Visualização Desktop"
@@ -817,46 +453,54 @@ export const TemplatesLibrary: React.FC<TemplatesLibraryProps> = ({
                 <button
                   type="button"
                   onClick={() => setPreviewTemplate(null)}
-                  className="p-2 rounded-xl bg-white/10 text-slate-300 hover:text-white hover:bg-white/20 transition-colors cursor-pointer"
+                  className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors cursor-pointer"
                 >
-                  <X size={18} />
+                  <X size={20} />
                 </button>
               </div>
 
-              {/* Modal Renderer Container */}
-              <div className="flex-1 overflow-y-auto bg-[#05060A] flex justify-center py-6">
-                <TemplateRenderer
-                  project={{
-                    ...previewTemplate.defaultData,
-                    projectId: `preview_${previewTemplate.id}`,
-                    userId: userId,
-                    nome: previewTemplate.name,
-                    createdAt: Date.now(),
-                    updatedAt: Date.now()
-                  }}
-                  viewport={previewViewport}
-                />
+              {/* Modal Body: The Live Template Renderer */}
+              <div className="flex-1 overflow-y-auto bg-slate-950 p-4 sm:p-8 flex justify-center">
+                <div
+                  className={`w-full transition-all duration-300 rounded-3xl overflow-hidden shadow-2xl border border-white/10 ${
+                    previewViewport === 'mobile'
+                      ? 'max-w-[400px]'
+                      : previewViewport === 'tablet'
+                      ? 'max-w-[640px]'
+                      : 'max-w-4xl'
+                  }`}
+                >
+                  <TemplateRenderer
+                    project={{
+                      ...previewTemplate.defaultData,
+                      projectId: previewTemplate.id,
+                      userId: 'preview',
+                      createdAt: 0,
+                      updatedAt: 0
+                    }}
+                    viewport={previewViewport}
+                  />
+                </div>
               </div>
 
-              {/* Bottom Sticky Action Bar */}
-              <div className="h-16 px-6 bg-[#0A0C14] border-t border-white/10 flex items-center justify-between shrink-0">
-                <div className="text-xs text-slate-400 hidden sm:block">
-                  Gostou deste modelo? Clique ao lado para carregá-lo no editor.
+              {/* Modal Footer */}
+              <div className="h-16 px-6 border-t border-white/10 bg-[#0A0C14] flex items-center justify-between shrink-0">
+                <div className="text-xs text-slate-400">
+                  Experimente rolar e interagir com o biosite
                 </div>
-                <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+                <div className="flex items-center gap-3">
                   <button
                     type="button"
                     onClick={() => setPreviewTemplate(null)}
-                    className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-bold text-slate-300 cursor-pointer"
+                    className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-bold cursor-pointer"
                   >
                     Fechar
                   </button>
                   <button
                     type="button"
                     onClick={() => {
-                      const t = previewTemplate;
+                      onSelectTemplate(previewTemplate);
                       setPreviewTemplate(null);
-                      onSelectTemplate(t);
                     }}
                     className="px-5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-black flex items-center gap-2 shadow-lg shadow-amber-500/25 active:scale-95 cursor-pointer"
                   >
@@ -884,29 +528,29 @@ export const TemplatesLibrary: React.FC<TemplatesLibraryProps> = ({
         <div className="relative z-10 max-w-2xl space-y-3">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs font-black tracking-wider uppercase">
             <Sparkles size={14} className="text-amber-400" />
-            BIO FÁCIL • 100 MODELOS
+            BIO FÁCIL • 50 MODELOS
           </div>
 
           <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight uppercase leading-tight">
             Escolha seu Nicho <br />
             <span className="bg-gradient-to-r from-amber-400 via-amber-200 to-amber-500 bg-clip-text text-transparent">
-              100 Biosites Únicos
+              50 Biosites Únicos
             </span>
           </h2>
 
           <p className="text-xs sm:text-sm text-slate-300 font-medium leading-relaxed">
-            Selecione o seu segmento para acessar os 10 modelos desenvolvidos com propostas visuais autênticas.
+            Selecione o seu segmento para acessar os 5 modelos profissionais desenvolvidos com propostas visuais autênticas.
           </p>
         </div>
       </div>
 
-      {/* Grid of the 10 Niches (High Relief 3D Icons, No Bloated Covers) */}
-      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      {/* Grid of the 10 Niches (High Relief 3D Icons, Responsive) */}
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
         {NICHOS_LIST.map((nicho) => (
           <div
             key={nicho.id}
             onClick={() => setSelectedNicho(nicho)}
-            className="group relative rounded-3xl overflow-hidden border border-white/10 hover:border-amber-400/60 bg-[#0B0D18] hover:bg-[#101322] p-5 transition-all duration-300 cursor-pointer shadow-xl hover:shadow-[0_16px_35px_rgba(0,0,0,0.8)] hover:-translate-y-1 flex flex-col items-center text-center justify-between min-h-[210px]"
+            className="group relative rounded-3xl overflow-hidden border border-white/10 hover:border-amber-400/60 bg-[#0B0D18] hover:bg-[#101322] p-4 sm:p-5 transition-all duration-300 cursor-pointer shadow-xl hover:shadow-[0_16px_35px_rgba(0,0,0,0.8)] hover:-translate-y-1 flex flex-col items-center text-center justify-between min-h-[190px] sm:min-h-[210px]"
           >
             {/* Ambient Background Glow */}
             <div
@@ -915,17 +559,17 @@ export const TemplatesLibrary: React.FC<TemplatesLibraryProps> = ({
             />
 
             {/* 3D-Like High Relief Protagonist Icon */}
-            <div className="relative z-10 w-20 h-20 my-auto flex items-center justify-center p-2 rounded-2xl bg-black/40 border border-white/10 group-hover:border-white/25 shadow-xl group-hover:scale-110 transition-transform duration-300">
+            <div className="relative z-10 w-16 h-16 sm:w-20 sm:h-20 my-auto flex items-center justify-center p-2 rounded-2xl bg-black/40 border border-white/10 group-hover:border-white/25 shadow-xl group-hover:scale-110 transition-transform duration-300">
               <NicheIcon3D nichoId={nicho.id} size="xl" />
             </div>
 
-            {/* Title & 10 Modelos */}
+            {/* Title & 5 Modelos */}
             <div className="relative z-10 space-y-1 pt-3 border-t border-white/5 w-full">
               <h3 className="text-xs sm:text-sm font-black text-white group-hover:text-amber-300 transition-colors uppercase leading-snug">
                 {nicho.name}
               </h3>
               <span className="text-[11px] font-bold text-slate-400 block font-mono">
-                10 modelos
+                5 modelos
               </span>
             </div>
           </div>

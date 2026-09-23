@@ -183,108 +183,53 @@ export const DESIGN_STYLES: DesignStyleConfig[] = [
     galleryStyle: 'masonry',
     fontCategory: 'MODERNA',
     socialIconStyle: 'glass',
-    styleName: 'Cinematic Hero',
-    tagline: 'Logo protagonista, fotografia com atmosfera de cinema e alta presença.',
-    description: 'Visual cinematográfico com logo central solto, contrastes nobres e seções reveladas com elegância.'
+    styleName: 'Cinematic / Impact',
+    tagline: 'Hero fotográfico grande, logo livre, contrastes nobres e presença marcante.',
+    description: 'Visual cinematográfico com iluminação de estúdio, logo PNG fluida, carrossel de fotos e alta conversão.'
   },
   {
     index: 2,
-    layout: 'minimal',
-    serviceLayout: 'minimal-list',
-    galleryStyle: 'horizontal-scroll',
-    fontCategory: 'MINIMAL',
-    socialIconStyle: 'outline',
-    styleName: 'Clean Branco Minimalista',
-    tagline: 'Fundo 100% branco luminoso, tipografia discreta e espaço negativo generoso.',
-    description: 'Visual diurno e silencioso com logo em respiro amplo, ausência de ruídos e detalhes discretos.'
-  },
-  {
-    index: 3,
     layout: 'editorial',
     serviceLayout: 'editorial',
     galleryStyle: 'editorial',
     fontCategory: 'EDITORIAL',
     socialIconStyle: 'minimal',
-    styleName: 'Revista Editorial Masculina',
-    tagline: 'Estilo revista de alta costura com tipografia serif display e espaço visual.',
-    description: 'Diagramação assimétrica, títulos imponentes e serviços apresentados como palavras grandes sem cards.'
+    styleName: 'Editorial / Light',
+    tagline: 'Fundo off-white/creme, tipografia serif de revista e fotografia vertical.',
+    description: 'Estilo editorial autoral com títulos display imponentes, respiro refinado, apresentação em texto e zero cards repetitivos.'
+  },
+  {
+    index: 3,
+    layout: 'brutalist',
+    serviceLayout: 'minimal-list',
+    galleryStyle: 'horizontal-scroll',
+    fontCategory: 'BOLD',
+    socialIconStyle: 'solid',
+    styleName: 'Urban / Brutalist',
+    tagline: 'Grafite industrial, alto contraste, numeração técnica e bordas retas.',
+    description: 'Estética contemporânea com tipografia condensada e pesada, caixas estruturadas [01], energia urbana e impacto imediato.'
   },
   {
     index: 4,
-    layout: 'classic-club',
-    serviceLayout: 'accordion',
+    layout: 'minimal',
+    serviceLayout: 'minimal-list',
     galleryStyle: 'cards',
-    fontCategory: 'ELEGANTE',
+    fontCategory: 'MINIMAL',
     socialIconStyle: 'outline',
-    styleName: 'Vintage Barbershop Clássico',
-    tagline: 'Marrom couro escuro, detalhes em ouro e mogno, rituais clássicos e carimbo tradicional.',
-    description: 'Atmosfera vintage de clube clássico com carimbo de tradição, rituais de toalha quente e acabamento nobre.'
+    styleName: 'Minimal / Clean (Zero Fotos)',
+    tagline: 'Fundo 100% branco puro, respiro amplo e funciona perfeitamente sem fotos.',
+    description: 'Minimalismo requintado com logo PNG em destaque, foco absoluto na tipografia, serviços essenciais e contato ágil.'
   },
   {
     index: 5,
-    layout: 'brutalist',
-    serviceLayout: 'minimal-list',
-    galleryStyle: 'collage',
-    fontCategory: 'BOLD',
-    socialIconStyle: '3d',
-    styleName: 'Urbano Brutalista',
-    tagline: 'Tipografia de impacto, cantos retos 0px, numeração técnica [01] e visual industrial.',
-    description: 'Estética industrial de alta presença com blocos marcantes, bordas fortes e alto contraste.'
-  },
-  {
-    index: 6,
-    layout: 'authority',
+    layout: 'signature',
     serviceLayout: 'cards',
-    galleryStyle: 'single',
-    fontCategory: 'BOLD',
-    socialIconStyle: 'glow',
-    styleName: 'Mestre Barbeiro Autoridade',
-    tagline: 'Foco no profissional com foto de estúdio recortada, fade degradê e credenciais VIP.',
-    description: 'Composição de autoridade inspirada em profissionais de elite com selos de credibilidade e agendamento de cadeira VIP.'
-  },
-  {
-    index: 7,
-    layout: 'compact-profile',
-    serviceLayout: 'cards',
-    galleryStyle: 'grid',
-    fontCategory: 'MODERNA',
-    socialIconStyle: '3d',
-    styleName: 'Perfil Premium Compacto',
-    tagline: 'Biosite compacto de alta conversão com botões de ação empilhados e status ao vivo.',
-    description: 'Link-in-bio ultra refinado com microinterações rápidas, avaliação Google 5.0 e rotas diretas.'
-  },
-  {
-    index: 8,
-    layout: 'bento',
-    serviceLayout: 'cards',
-    galleryStyle: 'bento',
-    fontCategory: 'MODERNA',
-    socialIconStyle: 'glass',
-    styleName: 'Modern Bento Grid',
-    tagline: 'Composição modular em blocos assimétricos dinâmicos (2x2, 1x2, 1x1, 2x1).',
-    description: 'Grid inteligente de alta precisão que reúne status ao vivo, avaliações 5.0, serviços e localização.'
-  },
-  {
-    index: 9,
-    layout: 'storytelling',
-    serviceLayout: 'timeline',
-    galleryStyle: 'cards',
-    fontCategory: 'ELEGANTE',
-    socialIconStyle: 'glass',
-    styleName: 'Storytelling Narrativo',
-    tagline: 'Jornada cronológica com apresentação, capítulos narrativos e timeline da lâmina.',
-    description: 'Composição narrativa inspirada na arte da barbearia com linha do tempo sequencial e capítulos.'
-  },
-  {
-    index: 10,
-    layout: 'immersive',
-    serviceLayout: 'editorial',
     galleryStyle: 'carousel',
     fontCategory: 'ELEGANTE',
-    socialIconStyle: '3d',
-    styleName: 'Experiência Imersiva Carrossel',
-    tagline: 'Hero com carrossel de fotos automático, autoplay 3s e card flutuante VIP.',
-    description: 'Apresentação imersiva cinematográfica com troca automática de fotografias e transições fluidas.'
+    socialIconStyle: 'glass',
+    styleName: 'Signature / Experimental',
+    tagline: 'Azul petróleo / tons jóia, glass/chrome, selo VIP e avaliações 5.0.',
+    description: 'Composição assimétrica de prestígio, profundidade visual, carrossel de fotos, selo de autoridade e Google Review.'
   }
 ];
 
@@ -766,10 +711,10 @@ const NICHE_DOMAIN_DATA: Record<NichoId, NicheDomainConfig> = {
   }
 };
 
-// Distinct color palettes per model & niche (Dark, Light, Cream, Pastel, Brutalist, Jewel tones)
+// Distinct color palettes per model & niche (Dark Cinematic, Off-White Light, Urban Brutalist, Pure White Minimal, Jewel Signature)
 function getNicheModelTheme(nichoId: string, modelIndex: number, primaryAccent: string, secondaryAccent: string) {
   switch (modelIndex) {
-    case 1: // Cinematic Hero (Deep Cinematic Contrast)
+    case 1: // MODELO 01 — CINEMATIC / IMPACT (Rich dark, glowing accent, deep contrast)
       return {
         background: '#07080D',
         surface: '#0E111C',
@@ -781,42 +726,8 @@ function getNicheModelTheme(nichoId: string, modelIndex: number, primaryAccent: 
         accent: '#F59E0B'
       };
 
-    case 2: // Clean Branco Minimalista (100% Pure White, Hairline dividers)
-      return {
-        background: '#FFFFFF',
-        surface: '#FFFFFF',
-        text: '#0F172A',
-        textMuted: '#64748B',
-        border: 'rgba(15, 23, 42, 0.08)',
-        primary: primaryAccent || '#0F172A',
-        secondary: '#334155',
-        accent: '#D97706'
-      };
-
-    case 3: // Revista Editorial Masculina (Ivory / Off-White / Cream)
-      if (nichoId === 'manicure') {
-        return {
-          background: '#FDF6F0',
-          surface: '#FFFFFF',
-          text: '#2A171F',
-          textMuted: '#785A65',
-          border: 'rgba(42, 23, 31, 0.12)',
-          primary: '#831843',
-          secondary: '#BE185D',
-          accent: '#DB2777'
-        };
-      } else if (nichoId === 'confeitaria') {
-        return {
-          background: '#FCF8F2',
-          surface: '#FFFFFF',
-          text: '#29180E',
-          textMuted: '#7C6757',
-          border: 'rgba(41, 24, 14, 0.12)',
-          primary: '#78350F',
-          secondary: '#B45309',
-          accent: '#D97706'
-        };
-      } else {
+    case 2: // MODELO 02 — EDITORIAL / LIGHT (Warm Off-White / Cream / Pastel, high contrast dark serif text)
+      if (nichoId === '01-barbearia') {
         return {
           background: '#FAF8F5',
           surface: '#FFFFFF',
@@ -827,96 +738,204 @@ function getNicheModelTheme(nichoId: string, modelIndex: number, primaryAccent: 
           secondary: '#78350F',
           accent: '#C59B27'
         };
+      } else if (nichoId === '02-manicure') {
+        return {
+          background: '#FDF8F9',
+          surface: '#FFFFFF',
+          text: '#2A171F',
+          textMuted: '#785A65',
+          border: 'rgba(42, 23, 31, 0.12)',
+          primary: '#831843',
+          secondary: '#BE185D',
+          accent: '#DB2777'
+        };
+      } else if (nichoId === '03-salao') {
+        return {
+          background: '#FAF7F2',
+          surface: '#FFFFFF',
+          text: '#292524',
+          textMuted: '#78716C',
+          border: 'rgba(41, 37, 36, 0.12)',
+          primary: '#B45309',
+          secondary: '#78350F',
+          accent: '#D97706'
+        };
+      } else if (nichoId === '04-pizzaria') {
+        return {
+          background: '#FAF6EE',
+          surface: '#FFFFFF',
+          text: '#1C1917',
+          textMuted: '#78716C',
+          border: 'rgba(28, 25, 23, 0.12)',
+          primary: '#15803D',
+          secondary: '#B45309',
+          accent: '#DC2626'
+        };
+      } else if (nichoId === '05-boutique') {
+        return {
+          background: '#F9F6F0',
+          surface: '#FFFFFF',
+          text: '#1C1917',
+          textMuted: '#57534E',
+          border: 'rgba(0, 0, 0, 0.12)',
+          primary: '#44403C',
+          secondary: '#78350F',
+          accent: '#A8A29E'
+        };
+      } else if (nichoId === '06-corretor') {
+        return {
+          background: '#F8F9FA',
+          surface: '#FFFFFF',
+          text: '#1E293B',
+          textMuted: '#64748B',
+          border: 'rgba(30, 41, 59, 0.12)',
+          primary: '#2563EB',
+          secondary: '#1D4ED8',
+          accent: '#3B82F6'
+        };
+      } else if (nichoId === '07-personal') {
+        return {
+          background: '#F8FAFC',
+          surface: '#FFFFFF',
+          text: '#0F172A',
+          textMuted: '#64748B',
+          border: 'rgba(15, 23, 42, 0.12)',
+          primary: '#0284C7',
+          secondary: '#0369A1',
+          accent: '#0EA5E9'
+        };
+      } else if (nichoId === '08-motorista') {
+        return {
+          background: '#F8FAFC',
+          surface: '#FFFFFF',
+          text: '#0F172A',
+          textMuted: '#64748B',
+          border: 'rgba(15, 23, 42, 0.12)',
+          primary: '#2563EB',
+          secondary: '#1D4ED8',
+          accent: '#3B82F6'
+        };
+      } else if (nichoId === '09-mecanica') {
+        return {
+          background: '#F4F6F8',
+          surface: '#FFFFFF',
+          text: '#1E293B',
+          textMuted: '#64748B',
+          border: 'rgba(30, 41, 59, 0.12)',
+          primary: '#EA580C',
+          secondary: '#C2410C',
+          accent: '#F97316'
+        };
+      } else {
+        // 10-confeitaria
+        return {
+          background: '#FDF6F7',
+          surface: '#FFFFFF',
+          text: '#701A35',
+          textMuted: '#831843',
+          border: 'rgba(112, 26, 53, 0.12)',
+          primary: '#EC4899',
+          secondary: '#DB2777',
+          accent: '#F472B6'
+        };
       }
 
-    case 4: // Vintage Barbershop Clássico (Dark Leather, Mahogany, Aged Gold)
-      return {
-        background: '#160E0A',
-        surface: '#221610',
-        text: '#FDFBF7',
-        textMuted: '#C9B5A3',
-        border: '#3F281B',
-        primary: '#D4AF37',
-        secondary: '#B48A14',
-        accent: '#F3E5AB'
-      };
+    case 3: // MODELO 03 — URBAN / BRUTALIST (Industrial graphite / concrete, high-voltage punch accents)
+      let urbanAccent = '#EF4444';
+      if (nichoId === '02-manicure') urbanAccent = '#F43F5E';
+      if (nichoId === '03-salao') urbanAccent = '#FB7185';
+      if (nichoId === '04-pizzaria') urbanAccent = '#DC2626';
+      if (nichoId === '05-boutique') urbanAccent = '#22C55E';
+      if (nichoId === '06-corretor') urbanAccent = '#06B6D4';
+      if (nichoId === '07-personal') urbanAccent = '#22C55E';
+      if (nichoId === '08-motorista') urbanAccent = '#FACC15';
+      if (nichoId === '09-mecanica') urbanAccent = '#EF4444';
+      if (nichoId === '10-confeitaria') urbanAccent = '#FBBF24';
 
-    case 5: // Urbano Brutalista (Industrial Concrete, Sharp Contrast)
       return {
         background: '#121214',
         surface: '#1B1B1F',
         text: '#FFFFFF',
         textMuted: '#A1A1AA',
-        border: 'rgba(255, 255, 255, 0.2)',
-        primary: '#EF4444',
+        border: 'rgba(255, 255, 255, 0.25)',
+        primary: urbanAccent,
         secondary: '#FFFFFF',
-        accent: '#FDE047'
+        accent: urbanAccent
       };
 
-    case 6: // Mestre Barbeiro Autoridade (Deep Studio Navy / Graphite, Cyan/Amber)
+    case 4: // MODELO 04 — MINIMAL / CLEAN (100% PURE WHITE, zero photos required, hairline dividers)
       return {
-        background: '#080C14',
-        surface: '#101624',
-        text: '#F8FAFC',
-        textMuted: '#94A3B8',
-        border: 'rgba(255, 255, 255, 0.12)',
-        primary: '#38BDF8',
-        secondary: '#0284C7',
-        accent: '#F59E0B'
+        background: '#FFFFFF',
+        surface: '#FFFFFF',
+        text: '#0F172A',
+        textMuted: '#64748B',
+        border: 'rgba(15, 23, 42, 0.08)',
+        primary: primaryAccent || '#0F172A',
+        secondary: '#334155',
+        accent: primaryAccent || '#0F172A'
       };
 
-    case 7: // Perfil Premium Compacto (Graphite Slate, Pure Gold)
-      return {
-        background: '#090A0F',
-        surface: '#12141D',
-        text: '#FFFFFF',
-        textMuted: '#94A3B8',
-        border: 'rgba(255, 255, 255, 0.12)',
-        primary: primaryAccent || '#D97706',
-        secondary: secondaryAccent || '#B45309',
-        accent: '#F59E0B'
-      };
+    case 5: // MODELO 05 — SIGNATURE / EXPERIMENTAL (Deep jewel tones, chrome/gold glass, prestige)
+      let sigBg = '#081426';
+      let sigSurface = '#0E1A2E';
+      let sigPrimary = '#EAB308';
 
-    case 8: // Modern Bento Grid (Asymmetric Modular, Graphite)
-      return {
-        background: '#0E1015',
-        surface: '#181A22',
-        text: '#F8FAFC',
-        textMuted: '#94A3B8',
-        border: 'rgba(255, 255, 255, 0.12)',
-        primary: primaryAccent || '#38BDF8',
-        secondary: secondaryAccent || '#0284C7',
-        accent: '#F59E0B'
-      };
+      if (nichoId === '02-manicure') {
+        sigBg = '#150818';
+        sigSurface = '#200E25';
+        sigPrimary = '#F472B6';
+      } else if (nichoId === '03-salao') {
+        sigBg = '#0A0806';
+        sigSurface = '#16120E';
+        sigPrimary = '#F59E0B';
+      } else if (nichoId === '04-pizzaria') {
+        sigBg = '#18080A';
+        sigSurface = '#260E12';
+        sigPrimary = '#EF4444';
+      } else if (nichoId === '05-boutique') {
+        sigBg = '#0F0A1A';
+        sigSurface = '#181128';
+        sigPrimary = '#C084FC';
+      } else if (nichoId === '06-corretor') {
+        sigBg = '#070E1E';
+        sigSurface = '#0E1830';
+        sigPrimary = '#38BDF8';
+      } else if (nichoId === '07-personal') {
+        sigBg = '#0A0E17';
+        sigSurface = '#121824';
+        sigPrimary = '#22C55E';
+      } else if (nichoId === '08-motorista') {
+        sigBg = '#070B18';
+        sigSurface = '#0E152B';
+        sigPrimary = '#60A5FA';
+      } else if (nichoId === '09-mecanica') {
+        sigBg = '#0A0F1A';
+        sigSurface = '#121929';
+        sigPrimary = '#FB923C';
+      } else if (nichoId === '10-confeitaria') {
+        sigBg = '#180F14';
+        sigSurface = '#261821';
+        sigPrimary = '#F472B6';
+      }
 
-    case 9: // Storytelling Narrativo (Dark Espresso, Warm Amber)
       return {
-        background: '#140D08',
-        surface: '#1F150E',
-        text: '#FDFBF7',
-        textMuted: '#D7C2B2',
-        border: '#3D2214',
-        primary: '#D97706',
-        secondary: '#F59E0B',
-        accent: '#FDE68A'
-      };
-
-    case 10: // Experiência Imersiva Carrossel (Onyx & 24K Gold)
-    default:
-      return {
-        background: '#050608',
-        surface: '#0E1018',
+        background: sigBg,
+        surface: sigSurface,
         text: '#FFFDF5',
-        textMuted: '#CBD5E1',
+        textMuted: '#94A3B8',
         border: 'rgba(234, 179, 8, 0.3)',
-        primary: '#EAB308',
+        primary: sigPrimary,
         secondary: '#CA8A04',
         accent: '#FDE047'
       };
+
+    default:
+      // Backward compatibility for legacy templates 06..10
+      return getNicheModelTheme(nichoId, ((modelIndex - 1) % 5) + 1, primaryAccent, secondaryAccent);
   }
 }
 
-// Generates 100 complete, distinct, authentic templates (10 niches × 10 experiences)
+// Generates 50 complete, distinct, authentic templates (10 niches × 5 models)
 export const ALL_TEMPLATES: TemplateDefinition[] = [];
 
 NICHOS_LIST.forEach((nicho) => {
@@ -946,7 +965,7 @@ NICHOS_LIST.forEach((nicho) => {
       textMuted: customTheme.textMuted,
       cardBg: customTheme.surface,
       border: customTheme.border,
-      fontHeading: style.fontCategory === 'EDITORIAL' ? 'Bodoni Moda' : style.fontCategory === 'ELEGANTE' ? 'Playfair Display' : 'Plus Jakarta Sans',
+      fontHeading: style.fontCategory === 'EDITORIAL' ? 'Bodoni Moda' : style.fontCategory === 'ELEGANTE' ? 'Playfair Display' : style.fontCategory === 'BOLD' ? 'Chakra Petch' : 'Plus Jakarta Sans',
       fontBody: 'Plus Jakarta Sans'
     };
 
@@ -969,7 +988,8 @@ NICHOS_LIST.forEach((nicho) => {
       position: pIdx
     }));
 
-    const isNoPhotoModel = templateIndex === 6;
+    // MODELO 04: PURE MINIMAL (ZERO PHOTOS REQUIRED)
+    const isNoPhotoModel = templateIndex === 4;
     const isEditorialModel = templateIndex === 2;
 
     const defaultData: TemplateDefinition['defaultData'] = {
@@ -1131,5 +1151,19 @@ export const getTemplatesByNicho = (nichoId: NichoId): TemplateDefinition[] => {
 };
 
 export const getTemplateById = (id: string): TemplateDefinition | undefined => {
-  return ALL_TEMPLATES.find((t) => t.id === id);
+  const direct = ALL_TEMPLATES.find((t) => t.id === id);
+  if (direct) return direct;
+
+  // Backward compatibility: If an old project had an ID like "01-barbearia-08" or "01-barbearia-06":
+  const match = id.match(/^(.*)-(\d+)$/);
+  if (match) {
+    const nichoPart = match[1] as NichoId;
+    const oldNum = parseInt(match[2], 10);
+    const mappedIndex = ((oldNum - 1) % 5) + 1;
+    const mappedKey = `0${mappedIndex}`;
+    const fallbackTemplate = ALL_TEMPLATES.find((t) => t.id === `${nichoPart}-${mappedKey}`);
+    if (fallbackTemplate) return fallbackTemplate;
+  }
+
+  return ALL_TEMPLATES[0];
 };

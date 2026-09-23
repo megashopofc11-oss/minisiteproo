@@ -16,7 +16,65 @@ import { OrbitalMotionEngine } from './engines/OrbitalMotionEngine';
 import { SocialProfileEngine } from './engines/SocialProfileEngine';
 import { getWhatsAppUrl } from './engines/common';
 import { BrandWhatsApp } from '../components/BrandIcons';
-import { X } from 'lucide-react';
+import { X, AlertTriangle, RefreshCw } from 'lucide-react';
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+export class TemplateErrorBoundary extends React.Component<
+  { children: React.ReactNode; templateId?: string; nicho?: string },
+  ErrorBoundaryState
+> {
+  constructor(props: { children: React.ReactNode; templateId?: string; nicho?: string }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('[TemplateRenderError]', {
+      templateId: this.props.templateId,
+      nicho: this.props.nicho,
+      error,
+      componentStack: errorInfo.componentStack
+    });
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="p-8 my-8 text-center bg-rose-950/40 border border-rose-500/40 rounded-3xl text-rose-200 space-y-4 max-w-md mx-auto">
+          <div className="w-12 h-12 rounded-2xl bg-rose-500/20 text-rose-400 mx-auto flex items-center justify-center">
+            <AlertTriangle size={24} />
+          </div>
+          <div className="space-y-1">
+            <h3 className="text-base font-bold text-white">Falha ao renderizar biosite</h3>
+            <p className="text-xs text-rose-300">
+              Modelo: <span className="font-mono">{this.props.templateId || 'desconhecido'}</span>
+            </p>
+          </div>
+          <p className="text-[11px] text-slate-400 max-w-sm mx-auto leading-relaxed">
+            {this.state.error?.message || 'Ocorreu uma instabilidade pontual neste template.'}
+          </p>
+          <button
+            type="button"
+            onClick={() => this.setState({ hasError: false, error: null })}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 text-xs font-bold border border-rose-500/30 transition-colors"
+          >
+            <RefreshCw size={13} />
+            <span>Tentar Novamente</span>
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 interface TemplateRendererProps {
   project: ProjectData;
@@ -35,39 +93,38 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
   const waUrl = getWhatsAppUrl(project);
 
   const getEngine = () => {
-    // 1. Direct template index matching (ensures 100% distinct engine per model 01..10)
-    // MODELO 01: Cinematográfica com fotografia grande
+    // 1. Direct template index matching (THE 5 DIVERSE ENGINES PER NICHE)
+    // MODELO 01 — CINEMATIC / IMPACT
     if (templateId.endsWith('-01')) return <CinematicEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
-    // MODELO 02: Clean branco, extremamente minimalista
-    if (templateId.endsWith('-02')) return <MinimalLightEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
-    // MODELO 03: Revista/editorial masculina
-    if (templateId.endsWith('-03')) return <EditorialEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
-    // MODELO 04: Vintage/barbershop clássico
-    if (templateId.endsWith('-04')) return <ClassicClubEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
-    // MODELO 05: Urbano/brutalista
-    if (templateId.endsWith('-05')) return <BrutalistEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
-    // MODELO 06: Focado no barbeiro como profissional / autoridade pessoal
+    // MODELO 02 — EDITORIAL / LIGHT (Off-white, magazine serif, vertical photo)
+    if (templateId.endsWith('-02')) return <EditorialEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
+    // MODELO 03 — URBAN / BRUTALIST (Industrial graphite, punchy accents, sharp boxes)
+    if (templateId.endsWith('-03')) return <BrutalistEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
+    // MODELO 04 — MINIMAL / CLEAN (100% pure white, zero photos required)
+    if (templateId.endsWith('-04')) return <MinimalLightEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
+    // MODELO 05 — SIGNATURE / EXPERIMENTAL (Jewel/petroleum tones, wax seal, chrome)
+    if (templateId.endsWith('-05')) return <SignatureLuxuryEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
+
+    // 2. Backward compatibility mapping for legacy projects (06..10)
     if (templateId.endsWith('-06')) return <ProfessionalAuthorityEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
-    // MODELO 07: Biosite compacto estilo perfil premium
     if (templateId.endsWith('-07')) return <CompactProfileEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
-    // MODELO 08: Bento Grid modular
     if (templateId.endsWith('-08')) return <BentoEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
-    // MODELO 09: Storytelling conforme o usuário rola a página
     if (templateId.endsWith('-09')) return <StorytellingEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
-    // MODELO 10: Experiência imersiva com carrossel automático
     if (templateId.endsWith('-10')) return <ImmersiveEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
 
-    // 2. Fallback based on layout property
+    // 3. Fallback based on layout property
     switch (layout) {
-      case 'minimal':
-        return <MinimalLightEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
       case 'editorial':
         return <EditorialEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
-      case 'classic-club':
-        return <ClassicClubEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
       case 'brutalist':
       case 'urban':
         return <BrutalistEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
+      case 'minimal':
+        return <MinimalLightEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
+      case 'signature':
+        return <SignatureLuxuryEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
+      case 'classic-club':
+        return <ClassicClubEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
       case 'authority':
         return <ProfessionalAuthorityEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
       case 'compact-profile':
@@ -80,8 +137,6 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
         return <ImmersiveEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
       case 'glass':
         return <GlassEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
-      case 'signature':
-        return <SignatureLuxuryEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
       case 'orbital':
       case 'motion':
         return <OrbitalMotionEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
@@ -100,19 +155,26 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
     desktop: 'max-w-4xl mx-auto p-8 sm:p-12'
   }[viewport];
 
+  // Contrast safe background and text
+  const bg = project.theme?.background || '#07080D';
+  const isLightBg = bg.toLowerCase().startsWith('#f') || bg.toLowerCase() === '#ffffff';
+  const text = project.theme?.text || (isLightBg ? '#0F172A' : '#F8FAFC');
+
   return (
     <main
-      className={`min-h-screen w-full transition-colors duration-500 overflow-x-hidden relative`}
+      className="min-h-screen w-full transition-colors duration-500 overflow-x-hidden relative"
       style={{
-        backgroundColor: project.theme?.background || '#07080C',
-        color: project.theme?.text || '#F8FAFC'
+        backgroundColor: bg,
+        color: text
       }}
     >
       <div className={`${containerClasses} pb-28`}>
-        {getEngine()}
+        <TemplateErrorBoundary templateId={templateId} nicho={project.nicho}>
+          {getEngine()}
+        </TemplateErrorBoundary>
       </div>
 
-      {/* Floating WhatsApp Button with Pulsing Glow (From references: Jéssica Rodrigues, Marcos Willian, Central Food Park) */}
+      {/* Floating WhatsApp Button with Pulsing Glow */}
       {project.whatsappConfig?.showFloating !== false && waUrl !== '#' && (
         <a
           href={waUrl}
