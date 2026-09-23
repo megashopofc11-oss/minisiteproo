@@ -160,6 +160,86 @@ export const NICHOS_LIST: NichoInfo[] = [
     tagline: 'Apresente suas criações mais irresistíveis e conquiste clientes à primeira vista.',
     coverImage: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=1200&q=85',
     highlights: ['Bolo Esculpido 3D', 'Galeria de Encomendas', 'Doces Finos', 'Review Google']
+  },
+  {
+    id: '11-advocacia',
+    number: '11',
+    name: 'Advocacia & Jurídico',
+    subtitle: 'Direito de família, empresarial, civil e consultoria preventiva',
+    description: 'Azul marinho clássico, ouro polido e mármore sóbrio. Máxima autoridade e credibilidade para advogados e sociedades.',
+    iconName: 'scale',
+    vibe: 'Azul Marinho + Ouro Nobre + Mármore Sóbrio',
+    accentColor: '#D97706',
+    secondaryColor: '#1E3A8A',
+    accentGlow: 'rgba(217, 119, 6, 0.4)',
+    badge: 'OAB ATIVA & SEGURANÇA',
+    tagline: 'Defesa incansável e estratégica com a autoridade que seus clientes exigem.',
+    coverImage: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1200&q=85',
+    highlights: ['Balança da Justiça 3D', 'Áreas de Atuação', 'Consulta WhatsApp', 'Autoridade Jurídica']
+  },
+  {
+    id: '12-estetica',
+    number: '12',
+    name: 'Estética & Sobrancelhas',
+    subtitle: 'Nanoblading, micropigmentação, visagismo e estética avançada',
+    description: 'Off-white perolado, rosé champagne e detalhes dourados. Estética limpa, feminina e transformadora estilo Atelier.',
+    iconName: 'sparkles',
+    vibe: 'Off-White Perolado + Rosé Champagne + Ouro Suave',
+    accentColor: '#FB7185',
+    secondaryColor: '#E11D48',
+    accentGlow: 'rgba(251, 113, 133, 0.4)',
+    badge: 'ESTÉTICA AVANÇADA',
+    tagline: 'Realçando a naturalidade e a harmonia do seu olhar com visagismo exclusivo.',
+    coverImage: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=1200&q=85',
+    highlights: ['Dermógrafo 3D', 'Design com Visagismo', 'Galeria de Resultados', 'Agendamento VIP']
+  },
+  {
+    id: '13-refrigeracao',
+    number: '13',
+    name: 'Refrigeração & Climatização',
+    subtitle: 'Higienização antibacteriana, instalação, manutenção de split e PMOC',
+    description: 'Azul polar, gelo cristalino e cinza titânio. Storytelling focado em saúde, ar puro e economia real de energia.',
+    iconName: 'wind',
+    vibe: 'Azul Polar + Gelo Cristalino + Titânio',
+    accentColor: '#0284C7',
+    secondaryColor: '#0369A1',
+    accentGlow: 'rgba(2, 132, 199, 0.4)',
+    badge: 'AR PURO & ECONOMIA',
+    tagline: 'Seu ar-condicionado limpo, sem bactérias e economizando até 30% na conta de luz.',
+    coverImage: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=1200&q=85',
+    highlights: ['Split Polar 3D', 'Alerta de Saúde & Filtros', 'Sem Sujeira na Instalação', 'Orçamento Direto']
+  },
+  {
+    id: '14-pintor',
+    number: '14',
+    name: 'Pintura & Acabamentos',
+    subtitle: 'Cimento queimado, pintura airless, restauração de fachadas e fino acabamento',
+    description: 'Azul profundo de alta cobertura, cinza concreto e toques vibrantes. Foco em limpeza total, prazo e perfeição.',
+    iconName: 'brush',
+    vibe: 'Azul Cobalto + Concreto Urbano + Alta Precisão',
+    accentColor: '#2563EB',
+    secondaryColor: '#1D4ED8',
+    accentGlow: 'rgba(37, 99, 235, 0.4)',
+    badge: 'ACABAMENTO IMPECÁVEL',
+    tagline: 'Transformação de ambientes sem sujeira, com prazo rigoroso e fino acabamento.',
+    coverImage: 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&w=1200&q=85',
+    highlights: ['Rolo de Pintura 3D', 'Efeito Cimento Queimado', 'Pintura Airless Rápida', 'Garantia de Limpeza']
+  },
+  {
+    id: '15-fotografo',
+    number: '15',
+    name: 'Fotógrafo & Videomaker',
+    subtitle: 'Ensaios corporativos, publicidade, casamentos e produções cinema',
+    description: 'Preto fotográfico, dourado de ótica e tons neutros elegantes. Visual cinematográfico para portfólios autorais.',
+    iconName: 'camera',
+    vibe: 'Preto Fotográfico + Âmbar de Estúdio + Cinema',
+    accentColor: '#F59E0B',
+    secondaryColor: '#D97706',
+    accentGlow: 'rgba(245, 158, 11, 0.4)',
+    badge: 'CINEMATOGRAFIA & ENSAIOS',
+    tagline: 'Histórias reais registradas com estética de cinema e iluminação impecável.',
+    coverImage: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=1200&q=85',
+    highlights: ['Câmera Mirrorless 3D', 'Portfólio em Alta Resolução', 'Ensaios Corporativos', 'Orçamento Rápido']
   }
 ];
 
@@ -763,6 +843,236 @@ const NICHE_DOMAIN_DATA: Record<NichoId, NicheDomainConfig> = {
     ],
     hours: 'Segunda a Sábado: 09:00 às 19:00 • Domingo: Retirada de encomendas',
     address: 'Rua Mourato Coelho, 750 — Pinheiros, São Paulo - SP'
+  },
+
+  '11-advocacia': {
+    names: [
+      'Camila Menezes Advocacia',
+      'Siqueira & Associados Direito de Família',
+      'Vanguard Advocacia Empresarial',
+      'Dra. Valéria Castro Direito Civil',
+      'Soberano & Prado Sociedade de Advogados',
+      'Apex Jurídico Soluções Estratégicas',
+      'Bastos & Miranda Advocacia',
+      'Prestige Assessoria Jurídica',
+      'Titan Defesa & Consultoria',
+      'Alliance Advocacia de Precisão'
+    ],
+    slogans: [
+      'Defesa incansável e estratégica com a autoridade que seus direitos exigem.',
+      'Soluções jurídicas preventivas e contenciosas com sigilo e dedicação.',
+      'Sua segurança jurídica conduzida por especialistas com comprovada atuação.'
+    ],
+    badges: ['OAB/SP 412.890', 'DIREITO DE FAMÍLIA & EMPRESARIAL', 'ATENDIMENTO SIGILOSO'],
+    abouts: [
+      'Atuação pautada pela ética, celeridade e transparência. Prestamos assessoria completa para proteger seu patrimônio e garantir a tranquilidade de sua família ou empresa em momentos decisivos.'
+    ],
+    primaryCtaLabel: 'Falar com a Equipe Jurídica',
+    primaryCtaMessage: 'Olá! Preciso de orientação jurídica especializada para o meu caso.',
+    serviceCtaLabel: 'Agendar Consulta',
+    specialties: [
+      { name: 'Direito de Família, Divórcio & Sucessões', description: 'Inventários, guarda de menores, partilha de bens e planejamento sucessório com discrição.', iconName: 'scale' },
+      { name: 'Direito Empresarial & Contratos Comerciais', description: 'Elaboração e blindagem contratual, dissolução societária e assessoria contínua para empresas.', iconName: 'award' },
+      { name: 'Direito Civil & Recuperação de Crédito', description: 'Ações indenizatórias, cobranças judiciais e extrajudiciais, e disputas patrimoniais.', iconName: 'shield' },
+      { name: 'Consultoria Jurídica Preventiva Online', description: 'Análise antecipada de riscos e pareceres para tomada de decisões seguras.', iconName: 'star' }
+    ],
+    differentials: [
+      { title: 'Sigilo Absoluto & Ética', description: 'Garantia total de sigilo profissional e respeito ao cliente.', iconName: 'shield' },
+      { title: 'Atendimento Ágil no WhatsApp', description: 'Atualização frequente sobre o andamento dos seus processos.', iconName: 'clock' },
+      { title: 'Atuação Nacional Online', description: 'Consultas por videoconferência com validade jurídica em todo o país.', iconName: 'star' }
+    ],
+    photos: [
+      'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1000&q=80',
+      'https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&w=1000&q=80',
+      'https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=1000&q=80',
+      'https://images.unsplash.com/photo-1479142506502-19b3a3b7ff33?auto=format&fit=crop&w=1000&q=80'
+    ],
+    hours: 'Segunda a Sexta: 08:30 às 18:30 • Sábado sob agendamento prévio',
+    address: 'Av. Brigadeiro Faria Lima, 3477 — Itaim Bibi, São Paulo - SP'
+  },
+
+  '12-estetica': {
+    names: [
+      'Atelier Jéssica Rodrigues Sobrancelhas',
+      'Aura Glow Estética & Visagismo',
+      'Lumière Harmonização Facial & Olhar',
+      'Prestige Dermocosmética Avançada',
+      'Bella Pele Estética Integrativa',
+      'Diamond Brow Design & Lamination',
+      'Maison de Beauté Estética Facial',
+      'Velvet Glow Clinique',
+      'Opulence Estética & Harmonização',
+      'Sovereign Beauty Concept'
+    ],
+    slogans: [
+      'Realçando sua beleza natural com técnicas sutis de visagismo e micropigmentação.',
+      'Sobrancelhas desenhadas com precisão milimétrica e estética facial limpa.',
+      'O cuidado que ilumina sua identidade sem perder a autenticidade dos seus traços.'
+    ],
+    badges: ['ESTÉTICA AVANÇADA', 'MICROPIGMENTAÇÃO NANONATURAL', 'ATELIER VIP'],
+    abouts: [
+      'Especialista em valorizar a singularidade de cada rosto. Utilizamos técnicas ultrafinas de Nanoblading e tratamentos de rejuvenescimento não-invasivos que proporcionam um efeito natural, sofisticado e duradouro.'
+    ],
+    primaryCtaLabel: 'Agendar Avaliação VIP',
+    primaryCtaMessage: 'Olá Jéssica! Gostaria de consultar horários para procedimento de sobrancelhas/estética!',
+    serviceCtaLabel: 'Ver Procedimento',
+    specialties: [
+      { name: 'Micropigmentação Fio a Fio Nanoblading', description: 'Fios imperceptíveis que imitam o caimento natural dos pelos, preenchendo falhas com leveza.', iconName: 'sparkles' },
+      { name: 'Design Personalizado com Visagismo', description: 'Mapeamento facial respeitando a estrutura óssea e o formato dos olhos, sem moldes prontos.', iconName: 'award' },
+      { name: 'Brow Lamination & Lash Lifting de Luxo', description: 'Alinhamento dos fios naturais para um efeito encorpado e olhar aberto sem necessidade de maquiagem.', iconName: 'heart' },
+      { name: 'Limpeza de Pele Profunda com HidraGlow', description: 'Remoção suave de impurezas, infusão de ácido hialurônico e luminosidade imediata.', iconName: 'star' }
+    ],
+    differentials: [
+      { title: 'Biossegurança Rigorosa', description: 'Materiais descartáveis e esterilização certificada em cada sessão.', iconName: 'shield' },
+      { title: 'Pigmentos Anvisa de Alta Fixação', description: 'Cores que não desbotam para tons indesejados ao longo do tempo.', iconName: 'award' },
+      { title: 'Ambiente Calmante & Exclusivo', description: 'Atendimento com horário privativo e atenção total a você.', iconName: 'heart' }
+    ],
+    photos: [
+      'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=1000&q=80',
+      'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=1000&q=80',
+      'https://images.unsplash.com/photo-1512290900672-1f0236a00dfb?auto=format&fit=crop&w=1000&q=80',
+      'https://images.unsplash.com/photo-1516914943479-89db7d9ae7f2?auto=format&fit=crop&w=1000&q=80'
+    ],
+    hours: 'Terça a Sábado: 09:00 às 19:00 • Domingo e Segunda: Fechado',
+    address: 'Alameda Lorena, 1600 — Jardins, São Paulo - SP'
+  },
+
+  '13-refrigeracao': {
+    names: [
+      'Diego Refrigeração & Climatização',
+      'Polar Clean Engenharia Térmica',
+      'Master Frio Manutenção de Split',
+      'Vanguard Climatização Residencial & Comercial',
+      'Apex Ar-Condicionado & PMOC',
+      'Clima Puro Higienização Especializada',
+      'Titan Frio Manutenção Térmica',
+      'Zero Grau Serviços de Ar',
+      'Soberano Ar-Condicionado',
+      'Ecológico Clima & Refrigeração'
+    ],
+    slogans: [
+      'Seu ar-condicionado pode estar escondendo um problema: respire ar puro e economize até 30% de luz.',
+      'Higienização antibacteriana sem sujeira no seu ambiente e instalação técnica com garantia.',
+      'Elimine fungos, ácaros e maus odores do seu aparelho com atendimento pontual e transparente.'
+    ],
+    badges: ['TÉCNICO CERTIFICADO', 'SEM SUJEIRA NA SUA CASA', 'ECONOMIA COMPROVADA'],
+    abouts: [
+      'A sujeira acumulada dentro do seu ar-condicionado é a principal causa de rinites, alergias e alto consumo de energia elétrica. Trabalhamos com bolsa coletora impermeável para lavar o aparelho no próprio local, sem respingos na sua parede ou piso.'
+    ],
+    primaryCtaLabel: 'Pedir Higienização no WhatsApp',
+    primaryCtaMessage: 'Olá Diego! Gostaria de agendar uma higienização/manutenção no meu ar-condicionado.',
+    serviceCtaLabel: 'Ver Como Funciona',
+    specialties: [
+      { name: 'Higienização Antibacteriana Completa', description: 'Lavagem com bactericida hospitalar, limpeza de turbina e serpentina sem retirar o aparelho da parede.', iconName: 'wind' },
+      { name: 'Instalação e Desinstalação Padrão Técnico', description: 'Tubulação de cobre pura, teste de estanqueidade e vácuo com bomba digital para preservar o compressor.', iconName: 'award' },
+      { name: 'Carga de Gás Ecológico & Teste de Vazamento', description: 'Identificação exata de microvazamentos e recarga com balança de precisão na medida do fabricante.', iconName: 'shield' },
+      { name: 'Contrato de Manutenção Comercial PMOC', description: 'Emissão de laudo técnico obrigatório pela Anvisa para empresas, clínicas e escritórios.', iconName: 'star' }
+    ],
+    differentials: [
+      { title: 'Zero Sujeira no Seu Ambiente', description: 'Bolsa coletora profissional: nada cai no chão ou na parede.', iconName: 'shield' },
+      { title: 'Redução na Conta de Luz', description: 'Aparelho limpo refrigera até 2x mais rápido com menor esforço do motor.', iconName: 'sparkles' },
+      { title: 'Garantia de 90 Dias', description: 'Garantia técnica documentada em todos os serviços executados.', iconName: 'award' }
+    ],
+    photos: [
+      'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=1000&q=80',
+      'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1000&q=80',
+      'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=1000&q=80',
+      'https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=1000&q=80'
+    ],
+    hours: 'Segunda a Sábado: 07:30 às 19:30 • Atendimento emergencial sob consulta',
+    address: 'Atendimento Domiciliar em São Paulo e Cidades Vizinhas'
+  },
+
+  '14-pintor': {
+    names: [
+      'Mestre Mário Pinturas Residenciais',
+      'Vanguard Acabamentos & Cimento Queimado',
+      'Art & Cor Pintura Airless',
+      'Titan Pinturas Prediais & Fachadas',
+      'Apex Fino Acabamento & Decoração',
+      'Renove Já Pinturas Imobiliárias',
+      'Soberano Pinturas & Texturas',
+      'Mestre da Espátula Acabamentos',
+      'Urban Wall Pintura Moderna',
+      'Elegance Tintas & Design de Parede'
+    ],
+    slogans: [
+      'Transformação de ambientes sem sujeira, com prazo rigoroso e acabamento milimétrico.',
+      'Aplicação profissional de cimento queimado, pintura airless rápida e restauração de trincas.',
+      'Sua casa valorizada e renovada com proteção total dos seus móveis e rodapés.'
+    ],
+    badges: ['PINTOR PROFISSIONAL', 'PROTEÇÃO TOTAL DO PISO', 'PRAZO RIGOROSO'],
+    abouts: [
+      'Mais de 15 anos transformando residências, escritórios e condomínios. Nosso compromisso número um é o respeito ao seu patrimônio: isolamos pisos, rodapés e móveis antes de abrir a primeira lata de tinta, e entregamos a casa limpa.'
+    ],
+    primaryCtaLabel: 'Solicitar Orçamento no WhatsApp',
+    primaryCtaMessage: 'Olá! Gostaria de um orçamento detalhado para pintura do meu imóvel.',
+    serviceCtaLabel: 'Ver Acabamentos',
+    specialties: [
+      { name: 'Aplicação de Efeito Cimento Queimado', description: 'Acabamento rústico sofisticado para salas, lavabos e fachadas com proteção hidrorrepelente.', iconName: 'brush' },
+      { name: 'Pintura Residencial Fina & Airless', description: 'Paredes e tetos com cobertura uniforme sem marcas de rolo e rapidez incomparável.', iconName: 'award' },
+      { name: 'Tratamento de Trincas, Fissuras e Mofo', description: 'Vedação definitiva com telas estruturantes e seladores antimofo para evitar retorno.', iconName: 'shield' },
+      { name: 'Pintura de Portas, Janelas & Verniz em Madeira', description: 'Esmalte sintético acetinado ou fosco com fino acabamento e durabilidade superior.', iconName: 'star' }
+    ],
+    differentials: [
+      { title: 'Isolamento com Lona e Fita', description: 'Seus móveis e pisos completamente protegidos contra respingos.', iconName: 'shield' },
+      { title: 'Lixamento com Coleta de Pó', description: 'Minimização de até 90% da poeira suspensa durante o preparo.', iconName: 'sparkles' },
+      { title: 'Contrato com Data de Entrega', description: 'Início e término com prazos cumpridos à risca.', iconName: 'clock' }
+    ],
+    photos: [
+      'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&w=1000&q=80',
+      'https://images.unsplash.com/photo-1562259949-e8e7689d7828?auto=format&fit=crop&w=1000&q=80',
+      'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1000&q=80',
+      'https://images.unsplash.com/photo-1505798577917-a65157d3320a?auto=format&fit=crop&w=1000&q=80'
+    ],
+    hours: 'Segunda a Sexta: 07:30 às 18:00 • Sábado: 08:00 às 14:00',
+    address: 'Atendimento em Toda a Região Metropolitana e Condomínios Fechados'
+  },
+
+  '15-fotografo': {
+    names: [
+      'Lucas Prado Visual Studio',
+      'Apex Cinema & Fotografia de Autoridade',
+      'Lumière Ensaios & Marcas',
+      'Prestige Foto & Produção Audiovisual',
+      'Focus Prime Retratos Corporativos',
+      'Titan Films & Fotografia Publicitária',
+      'Aura Click Estúdio Fotográfico',
+      'Vanguard Visuals & Direção de Arte',
+      'Sovereign Cinema & Photography',
+      'Horizonte Fotografia Profissional'
+    ],
+    slogans: [
+      'Imagens que constroem autoridade e contam sua história com estética de cinema.',
+      'Retratos corporativos de alto impacto, gastronomia publicitária e filmes comerciais.',
+      'A luz certa para elevar a percepção de valor da sua marca pessoal ou empresarial.'
+    ],
+    badges: ['ESTÚDIO VISUAL', 'DIREÇÃO DE CENA DEDICADA', 'ENTREGA EM ALTA RESOLUÇÃO'],
+    abouts: [
+      'Trabalho unindo sensibilidade fotográfica a técnicas de iluminação de cinema. Meu método inclui direção descontraída de poses para que você se sinta confiante, autêntico e transmita a autoridade que o seu negócio representa.'
+    ],
+    primaryCtaLabel: 'Consultar Datas & Orçamentos',
+    primaryCtaMessage: 'Olá Lucas! Gostaria de consultar disponibilidade para um ensaio/produção!',
+    serviceCtaLabel: 'Ver Portfólio',
+    specialties: [
+      { name: 'Retratos Corporativos & Posicionamento de Marca', description: 'Fotos profissionais para LinkedIn, bio do Instagram, site e assessoria de imprensa.', iconName: 'camera' },
+      { name: 'Produção Audiovisual & Reels Cinematográficos', description: 'Captação 4K com áudio de estúdio e edição com color grading de cinema para suas redes.', iconName: 'award' },
+      { name: 'Fotografia Gastronômica & Publicitária', description: 'Imagens irresistíveis de pratos e produtos com composição comercial e luz de estúdio.', iconName: 'star' },
+      { name: 'Cobertura Exclusiva de Eventos & Lançamentos', description: 'Registro dinâmico e sofisticado com entrega de fotos prévias no mesmo dia.', iconName: 'sparkles' }
+    ],
+    differentials: [
+      { title: 'Direção Paciente e Humanizada', description: 'Você não precisa saber posar: conduzo cada detalhe com leveza.', iconName: 'heart' },
+      { title: 'Color Grading Profissional', description: 'Edição de cores refinada para um visual limpo e sofisticado.', iconName: 'award' },
+      { title: 'Galeria Online Privativa', description: 'Acesso rápido para download em alta definição no celular e computador.', iconName: 'shield' }
+    ],
+    photos: [
+      'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=1000&q=80',
+      'https://images.unsplash.com/photo-1542038784456-1ea8e935640e?auto=format&fit=crop&w=1000&q=80',
+      'https://images.unsplash.com/photo-1520390138845-fd2d229dd553?auto=format&fit=crop&w=1000&q=80',
+      'https://images.unsplash.com/photo-1512790182412-b19e6d62bc39?auto=format&fit=crop&w=1000&q=80'
+    ],
+    hours: 'Segunda a Sábado: 08:00 às 20:00 • Ensaios externos e estúdio com agendamento',
+    address: 'Estúdio Próprio nos Jardins & Atendimento em Todo o Brasil'
   }
 };
 
@@ -1047,6 +1357,7 @@ NICHOS_LIST.forEach((nicho) => {
       name: s.name,
       description: s.description,
       iconName: s.iconName,
+      priceEnabled: false,
       imageUrl: domain.photos[sIdx % domain.photos.length],
       ctaText: domain.serviceCtaLabel,
       featured: sIdx === 0
@@ -1069,6 +1380,9 @@ NICHOS_LIST.forEach((nicho) => {
       templateId,
       layout: style.layout,
       nome: brandName,
+      priceEnabled: false,
+      professionalPhotoUrl: domain.photos[0],
+      heroImageUrl: domain.photos[0],
       usePhotos: !isNoPhotoModel,
       showLogo: true,
       carouselConfig: {
@@ -1086,12 +1400,15 @@ NICHOS_LIST.forEach((nicho) => {
         slogan,
         badge,
         title: domain.primaryCtaLabel,
+        headline: slogan,
         subtitle: 'Atendimento com Hora Marcada e WhatsApp Direto',
         description: about,
         about,
         logoUrl: domain.photos[0],
+        professionalPhotoUrl: domain.photos[0],
         avatarUrl: isNoPhotoModel ? '' : domain.photos[1],
-        bannerUrl: isNoPhotoModel ? '' : domain.photos[0]
+        bannerUrl: isNoPhotoModel ? '' : domain.photos[0],
+        heroImageUrl: domain.photos[0]
       },
       theme: defaultTheme,
       photos: isNoPhotoModel ? [] : photos,

@@ -324,6 +324,170 @@ export const NicheIcon3D: React.FC<NicheIcon3DProps> = ({
           </svg>
         );
 
+      case '11-advocacia':
+        // Advocacia: Balança da justiça clássica com pratos suspensos em ouro polido e pedestal régio
+        return (
+          <svg viewBox="0 0 64 64" fill="none" className="w-full h-full drop-shadow-[0_8px_16px_rgba(217,119,6,0.35)]">
+            <defs>
+              <linearGradient id="law-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#FEF3C7" />
+                <stop offset="35%" stopColor="#F59E0B" />
+                <stop offset="70%" stopColor="#B45309" />
+                <stop offset="100%" stopColor="#78350F" />
+              </linearGradient>
+              <linearGradient id="marble-pedestal" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#334155" />
+                <stop offset="50%" stopColor="#64748B" />
+                <stop offset="100%" stopColor="#1E293B" />
+              </linearGradient>
+            </defs>
+            {/* Coluna central da balança */}
+            <rect x="30" y="10" width="4" height="42" rx="2" fill="url(#law-gold)" />
+            {/* Base sólida em mármore escuro */}
+            <path d="M20 54H44L48 58H16L20 54Z" fill="url(#marble-pedestal)" />
+            <rect x="24" y="50" width="16" height="4" rx="1" fill="url(#law-gold)" />
+            {/* Travessão superior de equilíbrio */}
+            <path d="M12 18H52L48 21H16L12 18Z" fill="url(#law-gold)" />
+            <circle cx="32" cy="14" r="4.5" fill="url(#law-gold)" />
+            {/* Prato esquerdo com correntes */}
+            <line x1="16" y1="21" x2="10" y2="34" stroke="#FDE68A" strokeWidth="1.5" />
+            <line x1="16" y1="21" x2="22" y2="34" stroke="#FDE68A" strokeWidth="1.5" />
+            <path d="M8 34C8 38 12 40 16 40C20 40 24 38 24 34H8Z" fill="url(#law-gold)" />
+            {/* Prato direito com correntes */}
+            <line x1="48" y1="21" x2="42" y2="34" stroke="#FDE68A" strokeWidth="1.5" />
+            <line x1="48" y1="21" x2="54" y2="34" stroke="#FDE68A" strokeWidth="1.5" />
+            <path d="M40 34C40 38 44 40 48 40C52 40 56 38 56 34H40Z" fill="url(#law-gold)" />
+            {/* Brilho da autoridade */}
+            <circle cx="32" cy="14" r="1.5" fill="#FFF" />
+          </svg>
+        );
+
+      case '12-estetica':
+        // Estética / Sobrancelhas: Dermógrafo de precisão, gota de sérum e pétala suave em ouro rosé
+        return (
+          <svg viewBox="0 0 64 64" fill="none" className="w-full h-full drop-shadow-[0_8px_16px_rgba(244,114,182,0.35)]">
+            <defs>
+              <linearGradient id="aesthetic-rose" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#FFF1F2" />
+                <stop offset="40%" stopColor="#FB7185" />
+                <stop offset="100%" stopColor="#BE123C" />
+              </linearGradient>
+              <linearGradient id="gold-pen" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#FEF9C3" />
+                <stop offset="50%" stopColor="#EAB308" />
+                <stop offset="100%" stopColor="#854D0E" />
+              </linearGradient>
+            </defs>
+            {/* Dermógrafo / Caneta de micropigmentação de precisão */}
+            <path d="M48 8L56 16L24 48L16 48L16 40L48 8Z" fill="url(#gold-pen)" />
+            <path d="M16 48L10 54L12 44L16 48Z" fill="#E2E8F0" />
+            <line x1="38" y1="18" x2="46" y2="26" stroke="#FFFFFF" strokeWidth="1.5" opacity="0.7" />
+            {/* Arco escultural de sobrancelha perfeita */}
+            <path d="M12 24C18 16 32 14 44 20" stroke="url(#aesthetic-rose)" strokeWidth="3" strokeLinecap="round" />
+            {/* Gota luminosa de sérum regenerador */}
+            <path d="M42 34C42 34 50 42 50 47C50 51.5 46.5 55 42 55C37.5 55 34 51.5 34 47C34 42 42 34 42 34Z" fill="url(#aesthetic-rose)" />
+            <circle cx="44" cy="45" r="2" fill="#FFFFFF" opacity="0.7" />
+          </svg>
+        );
+
+      case '13-refrigeracao':
+        // Refrigeração / Ar-Condicionado: Aparelho split moderno com rajadas de ar polar e gelo
+        return (
+          <svg viewBox="0 0 64 64" fill="none" className="w-full h-full drop-shadow-[0_8px_16px_rgba(56,189,248,0.35)]">
+            <defs>
+              <linearGradient id="split-body" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="#FFFFFF" />
+                <stop offset="40%" stopColor="#F1F5F9" />
+                <stop offset="100%" stopColor="#94A3B8" />
+              </linearGradient>
+              <linearGradient id="polar-wind" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#BAE6FD" />
+                <stop offset="50%" stopColor="#38BDF8" />
+                <stop offset="100%" stopColor="#0284C7" />
+              </linearGradient>
+            </defs>
+            {/* Unidade split de ar-condicionado */}
+            <rect x="8" y="14" width="48" height="22" rx="4" fill="url(#split-body)" />
+            <line x1="8" y1="30" x2="56" y2="30" stroke="#CBD5E1" strokeWidth="1.5" />
+            {/* Display digital LED azul */}
+            <rect x="44" y="20" width="8" height="4" rx="1" fill="#0284C7" />
+            <line x1="46" y1="22" x2="50" y2="22" stroke="#FFFFFF" strokeWidth="1" />
+            {/* Aleta inferior aberta */}
+            <path d="M12 36H52L50 40H14L12 36Z" fill="#64748B" />
+            {/* Rajadas de vento frio polar fluindo para baixo */}
+            <path d="M16 44C20 48 24 50 22 56" stroke="url(#polar-wind)" strokeWidth="2.5" strokeLinecap="round" />
+            <path d="M32 44C34 50 36 52 34 58" stroke="url(#polar-wind)" strokeWidth="3" strokeLinecap="round" />
+            <path d="M48 44C44 48 40 50 42 56" stroke="url(#polar-wind)" strokeWidth="2.5" strokeLinecap="round" />
+            {/* Cristal de gelo / floco puro */}
+            <path d="M28 48L36 48M32 44L32 52M29 45L35 51M29 51L35 45" stroke="#FFFFFF" strokeWidth="1" strokeLinecap="round" />
+          </svg>
+        );
+
+      case '14-pintor':
+        // Pintor / Serviços Residenciais: Rolo de pintura com tinta esmaltada fresca azul e espátula
+        return (
+          <svg viewBox="0 0 64 64" fill="none" className="w-full h-full drop-shadow-[0_8px_16px_rgba(37,99,235,0.35)]">
+            <defs>
+              <linearGradient id="paint-blue" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#93C5FD" />
+                <stop offset="50%" stopColor="#3B82F6" />
+                <stop offset="100%" stopColor="#1D4ED8" />
+              </linearGradient>
+              <linearGradient id="metal-frame" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#F1F5F9" />
+                <stop offset="50%" stopColor="#94A3B8" />
+                <stop offset="100%" stopColor="#475569" />
+              </linearGradient>
+            </defs>
+            {/* Rolo de pintura cilíndrico com tinta azul fresca */}
+            <rect x="14" y="10" width="34" height="16" rx="4" fill="url(#paint-blue)" />
+            <line x1="14" y1="18" x2="48" y2="18" stroke="#FFFFFF" strokeWidth="2" opacity="0.6" strokeDasharray="3 3" />
+            {/* Haste metálica do rolo */}
+            <path d="M48 18H52V34H34V46" stroke="url(#metal-frame)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+            {/* Cabo emborrachado ergonômico */}
+            <rect x="30" y="44" width="8" height="16" rx="2" fill="#0F172A" stroke="#3B82F6" strokeWidth="1.5" />
+            {/* Gotas de tinta fresca escorrendo */}
+            <circle cx="20" cy="32" r="3" fill="#3B82F6" />
+            <circle cx="28" cy="36" r="2" fill="#60A5FA" />
+          </svg>
+        );
+
+      case '15-fotografo':
+        // Fotógrafo / Videomaker: Câmera mirrorless profissional com objetiva grande e anel dourado
+        return (
+          <svg viewBox="0 0 64 64" fill="none" className="w-full h-full drop-shadow-[0_8px_16px_rgba(245,158,11,0.35)]">
+            <defs>
+              <linearGradient id="camera-body" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#334155" />
+                <stop offset="50%" stopColor="#1E293B" />
+                <stop offset="100%" stopColor="#0F172A" />
+              </linearGradient>
+              <linearGradient id="lens-reflex" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#38BDF8" />
+                <stop offset="40%" stopColor="#1E3A8A" />
+                <stop offset="100%" stopColor="#090D16" />
+              </linearGradient>
+              <linearGradient id="gold-ring" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#FDE68A" />
+                <stop offset="50%" stopColor="#F59E0B" />
+                <stop offset="100%" stopColor="#78350F" />
+              </linearGradient>
+            </defs>
+            {/* Corpo de magnésio da câmera */}
+            <path d="M10 22H20L23 16H41L44 22H54C56 22 58 24 58 26V52C58 54 56 56 54 56H10C8 56 6 54 6 52V26C6 24 8 22 10 22Z" fill="url(#camera-body)" />
+            {/* Botão de disparo e dial */}
+            <rect x="46" y="14" width="6" height="3" rx="1" fill="#E2E8F0" />
+            <circle cx="16" cy="27" r="2" fill="#EF4444" />
+            {/* Lente objetiva circular externa */}
+            <circle cx="32" cy="38" r="15" fill="#0F172A" stroke="url(#gold-ring)" strokeWidth="2.5" />
+            {/* Elemento de vidro com reflexo óptico */}
+            <circle cx="32" cy="38" r="10" fill="url(#lens-reflex)" />
+            {/* Brilho da lente reflexiva */}
+            <path d="M26 34C28 31 34 31 37 34" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" opacity="0.8" />
+            <circle cx="36" cy="42" r="1.5" fill="#38BDF8" />
+          </svg>
+        );
+
       default:
         return null;
     }

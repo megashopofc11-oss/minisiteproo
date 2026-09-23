@@ -5,6 +5,7 @@ import { exportProjectZip, downloadStandaloneHtml } from '../exporter/generateZi
 import { NICHOS_LIST } from '../templates/data';
 import { TemplateRenderer } from '../preview/TemplateRenderer';
 import { NicheIcon3D } from '../components/NicheIcon3D';
+import { NicheCarousel } from '../components/NicheCarousel';
 import {
   Plus,
   Search,
@@ -123,35 +124,35 @@ export const MyProjects: React.FC<MyProjectsProps> = ({
 
   return (
     <div className="space-y-10 animate-fadeIn pb-12">
-      {/* 1. CENTRAL DE CRIAÇÃO PREMIUM (Requisito 3) */}
+      {/* 1. HERO RECONSTRUÍDO (Requisito: Crie Presença. Não Apenas Links) */}
       <div className="relative rounded-3xl overflow-hidden border border-white/15 p-6 sm:p-12 shadow-2xl bg-gradient-to-br from-[#0E111C] via-[#090B14] to-[#05060A]">
         {/* Cinematic Background Lighting */}
         <div className="absolute top-0 right-0 w-[550px] h-[550px] bg-amber-500/10 rounded-full blur-[140px] pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-[450px] h-[450px] bg-purple-600/15 rounded-full blur-[130px] pointer-events-none" />
 
-        <div className="relative z-10 max-w-2xl space-y-4">
+        <div className="relative z-10 max-w-2xl space-y-5">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/25 text-amber-300 text-xs font-black tracking-wider uppercase">
             <Sparkles size={14} className="text-amber-400" />
-            PLATAFORMA OFICIAL BIO FÁCIL
+            BIO FÁCIL • CRIE PRESENÇA. NÃO APENAS LINKS.
           </div>
 
-          <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight uppercase">
-            Crie Biosites que <br />
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.08] uppercase">
+            CRIE PRESENÇA. <br />
             <span className="bg-gradient-to-r from-amber-400 via-amber-200 to-amber-500 bg-clip-text text-transparent">
-              Impressionam
+              NÃO APENAS LINKS.
             </span>
           </h1>
 
-          <p className="text-xs sm:text-base text-slate-300 font-medium leading-relaxed">
-            Apresentações de alto padrão para profissionais e negócios locais.
-            10 nichos lapidados, 100 modelos de alta conversão e exportação estática livre para qualquer hospedagem.
+          <p className="text-sm sm:text-base text-slate-300 font-medium leading-relaxed">
+            Biosites profissionais criados para transformar uma simples página em uma verdadeira presença digital:
+            design gráfico autoral, fotografia protagonista, iluminação de estúdio e conversão direta via WhatsApp.
           </p>
 
           {/* Action CTA Button */}
           <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <button
               onClick={() => onNewProject()}
-              className="px-6 py-4 rounded-2xl bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-black text-sm flex items-center justify-center gap-2.5 shadow-[0_4px_25px_rgba(245,158,11,0.4)] active:scale-95 transition-all cursor-pointer"
+              className="px-8 py-4 rounded-2xl bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-black text-sm flex items-center justify-center gap-2.5 shadow-[0_4px_25px_rgba(245,158,11,0.4)] active:scale-95 transition-all cursor-pointer"
             >
               <Plus size={18} className="text-slate-950 stroke-[3]" />
               <span>CRIAR NOVO BIOSITE</span>
@@ -159,68 +160,50 @@ export const MyProjects: React.FC<MyProjectsProps> = ({
           </div>
         </div>
 
-        {/* 4 Destaques Visuais (Requisito 3) */}
+        {/* 4 Pilares de Excelência (Sem contagens técnicas de modelos) */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-8 mt-8 border-t border-white/10 relative z-10">
           <div className="p-3.5 rounded-2xl bg-white/[0.04] border border-white/5 backdrop-blur-sm">
-            <span className="text-[10px] font-mono text-amber-400 font-black block mb-0.5">COLEÇÕES</span>
-            <h4 className="text-xs sm:text-sm font-black text-white">10 Nichos Exclusivos</h4>
+            <span className="text-[10px] font-mono text-amber-400 font-black block mb-0.5">DIREÇÃO DE ARTE</span>
+            <h4 className="text-xs sm:text-sm font-black text-white">Design Publicitário</h4>
           </div>
           <div className="p-3.5 rounded-2xl bg-white/[0.04] border border-white/5 backdrop-blur-sm">
-            <span className="text-[10px] font-mono text-amber-400 font-black block mb-0.5">EXPERIÊNCIAS</span>
-            <h4 className="text-xs sm:text-sm font-black text-white">100 Modelos de Luxo</h4>
+            <span className="text-[10px] font-mono text-amber-400 font-black block mb-0.5">FOTOGRAFIA</span>
+            <h4 className="text-xs sm:text-sm font-black text-white">Recortes & Protagonismo</h4>
           </div>
           <div className="p-3.5 rounded-2xl bg-white/[0.04] border border-white/5 backdrop-blur-sm">
             <span className="text-[10px] font-mono text-amber-400 font-black block mb-0.5">INDEPENDÊNCIA</span>
             <h4 className="text-xs sm:text-sm font-black text-white">Zero Mensalidade</h4>
           </div>
           <div className="p-3.5 rounded-2xl bg-white/[0.04] border border-white/5 backdrop-blur-sm">
-            <span className="text-[10px] font-mono text-amber-400 font-black block mb-0.5">RESPONSIVO</span>
-            <h4 className="text-xs sm:text-sm font-black text-white">Pronto p/ Smartphone</h4>
+            <span className="text-[10px] font-mono text-amber-400 font-black block mb-0.5">ALTA PERFORMANCE</span>
+            <h4 className="text-xs sm:text-sm font-black text-white">Mobile First & Veloz</h4>
           </div>
         </div>
       </div>
 
-      {/* 2. EXPLORAR OS 10 NICHOS (ATALHO RÁPIDO NA HOME) */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
+      {/* 2. ESCOLHA UMA EXPERIÊNCIA (CARROSSEL AUTOMÁTICO INFINITO) */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between px-1">
           <div>
-            <h2 className="text-lg sm:text-xl font-black text-white tracking-tight uppercase flex items-center gap-2">
-              <Layers size={18} className="text-amber-400" />
-              <span>Explorar as 10 Coleções</span>
+            <h2 className="text-lg sm:text-2xl font-black text-white tracking-tight uppercase flex items-center gap-2">
+              <Layers size={20} className="text-amber-400" />
+              <span>ESCOLHA UMA EXPERIÊNCIA</span>
             </h2>
-            <p className="text-xs text-slate-400">
-              Toque em qualquer nicho para ver os 10 modelos de biosite dedicados
+            <p className="text-xs sm:text-sm text-slate-400">
+              Deslize e toque em qualquer coleção para abrir a galeria de biosites
             </p>
           </div>
           <button
             onClick={() => onNewProject()}
-            className="text-xs font-bold text-amber-400 hover:text-amber-300 flex items-center gap-1 cursor-pointer"
+            className="text-xs font-bold text-amber-400 hover:text-amber-300 flex items-center gap-1 cursor-pointer py-1 px-3 rounded-lg hover:bg-white/5"
           >
             <span>Ver Todos</span>
             <ChevronRight size={14} />
           </button>
         </div>
 
-        {/* Horizontal scroll on mobile, responsive grid on desktop */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-          {NICHOS_LIST.map((nicho) => (
-            <div
-              key={nicho.id}
-              onClick={() => onNewProject(nicho.id)}
-              className="group p-3 rounded-2xl bg-[#0B0D17] border border-white/10 hover:border-amber-400/50 transition-all cursor-pointer flex flex-col items-center text-center shadow-lg active:scale-95"
-            >
-              <div className="p-2.5 rounded-xl bg-black/60 border border-white/10 mb-2 relative group-hover:scale-110 transition-transform">
-                <NicheIcon3D nichoId={nicho.id} size="md" />
-              </div>
-              <span className="text-xs font-black text-white truncate max-w-full group-hover:text-amber-300 transition-colors">
-                {nicho.name}
-              </span>
-              <span className="text-[10px] text-slate-400 mt-0.5">
-                10 Modelos
-              </span>
-            </div>
-          ))}
-        </div>
+        {/* Carrossel Horizontal Infinito */}
+        <NicheCarousel nichos={NICHOS_LIST} onSelectNicho={(nichoId) => onNewProject(nichoId)} />
       </div>
 
       {/* 3. SEUS BIOSITES RECENTES (Requisito 3) */}

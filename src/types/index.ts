@@ -26,7 +26,12 @@ export type NichoId =
   | '07-personal'
   | '08-motorista'
   | '09-mecanica'
-  | '10-confeitaria';
+  | '10-confeitaria'
+  | '11-advocacia'
+  | '12-estetica'
+  | '13-refrigeracao'
+  | '14-pintor'
+  | '15-fotografo';
 
 export type TemplateLayout =
   | 'cinematic'
@@ -48,6 +53,10 @@ export type TemplateLayout =
   | 'nordic'
   | 'split-screen'
   | 'ice-white'
+  | 'refrigeracao-story'
+  | 'estetica-glow'
+  | 'advocacia-authority'
+  | 'food-park-blocks'
   | 'social-profile'
   | 'authority'
   | 'compact-profile'
@@ -183,6 +192,7 @@ export interface ServiceItem {
   name: string;
   description: string;
   price?: string; // Optional! No forced price
+  priceEnabled?: boolean; // Default false. If false, price is hidden
   imageUrl?: string;
   thumbnailUrl?: string;
   iconName?: string;
@@ -199,6 +209,15 @@ export interface DifferentialItem {
   title: string;
   description: string;
   iconName: string;
+}
+
+export interface TestimonialItem {
+  id: string;
+  name: string;
+  role?: string;
+  content: string;
+  avatarUrl?: string;
+  rating?: number;
 }
 
 export interface CustomButton {
@@ -241,12 +260,15 @@ export interface ProjectIdentity {
   slogan: string;
   badge: string;
   title: string;
+  headline?: string;
   subtitle: string;
   description: string;
   about: string;
   logoUrl: string;
+  professionalPhotoUrl?: string; // Foto PNG recortada da pessoa/profissional
   avatarUrl: string;
   bannerUrl: string;
+  heroImageUrl?: string;
   quote?: string;
   highlightWord?: string;
   verifiedBadge?: boolean;
@@ -309,6 +331,10 @@ export interface ProjectData {
   seo: SeoConfig;
 
   // Premium Features & Upgrades
+  professionalPhotoUrl?: string; // Foto recortada PNG de pessoa
+  heroImageUrl?: string;
+  priceEnabled?: boolean; // Default false - services hide price
+  testimonials?: TestimonialItem[];
   usePhotos?: boolean;
   showLogo?: boolean;
   carouselConfig?: CarouselConfig;

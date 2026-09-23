@@ -638,23 +638,23 @@ export const TemplatesLibrary: React.FC<TemplatesLibraryProps> = ({
         <div className="relative z-10 max-w-2xl space-y-3">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs font-black tracking-wider uppercase">
             <Sparkles size={14} className="text-amber-400" />
-            BIO FÁCIL • 50 MODELOS
+            BIO FÁCIL • GALERIA DE BIOSITES
           </div>
 
           <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight uppercase leading-tight">
-            Escolha seu Nicho <br />
+            Escolha uma <br />
             <span className="bg-gradient-to-r from-amber-400 via-amber-200 to-amber-500 bg-clip-text text-transparent">
-              50 Biosites Únicos
+              Experiência Visual
             </span>
           </h2>
 
           <p className="text-xs sm:text-sm text-slate-300 font-medium leading-relaxed">
-            Selecione o seu segmento para acessar os 5 modelos profissionais desenvolvidos com propostas visuais autênticas.
+            Selecione o seu segmento para acessar direções visuais profissionais com fotografia protagonista, iluminação de estúdio e conversão direta.
           </p>
         </div>
       </div>
 
-      {/* Grid of the 10 Niches (High Relief 3D Icons, Responsive) */}
+      {/* Grid of the 15 Niches (High Relief 3D Icons, Responsive, No Model Counts) */}
       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
         {NICHOS_LIST.map((nicho) => (
           <div
@@ -673,13 +673,13 @@ export const TemplatesLibrary: React.FC<TemplatesLibraryProps> = ({
               <NicheIcon3D nichoId={nicho.id} size="xl" />
             </div>
 
-            {/* Title & 5 Modelos */}
+            {/* Title & Niche Vibe Subtitle — NO Model Counts */}
             <div className="relative z-10 space-y-1 pt-3 border-t border-white/5 w-full">
-              <h3 className="text-xs sm:text-sm font-black text-white group-hover:text-amber-300 transition-colors uppercase leading-snug">
+              <h3 className="text-xs sm:text-sm font-black text-white group-hover:text-amber-300 transition-colors uppercase leading-snug truncate">
                 {nicho.name}
               </h3>
-              <span className="text-[11px] font-bold text-slate-400 block font-mono">
-                5 modelos
+              <span className="text-[11px] font-medium text-slate-400 block line-clamp-1">
+                {nicho.subtitle}
               </span>
             </div>
           </div>

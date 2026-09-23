@@ -1395,6 +1395,39 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({
 
             {openSections.servicos && (
               <div className="p-4 pt-0 space-y-4 border-t border-white/5">
+                {/* Master Switch: MOSTRAR / OCULTAR PREÇOS (Bio Fácil não é cardápio) */}
+                <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <span className="text-xs font-bold text-white block">
+                      Exibir Preços nos Serviços
+                    </span>
+                    <span className="text-[10px] text-slate-400 leading-snug">
+                      Bio Fácil não é cardápio de preços. Desative para ocultar valores e focar em apresentação autoral e WhatsApp. O layout se reorganiza automaticamente.
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setProject((prev) => ({
+                        ...prev,
+                        priceEnabled: prev.priceEnabled === false ? true : false
+                      }))
+                    }
+                    className={`px-3 py-1.5 rounded-full text-[10px] font-black border transition-all cursor-pointer flex items-center gap-1.5 shrink-0 self-start sm:self-center ${
+                      project.priceEnabled === true
+                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                        : 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                    }`}
+                  >
+                    <span
+                      className={`w-1.5 h-1.5 rounded-full ${
+                        project.priceEnabled === true ? 'bg-emerald-400' : 'bg-amber-400'
+                      }`}
+                    />
+                    <span>{project.priceEnabled === true ? 'Preços Visíveis' : 'Preços Ocultos'}</span>
+                  </button>
+                </div>
+
                 <div>
                   <label className="text-[11px] font-bold text-slate-400 block mb-1.5">
                     Estilo de Apresentação das Especialidades
