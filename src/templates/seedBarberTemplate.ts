@@ -125,7 +125,84 @@ export const SEED_BARBER_TEMPLATE: BioFacilTemplate = {
         defaultValue: 'Segunda a Sábado das 09:00 às 20:00',
         section: 'location'
       }
-    ]
+    ],
+    capabilities: {
+      gallery: true,
+      supportedGalleryLayouts: ['original', 'carousel', 'grid', 'horizontal'],
+      carouselOptions: {
+        autoplay: true,
+        speed: 3,
+        indicators: true,
+        arrows: true,
+        loop: true,
+        effects: ['slide', 'fade']
+      },
+      imageBehaviors: ['normal', 'fixed'],
+      services: true,
+      servicesLabel: 'Especialidades & Cortes',
+      allowPrice: true,
+      location: true,
+      googleReviews: true,
+      colorCustomization: true,
+      supportedColorPresets: [
+        {
+          id: 'original',
+          name: 'Original Dourado Vintage',
+          colors: {
+            '--gold': '#d4af37',
+            '--gold-light': '#f3e5ab',
+            '--primary': '#d4af37',
+            '--accent': '#f3e5ab',
+            '--background': '#0c0d10',
+            '--text': '#f8fafc'
+          }
+        },
+        {
+          id: 'luxury',
+          name: 'Ouro Real & Preto Profundo',
+          colors: {
+            '--gold': '#f59e0b',
+            '--gold-light': '#fbbf24',
+            '--primary': '#f59e0b',
+            '--accent': '#fbbf24',
+            '--background': '#000000',
+            '--text': '#ffffff'
+          }
+        },
+        {
+          id: 'neon',
+          name: 'Neon Cyber Barber',
+          colors: {
+            '--gold': '#06b6d4',
+            '--gold-light': '#22d3ee',
+            '--primary': '#06b6d4',
+            '--accent': '#22d3ee',
+            '--background': '#080d1a',
+            '--text': '#f0f9ff'
+          }
+        },
+        {
+          id: 'dark',
+          name: 'Dark Minimalista',
+          colors: {
+            '--gold': '#e2e8f0',
+            '--gold-light': '#cbd5e1',
+            '--primary': '#e2e8f0',
+            '--accent': '#94a3b8',
+            '--background': '#0f172a',
+            '--text': '#ffffff'
+          }
+        }
+      ],
+      customColors: [
+        { varName: '--gold', label: 'Cor Principal (Dourado/Destaque)', defaultColor: '#d4af37' },
+        { varName: '--gold-light', label: 'Brilho Secundário', defaultColor: '#f3e5ab' },
+        { varName: '--dark', label: 'Fundo da Página', defaultColor: '#121316' },
+        { varName: '--text', label: 'Cor do Texto', defaultColor: '#f8fafc' }
+      ],
+      supportedIconStyles: ['original', 'minimal', 'glass', 'glow', '3d'],
+      supportedEffects: ['original', 'soft', 'glow', 'glass', '3d']
+    }
   },
   htmlContent: `<!DOCTYPE html>
 <html lang="pt-BR">

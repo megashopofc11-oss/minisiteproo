@@ -19,6 +19,7 @@ export interface ZipValidationResult {
   zipBlob?: Blob;
   assetsMap?: Record<string, string>; // relative path -> data URL, blob URL or text
   originalImages?: Record<string, string>; // fieldId -> original src
+  originalTexts?: Record<string, string>; // fieldId -> original text from template HTML
 }
 
 /**
@@ -240,6 +241,48 @@ export function getTemplateOriginalImages(
   }
 
   return images;
+}
+
+/**
+ * Extracts original texts declared in template HTML for each data-bio-text or data-bio-field element.
+ * Guarantees requirement 10: customers never see empty text fields when the template contains content.
+ */
+export function getTemplateOriginalTexts(
+  rawHtml: string,
+  manifest?: BioFacilManifest
+): Record<string, string> {
+  const texts: Record<string, string> = {};
+  if (!rawHtml) return texts;
+
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(rawHtml, 'text/html');
+
+    // 1. Scan all data-bio-text and data-bio-field elements
+    const elements = doc.querySelectorAll('[data-bio-text], [data-bio-field]');
+    elements.forEach((el) => {
+      const fieldId = el.getAttribute('data-bio-text') || el.getAttribute('data-bio-field');
+      if (fieldId && !texts[fieldId]) {
+        const textContent = el.textContent?.trim() || '';
+        if (textContent) {
+          texts[fieldId] = textContent;
+        }
+      }
+    });
+
+    // 2. Scan manifest fields to provide fallback from defaultValue if any
+    if (manifest?.fields) {
+      manifest.fields.forEach((f) => {
+        if (!texts[f.id] && f.defaultValue && typeof f.defaultValue === 'string') {
+          texts[f.id] = f.defaultValue;
+        }
+      });
+    }
+  } catch (err) {
+    console.warn('Error reading original texts from HTML:', err);
+  }
+
+  return texts;
 }
 
 /**
@@ -577,6 +620,100 @@ export function generatePersonalizedHtml(
     }
   });
 
+  // 7. Custom Colors / Theme CSS variables (Requirement 19, 20)
+  if (values.customColors && typeof values.customColors === 'object') {
+    const vars = Object.entries(values.customColors)
+      .map(([k, v]) => `${k.startsWith('--') ? k : `--${k}`}: ${v};`)
+      .join(' ');
+    if (vars) {
+      let styleTag = doc.querySelector('#biofacil-custom-theme');
+      if (!styleTag) {
+        styleTag = doc.createElement('style');
+        styleTag.id = 'biofacil-custom-theme';
+        doc.head.appendChild(styleTag);
+      }
+      styleTag.textContent = `:root { ${vars} }`;
+    }
+  }
+
+  // 8. Icon Visual Variant (Requirement 22, 23)
+  if (values.iconStyle && typeof values.iconStyle === 'string') {
+    doc.body.setAttribute('data-bio-icon-style', values.iconStyle);
+  }
+
+  // 9. Visual Effect (Requirement 21)
+  if (values.visualEffect && typeof values.visualEffect === 'string') {
+    doc.body.setAttribute('data-bio-effect', values.visualEffect);
+  }
+
+  // 10. Social Visibility (Requirement 15)
+  if (values.socialVisibility && typeof values.socialVisibility === 'object') {
+    Object.entries(values.socialVisibility).forEach(([net, visible]) => {
+      if (visible === false) {
+        const els = doc.querySelectorAll(`[data-bio-link="${net}"], [data-bio-social="${net}"]`);
+        els.forEach((el) => {
+          (el as HTMLElement).style.display = 'none';
+        });
+      }
+    });
+  }
+
+  // 11. Gallery Layout (Requirement 6, 7)
+  if (values.galleryLayout && typeof values.galleryLayout === 'string' && values.galleryLayout !== 'original') {
+    const galContainers = doc.querySelectorAll('[data-bio-gallery]');
+    galContainers.forEach((el) => {
+      el.setAttribute('data-bio-gallery-layout', values.galleryLayout);
+    });
+  }
+
+  // Inject helper styling for runtime features (icon styles & gallery layouts)
+  const runtimeFeatureStyles = doc.createElement('style');
+  runtimeFeatureStyles.id = 'biofacil-runtime-features';
+  runtimeFeatureStyles.textContent = `
+    [data-bio-icon-style="3d"] svg, [data-bio-icon-style="3d"] .bio-social-icon {
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)) drop-shadow(0 1px 2px rgba(255,255,255,0.25));
+      transform: perspective(400px) translateZ(4px);
+      transition: transform 0.2s ease, filter 0.2s ease;
+    }
+    [data-bio-icon-style="glass"] svg, [data-bio-icon-style="glass"] .bio-social-icon {
+      opacity: 0.85;
+      filter: drop-shadow(0 2px 8px rgba(255,255,255,0.3));
+    }
+    [data-bio-icon-style="neon"] svg, [data-bio-icon-style="neon"] .bio-social-icon {
+      filter: drop-shadow(0 0 8px currentColor);
+    }
+    [data-bio-icon-style="minimal"] svg, [data-bio-icon-style="minimal"] .bio-social-icon {
+      opacity: 0.75;
+    }
+    [data-bio-gallery-layout="grid"] {
+      display: grid !important;
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 12px !important;
+    }
+    [data-bio-gallery-layout="horizontal"] {
+      display: flex !important;
+      overflow-x: auto !important;
+      scroll-snap-type: x mandatory !important;
+      gap: 12px !important;
+      padding-bottom: 8px !important;
+    }
+    [data-bio-gallery-layout="horizontal"] > * {
+      flex: 0 0 80% !important;
+      scroll-snap-align: center !important;
+    }
+    [data-bio-gallery-layout="carousel"] {
+      display: flex !important;
+      overflow-x: auto !important;
+      scroll-snap-type: x mandatory !important;
+      gap: 0 !important;
+    }
+    [data-bio-gallery-layout="carousel"] > * {
+      flex: 0 0 100% !important;
+      scroll-snap-align: center !important;
+    }
+  `;
+  doc.head.appendChild(runtimeFeatureStyles);
+
   return '<!DOCTYPE html>\n' + doc.documentElement.outerHTML;
 }
 
@@ -869,22 +1006,94 @@ export function preparePreviewHtml(
       }
 
       window.addEventListener('message', function(event) {
-        if (!event.data || event.data.type !== 'BIO_FACIL_UPDATE') return;
+        if (!event.data) return;
 
-        // Supports single field update { fieldId, value }
-        if (event.data.fieldId) {
-          applyFieldUpdate(event.data.fieldId, event.data.value);
+        // 1. Text, Image, Link Live Updates
+        if (event.data.type === 'BIO_FACIL_UPDATE') {
+          // Supports single field update { fieldId, value }
+          if (event.data.fieldId) {
+            applyFieldUpdate(event.data.fieldId, event.data.value);
+          }
+          // Supports bulk dictionary update { values: { ... } }
+          else if (event.data.values && typeof event.data.values === 'object') {
+            for (var fid in event.data.values) {
+              applyFieldUpdate(fid, event.data.values[fid]);
+            }
+          }
         }
-        // Supports bulk dictionary update { values: { ... } }
-        else if (event.data.values && typeof event.data.values === 'object') {
-          for (var fid in event.data.values) {
-            applyFieldUpdate(fid, event.data.values[fid]);
+
+        // 2. Focus Highlighting (Requirement 12: subtle highlight on the previewed element)
+        else if (event.data.type === 'BIO_FACIL_FOCUS') {
+          var fid = event.data.fieldId;
+          if (!fid) return;
+          var targets = document.querySelectorAll(
+            '[data-bio-text="' + fid + '"], [data-bio-image="' + fid + '"], [data-bio-link="' + fid + '"], [data-bio-field="' + fid + '"], [data-bio-services="' + fid + '"], [data-bio-gallery="' + fid + '"]'
+          );
+          targets.forEach(function(target) {
+            target.classList.add('biofacil-focus-highlight');
+            try {
+              target.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+            } catch (e) {}
+            setTimeout(function() {
+              target.classList.remove('biofacil-focus-highlight');
+            }, 1300);
+          });
+        }
+
+        // 3. Theme, Colors, Icons, and Layout Live Updates (Requirements 6, 7, 15, 19, 22)
+        else if (event.data.type === 'BIO_FACIL_STYLE_UPDATE') {
+          if (event.data.cssVars) {
+            for (var varName in event.data.cssVars) {
+              var v = event.data.cssVars[varName];
+              var key = varName.startsWith('--') ? varName : '--' + varName;
+              document.documentElement.style.setProperty(key, v);
+            }
+          }
+          if (event.data.iconStyle) {
+            document.body.setAttribute('data-bio-icon-style', event.data.iconStyle);
+          }
+          if (event.data.visualEffect) {
+            document.body.setAttribute('data-bio-effect', event.data.visualEffect);
+          }
+          if (event.data.socialVisibility) {
+            for (var net in event.data.socialVisibility) {
+              var show = event.data.socialVisibility[net];
+              var netEls = document.querySelectorAll('[data-bio-link="' + net + '"], [data-bio-social="' + net + '"]');
+              netEls.forEach(function(nel) {
+                nel.style.display = show === false ? 'none' : '';
+              });
+            }
+          }
+          if (event.data.galleryLayout) {
+            var galEls = document.querySelectorAll('[data-bio-gallery]');
+            galEls.forEach(function(gel) {
+              gel.setAttribute('data-bio-gallery-layout', event.data.galleryLayout);
+            });
           }
         }
       });
     })();
   `;
   doc.body.appendChild(liveSyncScript);
+
+  // Injected CSS for preview interactions (Focus pulse & highlight)
+  const previewInteractionsStyle = doc.createElement('style');
+  previewInteractionsStyle.id = 'biofacil-preview-interactions';
+  previewInteractionsStyle.textContent = `
+    .biofacil-focus-highlight {
+      outline: 2px solid #F59E0B !important;
+      outline-offset: 4px !important;
+      box-shadow: 0 0 20px rgba(245, 158, 11, 0.7) !important;
+      transition: outline 0.2s ease, box-shadow 0.2s ease !important;
+      animation: biofacil-pulse 1.3s ease-in-out !important;
+    }
+    @keyframes biofacil-pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+      100% { transform: scale(1); }
+    }
+  `;
+  doc.head.appendChild(previewInteractionsStyle);
 
   return '<!DOCTYPE html>\n' + doc.documentElement.outerHTML;
 }

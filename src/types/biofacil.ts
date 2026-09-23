@@ -50,10 +50,56 @@ export interface BioFacilFieldDefinition {
   type: BioFacilFieldType;
   section?: 'identity' | 'content' | 'photos' | 'services' | 'reviews' | 'contact' | 'location' | string;
   description?: string;
+  contextHint?: string; // Visual cue of where the field appears in the site (e.g., "Texto grande no início")
   placeholder?: string;
   defaultValue?: any;
   options?: BioFacilFieldOption[];
   required?: boolean;
+}
+
+export type GalleryLayoutStyle = 'original' | 'carousel' | 'grid' | 'horizontal' | 'vertical' | 'masonry' | 'collage';
+export type IconVisualVariant = 'original' | 'minimal' | 'glass' | 'glow' | 'neon' | '3d';
+export type IconStyleVariant = IconVisualVariant;
+export type VisualEffectPreset = 'original' | 'soft' | 'glow' | 'glass' | '3d';
+export type VisualEffectVariant = VisualEffectPreset;
+export type ColorPalettePresetId = 'original' | 'light' | 'dark' | 'neon' | 'luxury' | 'vibrant';
+
+export interface BioFacilCustomColorVar {
+  varName: string;
+  label: string;
+  defaultColor: string;
+}
+
+export interface BioFacilColorPreset {
+  id: ColorPalettePresetId | string;
+  name: string;
+  colors: Record<string, string>; // CSS variable name (e.g. '--primary') -> color hex
+}
+
+export interface BioFacilCapabilities {
+  gallery?: boolean;
+  supportedGalleryLayouts?: GalleryLayoutStyle[];
+  carouselOptions?: {
+    autoplay?: boolean;
+    speed?: number;
+    indicators?: boolean;
+    arrows?: boolean;
+    loop?: boolean;
+    effects?: ('slide' | 'fade' | 'scale')[];
+  };
+  imageBehaviors?: ('normal' | 'fixed' | 'parallax')[];
+  services?: boolean;
+  servicesLabel?: string;
+  allowPrice?: boolean;
+  testimonials?: boolean;
+  testimonialsLabel?: string;
+  location?: boolean;
+  googleReviews?: boolean;
+  colorCustomization?: boolean;
+  supportedColorPresets?: BioFacilColorPreset[];
+  customColors?: { varName: string; label: string; defaultColor: string }[];
+  supportedIconStyles?: IconVisualVariant[];
+  supportedEffects?: VisualEffectPreset[];
 }
 
 export interface BioFacilManifest {
@@ -63,6 +109,7 @@ export interface BioFacilManifest {
   category: string;
   tagline?: string;
   fields: BioFacilFieldDefinition[];
+  capabilities?: BioFacilCapabilities;
 }
 
 export type TemplateStatus = 'draft' | 'published' | 'disabled';
