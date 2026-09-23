@@ -1,6 +1,7 @@
 import JSZip from 'jszip';
 import { ProjectData } from '../types';
 import { getDesignById } from '../designs/registry';
+import { renderTemplateV2 } from '../v2/engine/renderTemplateV2';
 
 // Helper to escape HTML to prevent XSS
 const escapeHtml = (str: string): string => {
@@ -31,6 +32,11 @@ const sanitizeUrl = (url: string, defaultProtocol = 'https://'): string => {
 };
 
 export const generateStandaloneHtml = (project: ProjectData): string => {
+  // If V2 engine project or modern design, use the unified V2 Renderer
+  if ((project as any).engineVersion === 2 || (project.templateId && project.templateId.includes('-'))) {
+    return renderTemplateV2(project);
+  }
+
   const {
     identity,
     theme,

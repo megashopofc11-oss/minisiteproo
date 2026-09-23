@@ -6,6 +6,7 @@ export interface UserProfile {
   email: string;
   name: string;
   nome?: string;
+  displayName?: string;
   role: UserRole;
   status: UserStatus;
   createdAt: number;
@@ -318,11 +319,12 @@ export interface ProjectData {
   projectId: string;
   userId: string;
   nome: string;
-  nicho: NichoId;
-  templateId: string;
+  nicho?: NichoId;
+  templateId?: string;
   layout?: TemplateLayout;
   createdAt: number;
   updatedAt: number;
+  engineVersion?: number;
   identity: ProjectIdentity;
   theme: ThemeConfig;
   photos: PhotoItem[];

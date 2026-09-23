@@ -3,6 +3,7 @@ import { ProjectData } from '../types';
 import { fetchUserProjects, deleteProject, saveProject } from '../firebase/firestoreService';
 import { exportProjectZip, downloadStandaloneHtml } from '../exporter/generateZip';
 import { TemplateRenderer } from '../preview/TemplateRenderer';
+import { renderTemplateV2 } from '../v2/engine/renderTemplateV2';
 import { StyleCarousel } from '../components/StyleCarousel';
 import { StyleSelectorModal } from '../designs/StyleSelectorModal';
 import { DesignMeta } from '../types/designs';
@@ -340,8 +341,13 @@ export const MyProjects: React.FC<MyProjectsProps> = ({
                 </button>
               </div>
             </div>
-            <div className="flex-1 overflow-y-auto no-scrollbar">
-              <TemplateRenderer project={previewProject} viewport="mobile" />
+            <div className="flex-1 overflow-hidden bg-black">
+              <iframe
+                srcDoc={renderTemplateV2(previewProject)}
+                title={previewProject.nome}
+                className="w-full h-full border-none block"
+                sandbox="allow-scripts allow-same-origin allow-popups"
+              />
             </div>
           </div>
         </div>
