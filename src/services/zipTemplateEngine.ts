@@ -17,19 +17,229 @@ export interface ZipValidationResult {
   fieldsMatched: string[];
   fieldsMissingInHtml: string[];
   zipBlob?: Blob;
-  assetsMap?: Record<string, string>; // relative path -> data URL or text
+  assetsMap?: Record<string, string>; // relative path -> data URL, blob URL or text
+  originalImages?: Record<string, string>; // fieldId -> original src
 }
 
 /**
- * Format phone numbers to international WhatsApp standard
+ * Normalizes WhatsApp phone number into international standard wa.me link.
+ * Accepts: "(34) 99999-9999", "34999999999", "+55 34 99999-9999", or already a wa.me URL.
  */
 export function formatWhatsAppUrl(phone: string, text: string = ''): string {
-  if (!phone) return '#';
-  const clean = phone.replace(/\D/g, '');
+  if (!phone || typeof phone !== 'string') return '#';
+  const trimmed = phone.trim();
+  if (!trimmed) return '#';
+
+  if (trimmed.startsWith('https://wa.me/') || trimmed.startsWith('http://wa.me/')) {
+    return trimmed;
+  }
+
+  const clean = trimmed.replace(/\D/g, '');
   if (!clean) return '#';
-  const withCountry = clean.startsWith('55') ? clean : `55${clean}`;
+
+  // If Brazilian phone without country code (10 or 11 digits)
+  const withCountry = (clean.length === 10 || clean.length === 11) && !clean.startsWith('55')
+    ? `55${clean}`
+    : clean;
+
   const encodedText = text ? `?text=${encodeURIComponent(text)}` : '';
   return `https://wa.me/${withCountry}${encodedText}`;
+}
+
+/**
+ * Normalizes Instagram username or link into https://instagram.com/usuario
+ */
+export function formatInstagramUrl(input: string): string {
+  if (!input || typeof input !== 'string') return '#';
+  let clean = input.trim();
+  if (!clean) return '#';
+
+  if (clean.startsWith('http://') || clean.startsWith('https://')) {
+    return clean;
+  }
+  if (clean.startsWith('@')) {
+    clean = clean.substring(1);
+  }
+  return `https://instagram.com/${clean}`;
+}
+
+/**
+ * Normalizes TikTok username or link into https://tiktok.com/@usuario
+ */
+export function formatTikTokUrl(input: string): string {
+  if (!input || typeof input !== 'string') return '#';
+  let clean = input.trim();
+  if (!clean) return '#';
+
+  if (clean.startsWith('http://') || clean.startsWith('https://')) {
+    return clean;
+  }
+  if (clean.startsWith('@')) {
+    clean = clean.substring(1);
+  }
+  return `https://tiktok.com/@${clean}`;
+}
+
+/**
+ * Normalizes Facebook into https://facebook.com/...
+ */
+export function formatFacebookUrl(input: string): string {
+  if (!input || typeof input !== 'string') return '#';
+  const clean = input.trim();
+  if (!clean) return '#';
+
+  if (clean.startsWith('http://') || clean.startsWith('https://')) {
+    return clean;
+  }
+  return `https://facebook.com/${clean}`;
+}
+
+/**
+ * Normalizes YouTube channel or link into https://youtube.com/...
+ */
+export function formatYouTubeUrl(input: string): string {
+  if (!input || typeof input !== 'string') return '#';
+  let clean = input.trim();
+  if (!clean) return '#';
+
+  if (clean.startsWith('http://') || clean.startsWith('https://')) {
+    return clean;
+  }
+  if (!clean.startsWith('@')) {
+    clean = `@${clean}`;
+  }
+  return `https://youtube.com/${clean}`;
+}
+
+/**
+ * Normalizes Google Maps address or URL into valid maps link
+ */
+export function formatGoogleMapsUrl(input: string): string {
+  if (!input || typeof input !== 'string') return '#';
+  const clean = input.trim();
+  if (!clean) return '#';
+
+  if (clean.startsWith('http://') || clean.startsWith('https://')) {
+    return clean;
+  }
+  return `https://maps.google.com/?q=${encodeURIComponent(clean)}`;
+}
+
+/**
+ * Normalizes telephone number into tel:
+ */
+export function formatPhoneUrl(input: string): string {
+  if (!input || typeof input !== 'string') return '#';
+  const clean = input.replace(/\D/g, '');
+  if (!clean) return '#';
+  return `tel:${clean}`;
+}
+
+/**
+ * Normalizes email address into mailto:
+ */
+export function formatEmailUrl(input: string): string {
+  if (!input || typeof input !== 'string') return '#';
+  const clean = input.trim();
+  if (!clean) return '#';
+  if (clean.startsWith('mailto:')) return clean;
+  return `mailto:${clean}`;
+}
+
+/**
+ * Normalizes any link field automatically according to field definition and id
+ */
+export function normalizeFieldLink(field: BioFacilFieldDefinition, val: string): string {
+  if (!val || typeof val !== 'string') return '#';
+  const idLower = field.id.toLowerCase();
+  const typeLower = field.type.toLowerCase();
+
+  if (typeLower === 'phone' || idLower.includes('whatsapp') || idLower.includes('zap')) {
+    return formatWhatsAppUrl(val);
+  }
+  if (idLower.includes('instagram') || idLower.includes('insta')) {
+    return formatInstagramUrl(val);
+  }
+  if (idLower.includes('tiktok')) {
+    return formatTikTokUrl(val);
+  }
+  if (idLower.includes('facebook') || idLower.includes('face')) {
+    return formatFacebookUrl(val);
+  }
+  if (idLower.includes('youtube') || idLower.includes('canal')) {
+    return formatYouTubeUrl(val);
+  }
+  if (idLower.includes('maps') || idLower.includes('mapa') || idLower.includes('localizacao') || idLower.includes('endereco')) {
+    return formatGoogleMapsUrl(val);
+  }
+  if (typeLower === 'email' || idLower.includes('email') || idLower.includes('mail')) {
+    return formatEmailUrl(val);
+  }
+  if (idLower.includes('telefone') || idLower.includes('tel')) {
+    return formatPhoneUrl(val);
+  }
+
+  // Generic URL: ensure http/https protocol
+  const trimmed = val.trim();
+  if (!trimmed) return '#';
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('mailto:') || trimmed.startsWith('tel:') || trimmed.startsWith('#')) {
+    return trimmed;
+  }
+  return `https://${trimmed}`;
+}
+
+/**
+ * Extracts original images declared in template HTML for each data-bio-image field
+ */
+export function getTemplateOriginalImages(
+  rawHtml: string,
+  manifest?: BioFacilManifest
+): Record<string, string> {
+  const images: Record<string, string> = {};
+  if (!rawHtml) return images;
+
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(rawHtml, 'text/html');
+
+    const fields = manifest?.fields || [];
+    fields.forEach((f) => {
+      if (f.type === 'image') {
+        const el = doc.querySelector(`[data-bio-image="${f.id}"]`);
+        if (el) {
+          if (el.tagName.toLowerCase() === 'img') {
+            const src = el.getAttribute('src');
+            if (src) images[f.id] = src;
+          } else {
+            // CSS background
+            const style = el.getAttribute('style') || '';
+            const match = style.match(/background(?:-image)?\s*:\s*url\((['"]?)(.*?)\1\)/i);
+            if (match && match[2]) images[f.id] = match[2];
+          }
+        }
+      }
+    });
+
+    // Also scan all data-bio-image elements even if not in manifest
+    const allBioImages = doc.querySelectorAll('[data-bio-image]');
+    allBioImages.forEach((el) => {
+      const id = el.getAttribute('data-bio-image');
+      if (id && !images[id]) {
+        if (el.tagName.toLowerCase() === 'img') {
+          const src = el.getAttribute('src');
+          if (src) images[id] = src;
+        } else {
+          const style = el.getAttribute('style') || '';
+          const match = style.match(/background(?:-image)?\s*:\s*url\((['"]?)(.*?)\1\)/i);
+          if (match && match[2]) images[id] = match[2];
+        }
+      }
+    });
+  } catch (err) {
+    console.warn('Error reading original images from HTML:', err);
+  }
+
+  return images;
 }
 
 /**
@@ -98,7 +308,6 @@ export async function validateAndParseZip(file: File | Blob): Promise<ZipValidat
           } else if (parsed.fields.length === 0) {
             warnings.push('O manifesto "biofacil.json" não possui nenhum campo editável declarado.');
           } else {
-            // Validate each field
             parsed.fields.forEach((f: any, idx: number) => {
               if (!f.id || typeof f.id !== 'string') {
                 errors.push(`Campo [${idx}] no biofacil.json não possui um "id" válido.`);
@@ -154,22 +363,68 @@ export async function validateAndParseZip(file: File | Blob): Promise<ZipValidat
     const entries = Object.keys(zip.files);
     assetsCount = entries.filter((name) => !name.endsWith('/') && !name.endsWith('index.html') && !name.endsWith('biofacil.json')).length;
 
-    // Cache image/css assets in memory as Data URLs for self-contained iframe previews
-    for (const path of entries) {
-      const fileEntry = zip.files[path];
-      if (fileEntry && !fileEntry.dir) {
-        const lower = path.toLowerCase();
-        if (lower.endsWith('.css') || lower.endsWith('.js')) {
-          const content = await fileEntry.async('string');
-          assetsMap[path] = content;
-        } else if (lower.endsWith('.png') || lower.endsWith('.jpg') || lower.endsWith('.jpeg') || lower.endsWith('.webp') || lower.endsWith('.svg')) {
-          const base64 = await fileEntry.async('base64');
-          const mime = lower.endsWith('.svg') ? 'image/svg+xml' : lower.endsWith('.png') ? 'image/png' : lower.endsWith('.webp') ? 'image/webp' : 'image/jpeg';
-          assetsMap[path] = `data:${mime};base64,${base64}`;
+    // Detect common root folder if all files reside inside it (e.g., "BF-BARBER-001/assets/...")
+    let commonPrefix = '';
+    const nonDirEntries = entries.filter((n) => !zip.files[n].dir);
+    if (nonDirEntries.length > 0) {
+      const firstParts = nonDirEntries[0].split('/');
+      if (firstParts.length > 1) {
+        const candidate = firstParts[0] + '/';
+        if (nonDirEntries.every((n) => n.startsWith(candidate))) {
+          commonPrefix = candidate;
         }
       }
     }
 
+    // Cache image/css/js/font assets in memory as Data URLs or text
+    for (const path of entries) {
+      const fileEntry = zip.files[path];
+      if (fileEntry && !fileEntry.dir) {
+        const lower = path.toLowerCase();
+        const strippedPath = commonPrefix && path.startsWith(commonPrefix) ? path.substring(commonPrefix.length) : path;
+
+        if (lower.endsWith('.css') || lower.endsWith('.js')) {
+          const content = await fileEntry.async('string');
+          assetsMap[path] = content;
+          if (strippedPath !== path) assetsMap[strippedPath] = content;
+        } else if (
+          lower.endsWith('.png') ||
+          lower.endsWith('.jpg') ||
+          lower.endsWith('.jpeg') ||
+          lower.endsWith('.webp') ||
+          lower.endsWith('.svg') ||
+          lower.endsWith('.gif') ||
+          lower.endsWith('.avif') ||
+          lower.endsWith('.ico')
+        ) {
+          const base64 = await fileEntry.async('base64');
+          const mime = lower.endsWith('.svg')
+            ? 'image/svg+xml'
+            : lower.endsWith('.png')
+            ? 'image/png'
+            : lower.endsWith('.webp')
+            ? 'image/webp'
+            : lower.endsWith('.gif')
+            ? 'image/gif'
+            : lower.endsWith('.avif')
+            ? 'image/avif'
+            : lower.endsWith('.ico')
+            ? 'image/x-icon'
+            : 'image/jpeg';
+          const dataUrl = `data:${mime};base64,${base64}`;
+          assetsMap[path] = dataUrl;
+          if (strippedPath !== path) assetsMap[strippedPath] = dataUrl;
+        } else if (lower.endsWith('.woff') || lower.endsWith('.woff2') || lower.endsWith('.ttf') || lower.endsWith('.otf')) {
+          const base64 = await fileEntry.async('base64');
+          const mime = lower.endsWith('.woff2') ? 'font/woff2' : lower.endsWith('.woff') ? 'font/woff' : 'font/ttf';
+          const dataUrl = `data:${mime};base64,${base64}`;
+          assetsMap[path] = dataUrl;
+          if (strippedPath !== path) assetsMap[strippedPath] = dataUrl;
+        }
+      }
+    }
+
+    const originalImages = rawHtml && manifest ? getTemplateOriginalImages(rawHtml, manifest) : {};
     const isValid = errors.length === 0;
 
     return {
@@ -182,7 +437,8 @@ export async function validateAndParseZip(file: File | Blob): Promise<ZipValidat
       fieldsMatched,
       fieldsMissingInHtml,
       zipBlob: file instanceof Blob ? file : new Blob([file]),
-      assetsMap
+      assetsMap,
+      originalImages
     };
   } catch (err: any) {
     return {
@@ -198,7 +454,9 @@ export async function validateAndParseZip(file: File | Blob): Promise<ZipValidat
 
 /**
  * Injects user customized values into the original index.html
- * Preserves 100% of styles, JS, responsive structures, and animations.
+ * STRICT RULE (Requirement 8):
+ * If val is empty string or undefined for an image, DO NOT OVERWRITE!
+ * Keep the original template image intact so demonstrative photos always display until customized.
  */
 export function generatePersonalizedHtml(
   originalHtml: string,
@@ -216,41 +474,47 @@ export function generatePersonalizedHtml(
     // 1. Text elements
     const textEls = doc.querySelectorAll(`[data-bio-text="${field.id}"]`);
     textEls.forEach((el) => {
-      el.textContent = String(val);
-    });
-
-    // 2. Image elements
-    const imgEls = doc.querySelectorAll(`[data-bio-image="${field.id}"]`);
-    imgEls.forEach((el) => {
-      if (el.tagName.toLowerCase() === 'img') {
-        (el as HTMLImageElement).src = String(val);
-      } else {
-        (el as HTMLElement).style.backgroundImage = `url("${String(val)}")`;
+      if (val !== undefined && val !== null) {
+        el.textContent = String(val);
       }
     });
 
-    // 3. Link elements
+    // 2. Image elements (NON-DESTRUCTIVE: only replace if user explicitly provided a non-empty string)
+    const imgEls = doc.querySelectorAll(`[data-bio-image="${field.id}"]`);
+    imgEls.forEach((el) => {
+      // Store original image in attribute for reference and restore
+      if (!el.hasAttribute('data-bio-original-src')) {
+        const orig = el.getAttribute('src') || '';
+        if (orig) el.setAttribute('data-bio-original-src', orig);
+      }
+
+      const strVal = String(val).trim();
+      if (strVal.length > 0) {
+        if (el.tagName.toLowerCase() === 'img') {
+          (el as HTMLImageElement).src = strVal;
+        } else {
+          (el as HTMLElement).style.backgroundImage = `url("${strVal}")`;
+        }
+      }
+      // If strVal is empty, DO NOT OVERWRITE! The template's original image stays active.
+    });
+
+    // 3. Link elements (Normalized to valid wa.me, instagram, tel, mailto, etc.)
     const linkEls = doc.querySelectorAll(`[data-bio-link="${field.id}"]`);
     linkEls.forEach((el) => {
       if (el.tagName.toLowerCase() === 'a') {
         const anchor = el as HTMLAnchorElement;
-        if (field.type === 'phone') {
-          anchor.href = formatWhatsAppUrl(String(val));
-        } else if (field.type === 'email') {
-          anchor.href = `mailto:${String(val)}`;
-        } else {
-          anchor.href = String(val);
-        }
+        const normalizedHref = normalizeFieldLink(field, String(val));
+        anchor.href = normalizedHref;
       }
     });
 
     // 4. Services list
-    if (field.type === 'services' && Array.isArray(val)) {
+    if (field.type === 'services' && Array.isArray(val) && val.length > 0) {
       const servicesContainers = doc.querySelectorAll(`[data-bio-services="${field.id}"]`);
       servicesContainers.forEach((container) => {
-        // If template has item template inside or existing children
         const templateChild = container.firstElementChild?.cloneNode(true) as HTMLElement | null;
-        if (templateChild && val.length > 0) {
+        if (templateChild) {
           container.innerHTML = '';
           (val as BioFacilServiceItem[]).forEach((service) => {
             const card = templateChild.cloneNode(true) as HTMLElement;
@@ -271,11 +535,11 @@ export function generatePersonalizedHtml(
     }
 
     // 5. Gallery items
-    if (field.type === 'gallery' && Array.isArray(val)) {
+    if (field.type === 'gallery' && Array.isArray(val) && val.length > 0) {
       const galleryContainers = doc.querySelectorAll(`[data-bio-gallery="${field.id}"]`);
       galleryContainers.forEach((container) => {
         const templateChild = container.firstElementChild?.cloneNode(true) as HTMLElement | null;
-        if (templateChild && val.length > 0) {
+        if (templateChild) {
           container.innerHTML = '';
           (val as BioFacilGalleryItem[]).forEach((photo) => {
             const item = templateChild.cloneNode(true) as HTMLElement;
@@ -290,11 +554,11 @@ export function generatePersonalizedHtml(
     }
 
     // 6. Testimonials list
-    if (field.type === 'testimonials' && Array.isArray(val)) {
+    if (field.type === 'testimonials' && Array.isArray(val) && val.length > 0) {
       const testContainers = doc.querySelectorAll(`[data-bio-testimonials="${field.id}"]`);
       testContainers.forEach((container) => {
         const templateChild = container.firstElementChild?.cloneNode(true) as HTMLElement | null;
-        if (templateChild && val.length > 0) {
+        if (templateChild) {
           container.innerHTML = '';
           (val as BioFacilTestimonialItem[]).forEach((test) => {
             const card = templateChild.cloneNode(true) as HTMLElement;
@@ -353,7 +617,6 @@ export async function generatePersonalizedZip(
         newZip.folder(path);
       } else {
         const lower = path.toLowerCase();
-        // Skip biofacil.json as required by project spec
         if (lower.endsWith('biofacil.json')) {
           continue;
         }
@@ -369,7 +632,6 @@ export async function generatePersonalizedZip(
 
     return await newZip.generateAsync({ type: 'blob' });
   } catch (err) {
-    // Fallback: If original zip is not readable, generate self-contained zip with personalized HTML
     const personalizedHtml = generatePersonalizedHtml(fallbackHtml || '', manifest, values);
     newZip.file('index.html', personalizedHtml);
     return await newZip.generateAsync({ type: 'blob' });
@@ -377,63 +639,252 @@ export async function generatePersonalizedZip(
 }
 
 /**
- * Prepares self-contained HTML for live iframe preview with embedded assets
+ * Prepares self-contained HTML for live iframe preview with embedded assets.
+ * 
+ * Strict architectural guarantees:
+ * 1. Zero auto-zoom / scale transforms (preserves native viewport: <meta name="viewport" content="width=device-width, initial-scale=1">)
+ * 2. Resolves relative assets (./assets/..., /assets/..., images/..., img/...) into inline styles, scripts, and base64/blob URLs.
+ * 3. Inlines CSS stylesheets directly into <style> tags so they execute immediately without 404s in srcdoc.
+ * 4. Injects error listener reporting failed assets to console and parent window.
+ * 5. Injects 60fps live postMessage listener for real-time form updates without destroying the iframe.
  */
 export function preparePreviewHtml(
   rawHtml: string,
   manifest: BioFacilManifest,
   values: Record<string, any>,
-  assetsMap?: Record<string, string>
+  assetsMap?: Record<string, string>,
+  options?: { isTestMode?: boolean }
 ): string {
-  let personalized = generatePersonalizedHtml(rawHtml, manifest, values);
+  // 1. Personalize HTML with initial user values
+  const personalized = generatePersonalizedHtml(rawHtml, manifest, values);
 
-  // If assets map is provided (CSS/Images from the zip), replace relative references with data URLs
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(personalized, 'text/html');
+
+  // 2. Viewport compliance (Requirement 3):
+  // Check if standard viewport meta tag exists; if not, add it once. Never insert conflicting viewports!
+  const existingViewport = doc.querySelector('meta[name="viewport"]');
+  if (!existingViewport) {
+    const vp = doc.createElement('meta');
+    vp.setAttribute('name', 'viewport');
+    vp.setAttribute('content', 'width=device-width, initial-scale=1');
+    doc.head.appendChild(vp);
+  }
+
+  // 3. Build a comprehensive asset lookup map (case-insensitive & multiple prefix variants)
+  const lookup: Record<string, string> = {};
   if (assetsMap && Object.keys(assetsMap).length > 0) {
-    for (const [path, dataUrl] of Object.entries(assetsMap)) {
-      const cleanPath = path.replace(/^\.?\//, '');
-      const regex = new RegExp(`(["'])(\\./)?${cleanPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(["'])`, 'g');
-      personalized = personalized.replace(regex, `$1${dataUrl}$3`);
+    for (const [key, val] of Object.entries(assetsMap)) {
+      const k = key.trim();
+      lookup[k] = val;
+      lookup[k.toLowerCase()] = val;
+
+      const noDotSlash = k.replace(/^\.?\//, '');
+      lookup[noDotSlash] = val;
+      lookup[noDotSlash.toLowerCase()] = val;
+
+      lookup[`./${noDotSlash}`] = val;
+      lookup[`/${noDotSlash}`] = val;
+
+      // Basename
+      const parts = k.split('/');
+      const basename = parts[parts.length - 1];
+      if (basename) {
+        lookup[basename] = val;
+        lookup[basename.toLowerCase()] = val;
+      }
     }
   }
 
-  // Inject a live listener script inside the iframe so postMessage updates work seamlessly
-  const liveSyncScript = `
-    <script>
-      window.addEventListener('message', function(event) {
-        if (!event.data || event.data.type !== 'BIO_FACIL_UPDATE') return;
-        var fieldId = event.data.fieldId;
-        var value = event.data.value;
+  const findAsset = (ref: string): string | null => {
+    if (!ref || ref.startsWith('data:') || ref.startsWith('blob:') || ref.startsWith('http://') || ref.startsWith('https://')) {
+      return null;
+    }
+    const clean = ref.trim().replace(/^['"]|['"]$/g, '');
+    if (lookup[clean]) return lookup[clean];
+    if (lookup[clean.toLowerCase()]) return lookup[clean.toLowerCase()];
 
+    const stripped = clean.replace(/^\.?\//, '');
+    if (lookup[stripped]) return lookup[stripped];
+    if (lookup[stripped.toLowerCase()]) return lookup[stripped.toLowerCase()];
+
+    const parts = clean.split('/');
+    const basename = parts[parts.length - 1];
+    if (basename && lookup[basename]) return lookup[basename];
+    if (basename && lookup[basename.toLowerCase()]) return lookup[basename.toLowerCase()];
+
+    return null;
+  };
+
+  // Helper to resolve url(...) references inside CSS text
+  const resolveCssUrls = (cssText: string): string => {
+    return cssText.replace(/url\(\s*(['"]?)(.*?)\1\s*\)/gi, (match, quote, urlRef) => {
+      const resolved = findAsset(urlRef);
+      if (resolved) {
+        return `url("${resolved}")`;
+      }
+      return match;
+    });
+  };
+
+  // 4. Resolve <link rel="stylesheet"> -> inline into <style>
+  const linkStyles = doc.querySelectorAll('link[rel="stylesheet"]');
+  linkStyles.forEach((link) => {
+    const href = link.getAttribute('href');
+    if (href) {
+      const asset = findAsset(href);
+      if (asset) {
+        // If asset is CSS content, inline it
+        const style = doc.createElement('style');
+        style.setAttribute('data-bio-inlined', href);
+        style.textContent = resolveCssUrls(asset);
+        link.parentNode?.replaceChild(style, link);
+      }
+    }
+  });
+
+  // 5. Resolve <script src="..."> -> inline into <script>
+  const scripts = doc.querySelectorAll('script[src]');
+  scripts.forEach((scr) => {
+    const src = scr.getAttribute('src');
+    if (src) {
+      const asset = findAsset(src);
+      if (asset && !asset.startsWith('data:image')) {
+        const inlineScript = doc.createElement('script');
+        inlineScript.setAttribute('data-bio-inlined', src);
+        inlineScript.textContent = asset;
+        scr.parentNode?.replaceChild(inlineScript, scr);
+      }
+    }
+  });
+
+  // 6. Resolve all <img> elements
+  const images = doc.querySelectorAll('img');
+  images.forEach((img) => {
+    const src = img.getAttribute('src');
+    if (src) {
+      const resolved = findAsset(src);
+      if (resolved) {
+        img.src = resolved;
+      }
+    }
+  });
+
+  // 7. Resolve all inline style attributes with url(...)
+  const elementsWithStyle = doc.querySelectorAll('[style*="url("]');
+  elementsWithStyle.forEach((el) => {
+    const currentStyle = el.getAttribute('style') || '';
+    el.setAttribute('style', resolveCssUrls(currentStyle));
+  });
+
+  // 8. Resolve all <style> tags content
+  const styleTags = doc.querySelectorAll('style');
+  styleTags.forEach((st) => {
+    if (st.textContent) {
+      st.textContent = resolveCssUrls(st.textContent);
+    }
+  });
+
+  // 9. Inject asset error logger & reporter (Requirement 9)
+  const errorLoggerScript = doc.createElement('script');
+  errorLoggerScript.textContent = `
+    (function() {
+      window.addEventListener('error', function(e) {
+        var target = e.target;
+        if (target && (target.tagName === 'IMG' || target.tagName === 'LINK' || target.tagName === 'SCRIPT')) {
+          var failedSrc = target.src || target.href || '';
+          console.warn('[BioFacil Asset Error] Não foi possível carregar:', failedSrc);
+          if (window.parent) {
+            window.parent.postMessage({
+              type: 'BIO_FACIL_ASSET_ERROR',
+              src: failedSrc,
+              tagName: target.tagName
+            }, '*');
+          }
+        }
+      }, true);
+    })();
+  `;
+  doc.head.insertBefore(errorLoggerScript, doc.head.firstChild);
+
+  // 10. Inject live synchronization script (Smooth 60fps real-time updates without reload)
+  const liveSyncScript = doc.createElement('script');
+  liveSyncScript.textContent = `
+    (function() {
+      function normalizeLink(val) {
+        if (!val) return '#';
+        val = String(val).trim();
+        if (!val) return '#';
+        if (val.startsWith('http://') || val.startsWith('https://') || val.startsWith('mailto:') || val.startsWith('tel:') || val.startsWith('#')) return val;
+        var digits = val.replace(/\\D/g, '');
+        if (digits.length >= 10 && digits.length <= 13) {
+          var with55 = digits.length <= 11 && !digits.startsWith('55') ? '55' + digits : digits;
+          return 'https://wa.me/' + with55;
+        }
+        if (val.indexOf('@') === 0) return 'https://instagram.com/' + val.substring(1);
+        if (val.indexOf('@') > 0 && val.indexOf('.') > 0) return 'mailto:' + val;
+        return 'https://' + val;
+      }
+
+      function applyFieldUpdate(fieldId, value) {
         // 1. Text
         var textEls = document.querySelectorAll('[data-bio-text="' + fieldId + '"]');
-        textEls.forEach(function(el) { el.textContent = value || ''; });
+        textEls.forEach(function(el) {
+          el.textContent = value !== undefined && value !== null ? String(value) : '';
+        });
 
-        // 2. Image
+        // 2. Images (preserve original if empty)
         var imgEls = document.querySelectorAll('[data-bio-image="' + fieldId + '"]');
         imgEls.forEach(function(el) {
-          if (el.tagName.toLowerCase() === 'img') {
-            el.src = value || '';
+          if (!el.hasAttribute('data-bio-original-src')) {
+            var orig = el.getAttribute('src') || '';
+            if (orig) el.setAttribute('data-bio-original-src', orig);
+          }
+          var str = String(value || '').trim();
+          if (str.length > 0) {
+            if (el.tagName.toLowerCase() === 'img') {
+              el.src = str;
+            } else {
+              el.style.backgroundImage = 'url("' + str + '")';
+            }
           } else {
-            el.style.backgroundImage = 'url("' + (value || '') + '")';
+            var restored = el.getAttribute('data-bio-original-src');
+            if (restored) {
+              if (el.tagName.toLowerCase() === 'img') {
+                el.src = restored;
+              } else {
+                el.style.backgroundImage = 'url("' + restored + '")';
+              }
+            }
           }
         });
 
-        // 3. Link
+        // 3. Links
         var linkEls = document.querySelectorAll('[data-bio-link="' + fieldId + '"]');
         linkEls.forEach(function(el) {
           if (el.tagName.toLowerCase() === 'a') {
-            el.href = value || '#';
+            el.href = normalizeLink(value);
           }
         });
+      }
+
+      window.addEventListener('message', function(event) {
+        if (!event.data || event.data.type !== 'BIO_FACIL_UPDATE') return;
+
+        // Supports single field update { fieldId, value }
+        if (event.data.fieldId) {
+          applyFieldUpdate(event.data.fieldId, event.data.value);
+        }
+        // Supports bulk dictionary update { values: { ... } }
+        else if (event.data.values && typeof event.data.values === 'object') {
+          for (var fid in event.data.values) {
+            applyFieldUpdate(fid, event.data.values[fid]);
+          }
+        }
       });
-    </script>
+    })();
   `;
+  doc.body.appendChild(liveSyncScript);
 
-  if (personalized.includes('</body>')) {
-    personalized = personalized.replace('</body>', `${liveSyncScript}</body>`);
-  } else {
-    personalized += liveSyncScript;
-  }
-
-  return personalized;
+  return '<!DOCTYPE html>\n' + doc.documentElement.outerHTML;
 }

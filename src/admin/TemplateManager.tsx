@@ -14,7 +14,8 @@ import {
 } from '../firebase/firestoreService';
 import {
   validateAndParseZip,
-  ZipValidationResult
+  ZipValidationResult,
+  preparePreviewHtml
 } from '../services/zipTemplateEngine';
 import {
   uploadTemplateZip,
@@ -40,7 +41,9 @@ import {
   Check,
   X,
   Play,
-  Save
+  Save,
+  Smartphone,
+  Monitor
 } from 'lucide-react';
 
 export const TemplateManager: React.FC = () => {
@@ -48,6 +51,7 @@ export const TemplateManager: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'all' | TemplateStatus>('all');
   const [search, setSearch] = useState('');
+  const [previewModalWidth, setPreviewModalWidth] = useState<'390' | '430' | 'full'>('390');
 
   // Storage notification
   const [storageStatusMsg, setStorageStatusMsg] = useState<string>('');
@@ -860,12 +864,50 @@ export const TemplateManager: React.FC = () => {
 
       {/* 5. Modal: Visualização Rápida (Preview Modal) */}
       {previewingTemplate && (
-        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col p-4 sm:p-6">
+        <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex flex-col p-2 sm:p-5">
           <div className="flex items-center justify-between pb-3 border-b border-white/10 shrink-0">
             <div>
               <h3 className="font-bold text-white text-base">{previewingTemplate.name}</h3>
-              <p className="text-xs text-amber-400">{previewingTemplate.categoryName || previewingTemplate.categoryId}</p>
+              <p className="text-xs text-amber-400 font-mono">{previewingTemplate.categoryName || previewingTemplate.categoryId}</p>
             </div>
+
+            {/* Desktop Device Switcher */}
+            <div className="hidden sm:flex items-center gap-1 bg-white/5 border border-white/10 p-1 rounded-xl">
+              <button
+                type="button"
+                onClick={() => setPreviewModalWidth('390')}
+                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
+                  previewModalWidth === '390' ? 'bg-amber-400 text-slate-950' : 'text-slate-400 hover:text-white'
+                }`}
+                title="390px"
+              >
+                <Smartphone size={12} />
+                <span>390px</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setPreviewModalWidth('430')}
+                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
+                  previewModalWidth === '430' ? 'bg-amber-400 text-slate-950' : 'text-slate-400 hover:text-white'
+                }`}
+                title="430px"
+              >
+                <Smartphone size={13} />
+                <span>430px</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setPreviewModalWidth('full')}
+                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
+                  previewModalWidth === 'full' ? 'bg-amber-400 text-slate-950' : 'text-slate-400 hover:text-white'
+                }`}
+                title="100%"
+              >
+                <Monitor size={12} />
+                <span>100%</span>
+              </button>
+            </div>
+
             <button
               type="button"
               onClick={() => setPreviewingTemplate(null)}
@@ -875,13 +917,34 @@ export const TemplateManager: React.FC = () => {
             </button>
           </div>
 
-          <div className="flex-1 rounded-2xl overflow-hidden mt-4 border border-white/10 bg-white">
-            <iframe
-              srcDoc={previewingTemplate.htmlContent || ''}
-              title="Preview"
-              className="w-full h-full border-0"
-              sandbox="allow-scripts allow-same-origin"
-            />
+          <div className="flex-1 flex items-center justify-center overflow-hidden mt-3">
+            <div
+              style={{
+                width: previewModalWidth === '390' ? '390px' : previewModalWidth === '430' ? '430px' : '100%',
+                height: '100%',
+                maxWidth: '100%'
+              }}
+              className="h-full bg-black rounded-xl sm:rounded-2xl border border-white/10 overflow-hidden relative shadow-2xl transition-all duration-150"
+            >
+              <iframe
+                srcDoc={preparePreviewHtml(
+                  previewingTemplate.htmlContent || '',
+                  previewingTemplate.biofacilSchema || {
+                    version: 1,
+                    templateId: previewingTemplate.templateId,
+                    name: previewingTemplate.name,
+                    category: previewingTemplate.categoryId,
+                    tagline: '',
+                    fields: []
+                  },
+                  {},
+                  previewingTemplate.assets
+                )}
+                title="Preview"
+                className="w-full h-full border-0 block bg-black"
+                sandbox="allow-scripts allow-same-origin allow-popups"
+              />
+            </div>
           </div>
         </div>
       )}

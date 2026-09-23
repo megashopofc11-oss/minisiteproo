@@ -10,10 +10,27 @@ import {
 import {
   generatePersonalizedHtml,
   generatePersonalizedZip,
-  preparePreviewHtml
+  preparePreviewHtml,
+  getTemplateOriginalImages,
+  formatWhatsAppUrl,
+  formatInstagramUrl,
+  formatTikTokUrl,
+  formatFacebookUrl,
+  formatYouTubeUrl,
+  formatGoogleMapsUrl,
+  formatPhoneUrl,
+  formatEmailUrl
 } from '../services/zipTemplateEngine';
 import { retrieveTemplateZip } from '../services/modelStorageService';
 import { saveBioFacilUserProject } from '../firebase/firestoreService';
+import {
+  BrandWhatsApp,
+  BrandInstagram,
+  BrandTikTok,
+  BrandFacebook,
+  BrandGoogleMaps,
+  BrandYouTube
+} from '../components/BrandIcons';
 import {
   ArrowLeft,
   Save,
@@ -30,7 +47,12 @@ import {
   ChevronDown,
   ChevronUp,
   FileCode,
-  FileArchive
+  FileArchive,
+  Phone,
+  Mail,
+  AlertTriangle,
+  RotateCcw,
+  Sparkles
 } from 'lucide-react';
 
 interface BioFacilEditorProps {
@@ -43,6 +65,8 @@ interface BioFacilEditorProps {
   isTestMode?: boolean; // For Admin testing mode
 }
 
+type DeviceWidthMode = '390' | '430' | 'full';
+
 export const BioFacilEditor: React.FC<BioFacilEditorProps> = ({
   template,
   projectId,
@@ -54,6 +78,11 @@ export const BioFacilEditor: React.FC<BioFacilEditorProps> = ({
 }) => {
   const manifest = template.biofacilSchema;
   const [projectName, setProjectName] = useState(initialProjectName || template.name || 'Meu BioSite');
+
+  // Extract original images present in template HTML so they are always visible until user customizes
+  const templateOriginalImages = useMemo(() => {
+    return getTemplateOriginalImages(template.htmlContent || '', manifest);
+  }, [template.htmlContent, manifest]);
 
   // Initialize values from manifest defaultValues or provided initialValues
   const [values, setValues] = useState<Record<string, any>>(() => {
@@ -74,8 +103,9 @@ export const BioFacilEditor: React.FC<BioFacilEditorProps> = ({
 
   // Mobile mode: 'edit' or 'preview'
   const [mobileTab, setMobileTab] = useState<'edit' | 'preview'>('edit');
-  // Desktop preview device frame: 'desktop' or 'mobile'
-  const [previewDevice, setPreviewDevice] = useState<'desktop' | 'mobile'>('desktop');
+  // Device width simulation (Desktop): 390px (iPhone), 430px (Max/Android), full (100%)
+  // NO transform:scale() is ever used. Viewport is handled natively by CSS media queries.
+  const [deviceWidth, setDeviceWidth] = useState<DeviceWidthMode>('390');
 
   // Autosave status: 'saved' | 'saving' | 'unsaved'
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'unsaved'>('saved');
@@ -88,6 +118,21 @@ export const BioFacilEditor: React.FC<BioFacilEditorProps> = ({
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [cachedZipBlob, setCachedZipBlob] = useState<Blob | null>(null);
+
+  // Failed assets tracker (Requirement 9)
+  const [failedAssets, setFailedAssets] = useState<string[]>([]);
+
+  // Listen for asset load errors from within the iframe
+  useEffect(() => {
+    const handleAssetErrorMsg = (e: MessageEvent) => {
+      if (e.data && e.data.type === 'BIO_FACIL_ASSET_ERROR' && e.data.src) {
+        const src = String(e.data.src);
+        setFailedAssets((prev) => (prev.includes(src) ? prev : [...prev, src]));
+      }
+    };
+    window.addEventListener('message', handleAssetErrorMsg);
+    return () => window.removeEventListener('message', handleAssetErrorMsg);
+  }, []);
 
   // Load template zip in background for downloading
   useEffect(() => {
@@ -108,9 +153,9 @@ export const BioFacilEditor: React.FC<BioFacilEditorProps> = ({
     const groups: Record<string, { label: string; icon: string; fields: BioFacilFieldDefinition[] }> = {
       identity: { label: 'Identidade & Marca', icon: '🏷️', fields: [] },
       content: { label: 'Conteúdo & Textos', icon: '📝', fields: [] },
-      photos: { label: 'Fotos & Galeria', icon: '📸', fields: [] },
+      photos: { label: 'Fotos & Imagens', icon: '📸', fields: [] },
       services: { label: 'Serviços & Preços', icon: '✂️', fields: [] },
-      contact: { label: 'WhatsApp & Contato', icon: '📞', fields: [] },
+      contact: { label: 'Redes Sociais & Contato', icon: '📞', fields: [] },
       location: { label: 'Localização & Horários', icon: '📍', fields: [] },
       reviews: { label: 'Avaliações & Depoimentos', icon: '⭐', fields: [] },
       other: { label: 'Outros Detalhes', icon: '⚙️', fields: [] }
@@ -126,19 +171,28 @@ export const BioFacilEditor: React.FC<BioFacilEditorProps> = ({
       groups[sec].fields.push(field);
     });
 
-    // Remove empty groups
     return Object.fromEntries(Object.entries(groups).filter(([_, g]) => g.fields.length > 0));
   }, [manifest]);
 
-  // Helper to categorize fields if not specified in manifest
   function inferSection(field: BioFacilFieldDefinition): string {
     const id = field.id.toLowerCase();
     if (id.includes('logo') || id.includes('name') || id.includes('brand') || id.includes('avatar') || id.includes('photo')) return 'identity';
     if (id.includes('headline') || id.includes('slogan') || id.includes('about') || id.includes('desc') || id.includes('title')) return 'content';
     if (field.type === 'gallery' || id.includes('gallery')) return 'photos';
     if (field.type === 'services' || id.includes('service') || id.includes('price')) return 'services';
-    if (field.type === 'phone' || id.includes('whatsapp') || id.includes('instagram') || id.includes('contact') || id.includes('email')) return 'contact';
-    if (id.includes('address') || id.includes('location') || id.includes('hours') || field.type === 'hours') return 'location';
+    if (
+      field.type === 'phone' ||
+      id.includes('whatsapp') ||
+      id.includes('instagram') ||
+      id.includes('tiktok') ||
+      id.includes('facebook') ||
+      id.includes('youtube') ||
+      id.includes('contact') ||
+      id.includes('email')
+    ) {
+      return 'contact';
+    }
+    if (id.includes('address') || id.includes('location') || id.includes('hours') || field.type === 'hours' || id.includes('maps')) return 'location';
     if (field.type === 'testimonials' || id.includes('review') || id.includes('depoimento')) return 'reviews';
     return 'other';
   }
@@ -156,7 +210,7 @@ export const BioFacilEditor: React.FC<BioFacilEditorProps> = ({
 
     setSaveStatus('unsaved');
 
-    // Real-time postMessage to iframe DOM without reload
+    // Real-time postMessage to iframe DOM without destroying or reloading the iframe
     if (iframeRef.current && iframeRef.current.contentWindow) {
       iframeRef.current.contentWindow.postMessage(
         {
@@ -196,11 +250,11 @@ export const BioFacilEditor: React.FC<BioFacilEditorProps> = ({
       setSaveStatus('saved');
     } catch (err) {
       console.warn('Autosave notice:', err);
-      setSaveStatus('saved'); // Don't alarm the user
+      setSaveStatus('saved');
     }
   };
 
-  // Handle local image upload (converts to base64 Data URL so customer doesn't need to host files)
+  // Handle local image upload (converts to base64 Data URL)
   const handleImageUpload = (fieldId: string, file: File) => {
     const reader = new FileReader();
     reader.onload = () => {
@@ -211,11 +265,14 @@ export const BioFacilEditor: React.FC<BioFacilEditorProps> = ({
     reader.readAsDataURL(file);
   };
 
-  // Build the preview HTML document
+  // CRITICAL FIX FOR AUTO-ZOOM / FLICKER:
+  // Build preview HTML once for initial load and explicit refreshes.
+  // Typing into inputs sends live postMessage updates so the iframe NEVER reloads or resets scale!
+  const [reloadTrigger, setReloadTrigger] = useState(0);
   const previewHtml = useMemo(() => {
     const rawHtml = template.htmlContent || '<!DOCTYPE html><html><body><h1>Modelo em preparação</h1></body></html>';
-    return preparePreviewHtml(rawHtml, manifest, values, template.assets);
-  }, [template, manifest, values]);
+    return preparePreviewHtml(rawHtml, manifest, values, template.assets, { isTestMode });
+  }, [template.templateId, template.htmlContent, template.assets, reloadTrigger]);
 
   // Download personalized index.html
   const handleDownloadHtml = () => {
@@ -248,226 +305,252 @@ export const BioFacilEditor: React.FC<BioFacilEditorProps> = ({
         zipToUse = await retrieveTemplateZip(template.templateId, template.sourceFileReference);
       }
 
-      const rawHtml = template.htmlContent || '';
-      const finalZipBlob = await generatePersonalizedZip(
-        zipToUse || new Blob([]),
-        manifest,
-        values,
-        rawHtml
-      );
+      if (!zipToUse) {
+        // Fallback: build self-contained ZIP with HTML
+        const zipBlob = await generatePersonalizedZip(new Blob([]), manifest, values, template.htmlContent);
+        triggerZipDownload(zipBlob);
+        return;
+      }
 
-      const url = URL.createObjectURL(finalZipBlob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${projectName.toLowerCase().replace(/[^a-z0-9]/g, '-')}.zip`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      const zipBlob = await generatePersonalizedZip(zipToUse, manifest, values, template.htmlContent);
+      triggerZipDownload(zipBlob);
     } catch (err: any) {
-      alert(`Falha ao exportar ZIP: ${err.message || 'Erro inesperado'}`);
+      alert(`Falha ao gerar arquivo ZIP: ${err.message || 'Erro inesperado'}`);
     } finally {
       setIsExporting(false);
     }
   };
 
-  // Open Fullscreen Preview
-  const handleOpenFullscreen = () => {
-    const rawHtml = template.htmlContent || '';
-    const finalHtml = generatePersonalizedHtml(rawHtml, manifest, values);
-    const blob = new Blob([finalHtml], { type: 'text/html;charset=utf-8' });
+  const triggerZipDownload = (blob: Blob) => {
     const url = URL.createObjectURL(blob);
-    window.open(url, '_blank');
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${projectName.toLowerCase().replace(/[^a-z0-9]/g, '-')}-biofacil.zip`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   return (
-    <div className="h-screen w-screen flex flex-col bg-[#07080D] text-slate-100 overflow-hidden font-sans">
+    <div className="h-screen flex flex-col bg-[#07080D] text-slate-100 select-none overflow-hidden font-sans">
       {/* 1. Header Bar */}
-      <header className="h-16 px-4 sm:px-6 bg-[#0B0D14] border-b border-white/10 flex items-center justify-between shrink-0 z-30">
-        {/* Left: Back & Project Name */}
-        <div className="flex items-center gap-3">
+      <header className="h-14 px-3 sm:px-6 border-b border-white/10 bg-[#090A10] flex items-center justify-between shrink-0 z-30">
+        <div className="flex items-center gap-2 sm:gap-4 min-w-0">
           <button
             type="button"
             onClick={onBack}
-            className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-colors cursor-pointer"
-            title="Voltar"
+            className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-white transition-colors cursor-pointer shrink-0"
           >
-            <ArrowLeft size={18} />
+            <ArrowLeft size={16} />
+            <span className="hidden sm:inline">Voltar</span>
           </button>
 
-          <div className="flex flex-col">
+          <div className="h-4 w-px bg-white/10 shrink-0" />
+
+          <div className="flex items-center gap-2 min-w-0">
             <input
               type="text"
               value={projectName}
-              onChange={(e) => {
-                setProjectName(e.target.value);
-                setSaveStatus('unsaved');
-                if (!isTestMode) {
-                  if (autosaveTimeoutRef.current) clearTimeout(autosaveTimeoutRef.current);
-                  autosaveTimeoutRef.current = setTimeout(executeAutosave, 1200);
-                }
-              }}
-              className="text-sm font-bold text-white bg-transparent border-b border-transparent hover:border-white/20 focus:border-amber-400 focus:outline-none transition-colors px-1 py-0.5 rounded"
-              placeholder="Nome do seu BioSite"
+              onChange={(e) => setProjectName(e.target.value)}
+              className="bg-transparent text-xs sm:text-sm font-bold text-white focus:outline-none border-b border-transparent focus:border-amber-400 transition-colors max-w-[130px] sm:max-w-[220px] truncate"
+              placeholder="Nome do projeto"
             />
-            <div className="flex items-center gap-2 text-[11px] text-slate-400 px-1">
-              <span className="font-medium text-amber-400">{template.name}</span>
-              <span>•</span>
-              {saveStatus === 'saving' && (
-                <span className="flex items-center gap-1 text-amber-300">
-                  <RefreshCw size={11} className="animate-spin" /> SALVANDO...
-                </span>
-              )}
-              {saveStatus === 'saved' && (
-                <span className="flex items-center gap-1 text-emerald-400">
-                  <CheckCircle size={11} /> ✓ SALVO
-                </span>
-              )}
-              {saveStatus === 'unsaved' && (
-                <span className="text-slate-400">Alterações pendentes</span>
-              )}
-              {isTestMode && <span className="text-purple-400 font-bold">[MODO TESTE ADMIN]</span>}
-            </div>
+            {isTestMode ? (
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 shrink-0">
+                MODO DE TESTE
+              </span>
+            ) : (
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-400/10 text-amber-400 border border-amber-400/20 shrink-0 hidden md:inline-block">
+                {template.categoryName || template.categoryId}
+              </span>
+            )}
           </div>
         </div>
 
-        {/* Center: Device Switcher (Desktop only) */}
-        <div className="hidden md:flex items-center bg-white/5 rounded-xl p-1 border border-white/10">
+        {/* Center: Device Simulation Switcher (Desktop only) */}
+        <div className="hidden md:flex items-center gap-1 bg-white/5 border border-white/10 p-1 rounded-xl">
           <button
             type="button"
-            onClick={() => setPreviewDevice('desktop')}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
-              previewDevice === 'desktop' ? 'bg-amber-400 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
+            onClick={() => setDeviceWidth('390')}
+            className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+              deviceWidth === '390'
+                ? 'bg-amber-400 text-slate-950 shadow-sm shadow-amber-400/20'
+                : 'text-slate-400 hover:text-white'
             }`}
+            title="Simular smartphone padrão (390px)"
           >
-            <Monitor size={14} />
-            <span>Computador</span>
+            <Smartphone size={13} />
+            <span>390px</span>
           </button>
+
           <button
             type="button"
-            onClick={() => setPreviewDevice('mobile')}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
-              previewDevice === 'mobile' ? 'bg-amber-400 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
+            onClick={() => setDeviceWidth('430')}
+            className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+              deviceWidth === '430'
+                ? 'bg-amber-400 text-slate-950 shadow-sm shadow-amber-400/20'
+                : 'text-slate-400 hover:text-white'
             }`}
+            title="Simular smartphone grande / Max (430px)"
           >
             <Smartphone size={14} />
-            <span>Celular</span>
+            <span>430px</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setDeviceWidth('full')}
+            className={`px-3 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+              deviceWidth === 'full'
+                ? 'bg-amber-400 text-slate-950 shadow-sm shadow-amber-400/20'
+                : 'text-slate-400 hover:text-white'
+            }`}
+            title="Responsivo / Tela Cheia"
+          >
+            <Monitor size={13} />
+            <span>100%</span>
           </button>
         </div>
 
-        {/* Right: Actions */}
+        {/* Right Action Buttons */}
         <div className="flex items-center gap-2">
-          {/* Mobile view toggle */}
-          <div className="flex md:hidden bg-white/5 rounded-xl p-1 border border-white/10 mr-1">
-            <button
-              type="button"
-              onClick={() => setMobileTab('edit')}
-              className={`px-2.5 py-1 text-xs font-bold rounded-lg ${
-                mobileTab === 'edit' ? 'bg-amber-400 text-slate-950' : 'text-slate-400'
-              }`}
-            >
-              ✏️ EDITAR
-            </button>
-            <button
-              type="button"
-              onClick={() => setMobileTab('preview')}
-              className={`px-2.5 py-1 text-xs font-bold rounded-lg ${
-                mobileTab === 'preview' ? 'bg-amber-400 text-slate-950' : 'text-slate-400'
-              }`}
-            >
-              👁 PREVIEW
-            </button>
-          </div>
+          {!isTestMode && (
+            <div className="hidden lg:flex items-center gap-1.5 text-[11px] text-slate-400 mr-2">
+              {saveStatus === 'saving' ? (
+                <>
+                  <RefreshCw size={12} className="animate-spin text-amber-400" />
+                  <span>Salvando...</span>
+                </>
+              ) : (
+                <>
+                  <CheckCircle size={12} className="text-emerald-400" />
+                  <span>Salvo</span>
+                </>
+              )}
+            </div>
+          )}
 
           <button
             type="button"
-            onClick={handleOpenFullscreen}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-bold text-slate-200 border border-white/10 cursor-pointer"
-            title="Visualizar em tela cheia"
+            onClick={() => setReloadTrigger((prev) => prev + 1)}
+            className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border border-white/10 transition-colors cursor-pointer"
+            title="Recarregar preview completo"
           >
-            <Eye size={14} />
-            <span>Visualizar</span>
+            <RefreshCw size={14} />
           </button>
 
           <button
             type="button"
-            onClick={executeAutosave}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-bold text-slate-200 border border-white/10 cursor-pointer"
-            title="Salvar alterações"
-          >
-            <Save size={14} />
-            <span>Salvar</span>
-          </button>
-
-          {/* Export Dropdown / Buttons */}
-          <button
-            type="button"
-            disabled={isExporting}
             onClick={handleDownloadHtml}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold text-white border border-white/10 transition-colors cursor-pointer"
-            title="Baixar arquivo HTML único pronto para hospedar"
+            disabled={isExporting}
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white text-xs font-semibold border border-white/10 transition-colors cursor-pointer"
+            title="Baixar apenas o arquivo index.html"
           >
             <FileCode size={14} className="text-amber-400" />
-            <span className="hidden sm:inline">Baixar HTML</span>
+            <span>index.html</span>
           </button>
 
           <button
             type="button"
-            disabled={isExporting}
             onClick={handleDownloadZip}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-bold shadow-lg shadow-amber-400/20 transition-all cursor-pointer"
-            title="Baixar pacote completo com arquivos e imagens em ZIP"
+            disabled={isExporting}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs shadow-md shadow-amber-400/20 transition-all cursor-pointer"
+            title="Baixar pacote completo com arquivos e imagens"
           >
-            <FileArchive size={14} />
+            {isExporting ? <RefreshCw size={14} className="animate-spin" /> : <Download size={14} />}
             <span>Baixar ZIP</span>
           </button>
         </div>
       </header>
 
-      {/* 2. Main Workspace: Sidebar Form + Live Preview */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Left: Visual Form Generator (Hidden on mobile if tab is 'preview') */}
+      {/* Mobile Switcher Tab (Edit vs Preview) */}
+      <div className="md:hidden flex border-b border-white/10 bg-[#0A0C14] shrink-0">
+        <button
+          type="button"
+          onClick={() => setMobileTab('edit')}
+          className={`flex-1 py-2.5 text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-2 ${
+            mobileTab === 'edit'
+              ? 'text-amber-400 border-b-2 border-amber-400 bg-amber-400/5'
+              : 'text-slate-400'
+          }`}
+        >
+          <span>PERSONALIZAR</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setMobileTab('preview')}
+          className={`flex-1 py-2.5 text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-2 ${
+            mobileTab === 'preview'
+              ? 'text-amber-400 border-b-2 border-amber-400 bg-amber-400/5'
+              : 'text-slate-400'
+          }`}
+        >
+          <Eye size={14} />
+          <span>PREVIEW AO VIVO</span>
+        </button>
+      </div>
+
+      {/* Diagnostic Alert for broken assets (Requirement 9) */}
+      {failedAssets.length > 0 && (
+        <div className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-2 flex items-center justify-between text-xs text-amber-300 shrink-0">
+          <div className="flex items-center gap-2">
+            <AlertTriangle size={14} className="text-amber-400 shrink-0" />
+            <span>
+              <strong>Atenção:</strong> Não foi possível carregar:{' '}
+              <span className="font-mono text-[11px]">{failedAssets.join(', ')}</span>
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setFailedAssets([])}
+            className="text-[10px] uppercase font-bold text-amber-400 hover:underline cursor-pointer"
+          >
+            Ignorar
+          </button>
+        </div>
+      )}
+
+      {/* Main Workspace Body */}
+      <div className="flex-1 flex overflow-hidden relative">
+        {/* Left: Fields Editor Panel */}
         <aside
           className={`${
             mobileTab === 'preview' ? 'hidden md:flex' : 'flex'
-          } w-full md:w-[420px] lg:w-[440px] flex-col bg-[#0A0C14] border-r border-white/10 shrink-0 overflow-y-auto`}
+          } w-full md:w-[420px] lg:w-[460px] bg-[#0A0C14] border-r border-white/10 flex-col shrink-0 overflow-hidden`}
         >
-          <div className="p-4 sm:p-5 space-y-4">
-            <div className="space-y-1">
-              <h2 className="text-base font-bold text-white">Personalizar Conteúdo</h2>
-              <p className="text-xs text-slate-400">
-                Altere os campos abaixo. O preview ao lado atualiza em tempo real.
-              </p>
+          {/* Sidebar Section Header */}
+          <div className="p-4 border-b border-white/10 bg-[#0E111C]/50 flex items-center justify-between">
+            <div>
+              <h2 className="text-xs font-bold text-white tracking-wider uppercase">Personalizar Modelo</h2>
+              <p className="text-[11px] text-slate-400">Edite os dados abaixo. O preview atualiza em tempo real.</p>
             </div>
+            <div className="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-mono">
+              Live Sync 60fps
+            </div>
+          </div>
 
-            {/* Accordion Sections */}
+          {/* Form Scroll Area */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
             <div className="space-y-3">
               {Object.entries(groupedFields).map(([secKey, group]) => {
                 const isOpen = activeSection === secKey;
                 return (
                   <div
                     key={secKey}
-                    className="rounded-2xl border border-white/10 bg-[#0E111C] overflow-hidden"
+                    className="border border-white/10 rounded-2xl overflow-hidden bg-white/[0.02] transition-colors"
                   >
                     <button
                       type="button"
                       onClick={() => setActiveSection(isOpen ? '' : secKey)}
-                      className="w-full px-4 py-3.5 flex items-center justify-between text-left hover:bg-white/5 transition-colors cursor-pointer"
+                      className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-white/5 transition-colors cursor-pointer"
                     >
                       <div className="flex items-center gap-2.5">
                         <span className="text-base">{group.icon}</span>
-                        <span className="text-xs font-bold uppercase tracking-wider text-slate-200">
-                          {group.label}
-                        </span>
-                        <span className="px-1.5 py-0.5 rounded-full bg-white/5 text-[10px] text-slate-400 font-mono">
-                          {group.fields.length}
-                        </span>
+                        <span className="text-xs font-bold text-white">{group.label}</span>
+                        <span className="text-[10px] font-mono text-slate-500">({group.fields.length})</span>
                       </div>
-                      {isOpen ? (
-                        <ChevronUp size={16} className="text-slate-400" />
-                      ) : (
-                        <ChevronDown size={16} className="text-slate-400" />
-                      )}
+                      {isOpen ? <ChevronUp size={16} className="text-slate-400" /> : <ChevronDown size={16} className="text-slate-400" />}
                     </button>
 
                     {isOpen && (
@@ -477,6 +560,7 @@ export const BioFacilEditor: React.FC<BioFacilEditorProps> = ({
                             key={field.id}
                             field={field}
                             value={values[field.id]}
+                            originalImageUrl={templateOriginalImages[field.id]}
                             onChange={(val) => handleFieldValueChange(field.id, val)}
                             onImageUpload={(file) => handleImageUpload(field.id, file)}
                           />
@@ -490,24 +574,44 @@ export const BioFacilEditor: React.FC<BioFacilEditorProps> = ({
           </div>
         </aside>
 
-        {/* Right: Live Preview in Isolated Iframe (Hidden on mobile if tab is 'edit') */}
+        {/* Right: Live Responsive Preview (Requirement 2 & 4) */}
         <main
           className={`${
             mobileTab === 'edit' ? 'hidden md:flex' : 'flex'
-          } flex-1 bg-[#05060A] items-center justify-center p-2 sm:p-6 overflow-hidden relative`}
+          } flex-1 bg-[#05060A] items-center justify-center overflow-hidden relative ${
+            /* Mobile full screen without borders or minification */
+            'max-md:p-0 max-md:m-0'
+          } md:p-6 lg:p-8`}
         >
+          {/* Preview Container:
+              - Mobile: 100% width, 100% height, full screen native scroll.
+              - Desktop: switchable 390px, 430px, or 100% full width.
+              NO transform: scale() is ever applied!
+          */}
           <div
-            className={`w-full h-full transition-all duration-300 flex items-center justify-center ${
-              previewDevice === 'mobile'
-                ? 'max-w-[400px] max-h-[820px] rounded-[40px] border-[10px] border-slate-800 shadow-2xl overflow-hidden'
-                : 'w-full h-full rounded-2xl border border-white/10 shadow-2xl overflow-hidden'
+            style={{
+              width:
+                mobileTab === 'preview'
+                  ? '100%'
+                  : deviceWidth === '390'
+                  ? '390px'
+                  : deviceWidth === '430'
+                  ? '430px'
+                  : '100%',
+              height: '100%',
+              maxWidth: '100%'
+            }}
+            className={`h-full transition-all duration-200 relative ${
+              mobileTab === 'preview'
+                ? 'w-full h-full rounded-none border-0'
+                : 'rounded-2xl sm:rounded-3xl border border-white/10 shadow-2xl overflow-hidden bg-black'
             }`}
           >
             <iframe
               ref={iframeRef}
               srcDoc={previewHtml}
-              title="Visualização ao Vivo"
-              className="w-full h-full border-0 bg-white"
+              title="Visualização do BioSite"
+              className="w-full h-full border-0 block bg-black"
               sandbox="allow-scripts allow-same-origin allow-popups"
             />
           </div>
@@ -523,31 +627,24 @@ export const BioFacilEditor: React.FC<BioFacilEditorProps> = ({
 interface FieldInputProps {
   field: BioFacilFieldDefinition;
   value: any;
+  originalImageUrl?: string;
   onChange: (val: any) => void;
   onImageUpload: (file: File) => void;
 }
 
-const FieldInput: React.FC<FieldInputProps> = ({ field, value, onChange, onImageUpload }) => {
+const FieldInput: React.FC<FieldInputProps> = ({ field, value, originalImageUrl, onChange, onImageUpload }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const idLower = field.id.toLowerCase();
+  const isWhatsApp = field.type === 'phone' || idLower.includes('whatsapp') || idLower.includes('zap');
+  const isInstagram = idLower.includes('instagram') || idLower.includes('insta');
+  const isTikTok = idLower.includes('tiktok');
+  const isFacebook = idLower.includes('facebook') || idLower.includes('face');
+  const isYouTube = idLower.includes('youtube') || idLower.includes('canal');
+  const isGoogleMaps = idLower.includes('maps') || idLower.includes('endereco') || idLower.includes('localizacao');
+  const isPhone = field.type === 'phone' || idLower.includes('telefone') || idLower.includes('tel');
+  const isEmail = field.type === 'email' || idLower.includes('email') || idLower.includes('mail');
 
-  // 1. Text input
-  if (field.type === 'text') {
-    return (
-      <div className="space-y-1.5">
-        <label className="text-xs font-semibold text-slate-300 block">{field.label}</label>
-        {field.description && <p className="text-[11px] text-slate-500">{field.description}</p>}
-        <input
-          type="text"
-          value={value || ''}
-          placeholder={field.placeholder || 'Digite aqui...'}
-          onChange={(e) => onChange(e.target.value)}
-          className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-xs placeholder:text-slate-600 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition-all"
-        />
-      </div>
-    );
-  }
-
-  // 2. Textarea
+  // 1. Textarea
   if (field.type === 'textarea') {
     return (
       <div className="space-y-1.5">
@@ -564,42 +661,220 @@ const FieldInput: React.FC<FieldInputProps> = ({ field, value, onChange, onImage
     );
   }
 
-  // 3. Phone / WhatsApp
-  if (field.type === 'phone') {
+  // 2. WhatsApp (Requirement 11: Official SVG, automatic wa.me normalization, only number requested)
+  if (isWhatsApp) {
+    return (
+      <div className="space-y-1.5 p-3 rounded-xl bg-emerald-500/[0.04] border border-emerald-500/20">
+        <label className="text-xs font-semibold text-slate-200 flex items-center justify-between">
+          <span className="flex items-center gap-1.5">
+            <BrandWhatsApp size={16} className="text-emerald-400" />
+            <span>{field.label}</span>
+          </span>
+          <span className="text-[10px] text-emerald-400 font-mono font-bold">wa.me automático</span>
+        </label>
+        {field.description && <p className="text-[11px] text-slate-400">{field.description}</p>}
+        <input
+          type="tel"
+          value={value || ''}
+          placeholder="(34) 99999-9999"
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-emerald-500/30 text-white text-xs placeholder:text-slate-600 focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 transition-all font-mono"
+        />
+        <p className="text-[10px] text-emerald-400/80">
+          Informe apenas o número. O link oficial do WhatsApp é gerado automaticamente.
+        </p>
+      </div>
+    );
+  }
+
+  // 3. Instagram (Requirement 12: Official SVG, automatic @ / URL normalization)
+  if (isInstagram) {
+    return (
+      <div className="space-y-1.5 p-3 rounded-xl bg-rose-500/[0.04] border border-rose-500/20">
+        <label className="text-xs font-semibold text-slate-200 flex items-center justify-between">
+          <span className="flex items-center gap-1.5">
+            <BrandInstagram size={16} className="text-rose-400" />
+            <span>{field.label}</span>
+          </span>
+          <span className="text-[10px] text-rose-400 font-mono font-bold">@perfil</span>
+        </label>
+        {field.description && <p className="text-[11px] text-slate-400">{field.description}</p>}
+        <input
+          type="text"
+          value={value || ''}
+          placeholder="@seuperfil ou link"
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-rose-500/30 text-white text-xs placeholder:text-slate-600 focus:outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-400 transition-all"
+        />
+        <p className="text-[10px] text-rose-400/80">
+          Digite seu @ ou link. O link oficial do Instagram é atualizado automaticamente.
+        </p>
+      </div>
+    );
+  }
+
+  // 4. TikTok (Requirement 13)
+  if (isTikTok) {
+    return (
+      <div className="space-y-1.5 p-3 rounded-xl bg-cyan-500/[0.04] border border-cyan-500/20">
+        <label className="text-xs font-semibold text-slate-200 flex items-center justify-between">
+          <span className="flex items-center gap-1.5">
+            <BrandTikTok size={16} className="text-cyan-400" />
+            <span>{field.label}</span>
+          </span>
+          <span className="text-[10px] text-cyan-400 font-mono font-bold">TikTok</span>
+        </label>
+        <input
+          type="text"
+          value={value || ''}
+          placeholder="@seuperfil"
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-cyan-500/30 text-white text-xs placeholder:text-slate-600 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all"
+        />
+      </div>
+    );
+  }
+
+  // 5. Facebook (Requirement 13)
+  if (isFacebook) {
+    return (
+      <div className="space-y-1.5 p-3 rounded-xl bg-blue-500/[0.04] border border-blue-500/20">
+        <label className="text-xs font-semibold text-slate-200 flex items-center justify-between">
+          <span className="flex items-center gap-1.5">
+            <BrandFacebook size={16} className="text-blue-400" />
+            <span>{field.label}</span>
+          </span>
+          <span className="text-[10px] text-blue-400 font-mono font-bold">Facebook</span>
+        </label>
+        <input
+          type="text"
+          value={value || ''}
+          placeholder="suapagina ou link"
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-blue-500/30 text-white text-xs placeholder:text-slate-600 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition-all"
+        />
+      </div>
+    );
+  }
+
+  // 6. YouTube (Requirement 13)
+  if (isYouTube) {
+    return (
+      <div className="space-y-1.5 p-3 rounded-xl bg-red-500/[0.04] border border-red-500/20">
+        <label className="text-xs font-semibold text-slate-200 flex items-center justify-between">
+          <span className="flex items-center gap-1.5">
+            <BrandYouTube size={16} className="text-red-400" />
+            <span>{field.label}</span>
+          </span>
+          <span className="text-[10px] text-red-400 font-mono font-bold">YouTube</span>
+        </label>
+        <input
+          type="text"
+          value={value || ''}
+          placeholder="@seucanal ou link"
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-red-500/30 text-white text-xs placeholder:text-slate-600 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400 transition-all"
+        />
+      </div>
+    );
+  }
+
+  // 7. Google Maps (Requirement 13)
+  if (isGoogleMaps) {
+    return (
+      <div className="space-y-1.5 p-3 rounded-xl bg-emerald-500/[0.04] border border-emerald-500/20">
+        <label className="text-xs font-semibold text-slate-200 flex items-center justify-between">
+          <span className="flex items-center gap-1.5">
+            <BrandGoogleMaps size={16} className="text-emerald-400" />
+            <span>{field.label}</span>
+          </span>
+          <span className="text-[10px] text-emerald-400 font-mono font-bold">Google Maps</span>
+        </label>
+        <input
+          type="text"
+          value={value || ''}
+          placeholder="Endereço ou link do Google Maps"
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-emerald-500/30 text-white text-xs placeholder:text-slate-600 focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 transition-all"
+        />
+      </div>
+    );
+  }
+
+  // 8. Telephone
+  if (isPhone) {
     return (
       <div className="space-y-1.5">
         <label className="text-xs font-semibold text-slate-300 flex items-center justify-between">
-          <span>{field.label}</span>
-          <span className="text-[10px] text-emerald-400 font-mono">WhatsApp</span>
+          <span className="flex items-center gap-1.5">
+            <Phone size={14} className="text-amber-400" />
+            <span>{field.label}</span>
+          </span>
         </label>
         <input
           type="tel"
           value={value || ''}
           placeholder="(11) 99999-9999"
           onChange={(e) => onChange(e.target.value)}
-          className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-xs placeholder:text-slate-600 focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 transition-all"
+          className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-xs placeholder:text-slate-600 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition-all font-mono"
         />
       </div>
     );
   }
 
-  // 4. Image with upload & preview
-  if (field.type === 'image') {
+  // 9. Email
+  if (isEmail) {
     return (
-      <div className="space-y-2">
-        <label className="text-xs font-semibold text-slate-300 block">{field.label}</label>
+      <div className="space-y-1.5">
+        <label className="text-xs font-semibold text-slate-300 flex items-center justify-between">
+          <span className="flex items-center gap-1.5">
+            <Mail size={14} className="text-amber-400" />
+            <span>{field.label}</span>
+          </span>
+        </label>
+        <input
+          type="email"
+          value={value || ''}
+          placeholder="contato@seusite.com"
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-xs placeholder:text-slate-600 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition-all"
+        />
+      </div>
+    );
+  }
+
+  // 10. Image with demonstrative preservation (Requirement 8)
+  if (field.type === 'image') {
+    const isCustomized = Boolean(value && String(value).trim().length > 0);
+    const activePhotoSrc = isCustomized ? value : originalImageUrl;
+
+    return (
+      <div className="space-y-2 p-3.5 rounded-2xl bg-white/[0.03] border border-white/10">
+        <div className="flex items-center justify-between">
+          <label className="text-xs font-semibold text-slate-200 block">{field.label}</label>
+          {isCustomized ? (
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-400/10 text-amber-300 border border-amber-400/20">
+              Sua foto personalizada
+            </span>
+          ) : (
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-white/10">
+              Foto demonstrativa do modelo
+            </span>
+          )}
+        </div>
+
         <div className="flex items-center gap-3">
-          {value ? (
-            <div className="w-14 h-14 rounded-xl overflow-hidden bg-slate-900 border border-white/10 shrink-0 relative group">
-              <img src={value} alt="Preview" className="w-full h-full object-cover" />
+          {activePhotoSrc ? (
+            <div className="w-16 h-16 rounded-xl overflow-hidden bg-slate-900 border border-white/15 shrink-0 relative group shadow-md">
+              <img src={activePhotoSrc} alt="Preview" className="w-full h-full object-cover" />
             </div>
           ) : (
-            <div className="w-14 h-14 rounded-xl bg-white/5 border border-dashed border-white/20 flex items-center justify-center shrink-0 text-slate-500">
-              <ImageIcon size={20} />
+            <div className="w-16 h-16 rounded-xl bg-white/5 border border-dashed border-white/20 flex items-center justify-center shrink-0 text-slate-500">
+              <ImageIcon size={22} />
             </div>
           )}
 
-          <div className="flex-1 space-y-1.5">
+          <div className="flex-1 space-y-1.5 min-w-0">
             <input
               type="file"
               ref={fileInputRef}
@@ -614,21 +889,24 @@ const FieldInput: React.FC<FieldInputProps> = ({ field, value, onChange, onImage
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-semibold transition-colors cursor-pointer"
+                className="px-3 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-bold transition-colors cursor-pointer shadow-sm shadow-amber-400/20"
               >
-                {value ? 'Trocar Imagem' : 'Enviar Imagem'}
+                {isCustomized ? 'Trocar Minha Foto' : 'Substituir Foto'}
               </button>
-              {value && (
+
+              {isCustomized && (
                 <button
                   type="button"
                   onClick={() => onChange('')}
-                  className="p-1.5 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 text-xs transition-colors cursor-pointer"
-                  title="Remover imagem"
+                  className="px-2.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-300 text-xs font-medium transition-colors cursor-pointer flex items-center gap-1"
+                  title="Restaurar foto original demonstrativa do modelo"
                 >
-                  <Trash2 size={14} />
+                  <RotateCcw size={12} />
+                  <span>Restaurar Original</span>
                 </button>
               )}
             </div>
+
             <input
               type="url"
               value={value || ''}
@@ -642,7 +920,7 @@ const FieldInput: React.FC<FieldInputProps> = ({ field, value, onChange, onImage
     );
   }
 
-  // 5. Services List
+  // 11. Services List
   if (field.type === 'services') {
     const services: BioFacilServiceItem[] = Array.isArray(value) ? value : [];
 
@@ -698,59 +976,54 @@ const FieldInput: React.FC<FieldInputProps> = ({ field, value, onChange, onImage
                   value={srv.price || ''}
                   onChange={(e) => updateService(idx, { price: e.target.value })}
                   placeholder="R$ 0,00"
-                  className="text-xs text-amber-400 font-bold bg-transparent border-b border-transparent focus:border-amber-400 focus:outline-none w-20 text-right shrink-0"
+                  className="text-right text-xs font-mono font-bold text-amber-400 bg-transparent border-b border-transparent focus:border-amber-400 focus:outline-none w-24 shrink-0"
                 />
                 <button
                   type="button"
                   onClick={() => removeService(idx)}
-                  className="text-slate-500 hover:text-red-400 p-1 cursor-pointer"
+                  className="text-slate-500 hover:text-red-400 transition-colors p-1 cursor-pointer"
                 >
                   <Trash2 size={13} />
                 </button>
               </div>
+
               <input
                 type="text"
                 value={srv.description || ''}
                 onChange={(e) => updateService(idx, { description: e.target.value })}
-                placeholder="Descrição breve do serviço"
-                className="text-[11px] text-slate-400 bg-transparent border-b border-transparent focus:border-white/20 focus:outline-none w-full"
+                placeholder="Breve descrição"
+                className="w-full text-[11px] text-slate-300 bg-transparent border-b border-transparent focus:border-amber-400 focus:outline-none"
               />
             </div>
           ))}
-
-          {services.length === 0 && (
-            <div className="p-4 rounded-xl border border-dashed border-white/10 text-center text-xs text-slate-500">
-              Nenhum serviço adicionado ainda.
-            </div>
-          )}
         </div>
       </div>
     );
   }
 
-  // 6. Gallery List
+  // 12. Gallery Items
   if (field.type === 'gallery') {
-    const photos: BioFacilGalleryItem[] = Array.isArray(value) ? value : [];
+    const gallery: BioFacilGalleryItem[] = Array.isArray(value) ? value : [];
 
-    const addPhoto = () => {
+    const addGalleryPhoto = () => {
       onChange([
-        ...photos,
+        ...gallery,
         {
           id: `gal_${Date.now()}`,
           url: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=800',
-          caption: 'Foto do Portfólio'
+          caption: 'Foto do trabalho'
         }
       ]);
     };
 
-    const updatePhoto = (index: number, updated: Partial<BioFacilGalleryItem>) => {
-      const copy = [...photos];
+    const updateGalleryPhoto = (index: number, updated: Partial<BioFacilGalleryItem>) => {
+      const copy = [...gallery];
       copy[index] = { ...copy[index], ...updated };
       onChange(copy);
     };
 
-    const removePhoto = (index: number) => {
-      onChange(photos.filter((_, i) => i !== index));
+    const removeGalleryPhoto = (index: number) => {
+      onChange(gallery.filter((_, i) => i !== index));
     };
 
     return (
@@ -759,7 +1032,7 @@ const FieldInput: React.FC<FieldInputProps> = ({ field, value, onChange, onImage
           <label className="text-xs font-semibold text-slate-300">{field.label}</label>
           <button
             type="button"
-            onClick={addPhoto}
+            onClick={addGalleryPhoto}
             className="flex items-center gap-1 text-[11px] font-bold text-amber-400 hover:text-amber-300 cursor-pointer"
           >
             <Plus size={13} />
@@ -767,26 +1040,34 @@ const FieldInput: React.FC<FieldInputProps> = ({ field, value, onChange, onImage
           </button>
         </div>
 
-        <div className="grid grid-cols-2 gap-2">
-          {photos.map((item, idx) => (
-            <div key={item.id || idx} className="p-2 rounded-xl bg-white/5 border border-white/10 space-y-1.5 relative group">
-              <div className="aspect-square rounded-lg overflow-hidden bg-slate-900 border border-white/5">
-                <img src={item.url} alt={item.caption || 'Foto'} className="w-full h-full object-cover" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {gallery.map((photo, idx) => (
+            <div key={photo.id || idx} className="p-2.5 rounded-xl bg-white/5 border border-white/10 space-y-2 relative">
+              <div className="h-28 rounded-lg overflow-hidden bg-slate-900 border border-white/10 relative group">
+                <img src={photo.url} alt="" className="w-full h-full object-cover" />
+                <button
+                  type="button"
+                  onClick={() => removeGalleryPhoto(idx)}
+                  className="absolute top-1.5 right-1.5 p-1 rounded-lg bg-black/70 text-red-400 hover:bg-black transition-colors"
+                >
+                  <Trash2 size={12} />
+                </button>
               </div>
+
               <input
                 type="text"
-                value={item.caption || ''}
-                onChange={(e) => updatePhoto(idx, { caption: e.target.value })}
-                placeholder="Legenda..."
-                className="text-[10px] text-slate-300 bg-transparent border-b border-transparent focus:border-amber-400 focus:outline-none w-full px-1"
+                value={photo.caption || ''}
+                onChange={(e) => updateGalleryPhoto(idx, { caption: e.target.value })}
+                placeholder="Legenda da foto"
+                className="w-full text-[11px] text-white bg-transparent border-b border-transparent focus:border-amber-400 focus:outline-none"
               />
-              <button
-                type="button"
-                onClick={() => removePhoto(idx)}
-                className="absolute top-3 right-3 p-1 rounded-md bg-black/60 text-red-400 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-              >
-                <Trash2 size={12} />
-              </button>
+              <input
+                type="url"
+                value={photo.url || ''}
+                onChange={(e) => updateGalleryPhoto(idx, { url: e.target.value })}
+                placeholder="URL da foto"
+                className="w-full text-[10px] text-slate-400 bg-transparent border-b border-transparent focus:border-amber-400 focus:outline-none font-mono"
+              />
             </div>
           ))}
         </div>
@@ -794,14 +1075,15 @@ const FieldInput: React.FC<FieldInputProps> = ({ field, value, onChange, onImage
     );
   }
 
-  // 7. General fallback (email, url, color, select, etc.)
+  // 13. Default Text / General Input
   return (
     <div className="space-y-1.5">
       <label className="text-xs font-semibold text-slate-300 block">{field.label}</label>
+      {field.description && <p className="text-[11px] text-slate-500">{field.description}</p>}
       <input
-        type={field.type === 'email' ? 'email' : field.type === 'color' ? 'color' : 'text'}
+        type="text"
         value={value || ''}
-        placeholder={field.placeholder || ''}
+        placeholder={field.placeholder || 'Digite o texto...'}
         onChange={(e) => onChange(e.target.value)}
         className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-xs placeholder:text-slate-600 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition-all"
       />

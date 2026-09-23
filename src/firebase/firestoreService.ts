@@ -156,6 +156,7 @@ export const fetchPlatformStats = async () => {
 
 import { BioFacilTemplate, TemplateStatus, BioFacilUserProject } from '../types/biofacil';
 import { where } from 'firebase/firestore';
+import { SEED_BARBER_TEMPLATE } from '../templates/seedBarberTemplate';
 
 // Admin: Fetch all templates or filter by status
 export const fetchAllTemplates = async (statusFilter?: TemplateStatus): Promise<BioFacilTemplate[]> => {
@@ -170,9 +171,17 @@ export const fetchAllTemplates = async (statusFilter?: TemplateStatus): Promise<
     snapshot.forEach((d) => {
       templates.push(d.data() as BioFacilTemplate);
     });
+
+    if (!templates.some((t) => t.templateId === 'BF-BARBER-001')) {
+      if (!statusFilter || statusFilter === 'published') {
+        templates.push(SEED_BARBER_TEMPLATE);
+      }
+    }
+
     return templates;
   } catch (error) {
-    handleFirestoreError(error, OperationType.LIST, path);
+    console.warn('Firestore fetchAllTemplates notice:', error);
+    return [SEED_BARBER_TEMPLATE];
   }
 };
 
@@ -187,15 +196,33 @@ export const fetchPublishedTemplates = async (): Promise<BioFacilTemplate[]> => 
     snapshot.forEach((d) => {
       templates.push(d.data() as BioFacilTemplate);
     });
+
+    if (!templates.some((t) => t.templateId === 'BF-BARBER-001')) {
+      templates.push(SEED_BARBER_TEMPLATE);
+    }
+
     // Sort in memory by updatedAt descending
     return templates.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
   } catch (error) {
-    handleFirestoreError(error, OperationType.LIST, path);
+    console.warn('Firestore fetchPublishedTemplates notice:', error);
+    return [SEED_BARBER_TEMPLATE];
   }
 };
 
 // Fetch single template by ID
 export const fetchTemplateById = async (templateId: string): Promise<BioFacilTemplate | null> => {
+  if (templateId === 'BF-BARBER-001') {
+    const path = `templates/${templateId}`;
+    try {
+      const templateRef = doc(db, 'templates', templateId);
+      const snapshot = await getDoc(templateRef);
+      if (snapshot.exists()) return snapshot.data() as BioFacilTemplate;
+    } catch {
+      // Fallback to seed
+    }
+    return SEED_BARBER_TEMPLATE;
+  }
+
   const path = `templates/${templateId}`;
   try {
     const templateRef = doc(db, 'templates', templateId);

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { BioFacilTemplate, INITIAL_NICHES } from '../../types/biofacil';
 import { fetchPublishedTemplates } from '../../firebase/firestoreService';
+import { preparePreviewHtml } from '../../services/zipTemplateEngine';
 import {
   Sparkles,
   Search,
@@ -11,7 +12,9 @@ import {
   LogOut,
   X,
   Layers,
-  ArrowRight
+  ArrowRight,
+  Smartphone,
+  Monitor
 } from 'lucide-react';
 
 interface V2HomeProps {
@@ -38,6 +41,24 @@ export const V2Home: React.FC<V2HomeProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [activeNiche, setActiveNiche] = useState<string>('todos');
   const [previewTemplate, setPreviewTemplate] = useState<BioFacilTemplate | null>(null);
+  const [modalWidth, setModalWidth] = useState<'390' | '430' | 'full'>('390');
+
+  const modalPreviewHtml = useMemo(() => {
+    if (!previewTemplate) return '';
+    return preparePreviewHtml(
+      previewTemplate.htmlContent || '',
+      previewTemplate.biofacilSchema || {
+        version: 1,
+        templateId: previewTemplate.templateId,
+        name: previewTemplate.name,
+        category: previewTemplate.categoryId,
+        tagline: '',
+        fields: []
+      },
+      {},
+      previewTemplate.assets
+    );
+  }, [previewTemplate]);
 
   useEffect(() => {
     let isMounted = true;
@@ -303,7 +324,7 @@ export const V2Home: React.FC<V2HomeProps> = ({
 
       {/* 4. Modal de Visualização Isolada (Iframe) */}
       {previewTemplate && (
-        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col p-3 sm:p-6 animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex flex-col p-2 sm:p-5 animate-in fade-in duration-200">
           <div className="flex items-center justify-between pb-3 border-b border-white/10 shrink-0">
             <div className="flex items-center gap-3">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
@@ -317,6 +338,43 @@ export const V2Home: React.FC<V2HomeProps> = ({
               </div>
             </div>
 
+            {/* Desktop Device Switcher */}
+            <div className="hidden sm:flex items-center gap-1 bg-white/5 border border-white/10 p-1 rounded-xl">
+              <button
+                type="button"
+                onClick={() => setModalWidth('390')}
+                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
+                  modalWidth === '390' ? 'bg-amber-400 text-slate-950' : 'text-slate-400 hover:text-white'
+                }`}
+                title="Visualizar em 390px"
+              >
+                <Smartphone size={12} />
+                <span>390px</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setModalWidth('430')}
+                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
+                  modalWidth === '430' ? 'bg-amber-400 text-slate-950' : 'text-slate-400 hover:text-white'
+                }`}
+                title="Visualizar em 430px"
+              >
+                <Smartphone size={13} />
+                <span>430px</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setModalWidth('full')}
+                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
+                  modalWidth === 'full' ? 'bg-amber-400 text-slate-950' : 'text-slate-400 hover:text-white'
+                }`}
+                title="Visualizar tela cheia"
+              >
+                <Monitor size={12} />
+                <span>100%</span>
+              </button>
+            </div>
+
             <div className="flex items-center gap-2">
               <button
                 type="button"
@@ -325,10 +383,11 @@ export const V2Home: React.FC<V2HomeProps> = ({
                   setPreviewTemplate(null);
                   onSelectTemplate(t);
                 }}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs shadow-md transition-all cursor-pointer"
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs shadow-md transition-all cursor-pointer"
               >
                 <Edit3 size={14} />
-                <span>USAR ESTE MODELO</span>
+                <span className="hidden sm:inline">PERSONALIZAR ESTE MODELO</span>
+                <span className="sm:hidden">PERSONALIZAR</span>
               </button>
 
               <button
@@ -341,13 +400,22 @@ export const V2Home: React.FC<V2HomeProps> = ({
             </div>
           </div>
 
-          <div className="flex-1 rounded-2xl overflow-hidden mt-3 border border-white/10 bg-white">
-            <iframe
-              srcDoc={previewTemplate.htmlContent || ''}
-              title={previewTemplate.name}
-              className="w-full h-full border-0"
-              sandbox="allow-scripts allow-same-origin"
-            />
+          <div className="flex-1 flex items-center justify-center overflow-hidden mt-2 sm:mt-3">
+            <div
+              style={{
+                width: modalWidth === '390' ? '390px' : modalWidth === '430' ? '430px' : '100%',
+                height: '100%',
+                maxWidth: '100%'
+              }}
+              className="h-full bg-black rounded-xl sm:rounded-2xl border border-white/10 overflow-hidden relative shadow-2xl transition-all duration-150"
+            >
+              <iframe
+                srcDoc={modalPreviewHtml}
+                title={previewTemplate.name}
+                className="w-full h-full border-0 block bg-black"
+                sandbox="allow-scripts allow-same-origin allow-popups"
+              />
+            </div>
           </div>
         </div>
       )}
