@@ -29,27 +29,35 @@ export type NichoId =
   | '10-confeitaria';
 
 export type TemplateLayout =
+  | 'cinematic'
+  | 'editorial'
+  | 'glass'
+  | 'immersive'
+  | 'minimal'
+  | 'orbital'
+  | 'story'
+  | 'cards'
+  | 'neon'
+  | 'signature'
+  // Backward compatibility aliases
   | 'cinematic-luxury'
   | 'glass-premium'
-  | 'editorial'
   | '3d-glow'
   | 'minimal-luxury'
   | 'dark-experience'
   | 'immersive-photo'
   | 'modern-cards'
-  | 'neon-motion'
-  | 'signature'
-  // Backward compatibility aliases
-  | 'cinematic-split'
-  | 'luxury-editorial'
-  | 'dark-cyber'
-  | 'glass-stacked'
-  | 'bento-showcase'
-  | 'minimal-center'
-  | 'asymmetric-modern'
-  | 'floating-hero'
-  | 'bold-street'
-  | 'diagonal-energy';
+  | 'neon-motion';
+
+export type ServiceLayoutStyle =
+  | 'cards'
+  | 'minimal-list'
+  | 'icons-grid'
+  | 'editorial'
+  | 'horizontal-scroll'
+  | 'accordion'
+  | 'tags'
+  | 'photo-cards';
 
 export type FontCategory =
   | 'MODERNA'
@@ -77,6 +85,7 @@ export type SectionKey =
   | 'hero'
   | 'status'
   | 'about'
+  | 'differentials'
   | 'services'
   | 'gallery'
   | 'reviews'
@@ -121,12 +130,19 @@ export interface ServiceItem {
   id: string;
   name: string;
   description: string;
-  price: string;
+  price?: string; // Optional! No forced price
   imageUrl?: string;
-  iconName: string;
+  iconName?: string;
   ctaText?: string;
   ctaUrl?: string;
   featured?: boolean;
+}
+
+export interface DifferentialItem {
+  id: string;
+  title: string;
+  description: string;
+  iconName: string;
 }
 
 export interface CustomButton {
@@ -232,6 +248,9 @@ export interface ProjectData {
   // Premium Features & Upgrades
   fontCategory?: FontCategory;
   socialIconStyle?: SocialIconStyle;
+  serviceLayout?: ServiceLayoutStyle;
+  heroLayout?: 'full-photo' | 'center-logo' | 'split' | 'orbital' | 'editorial' | 'minimal';
+  differentials?: DifferentialItem[];
   sectionsOrder?: SectionKey[];
   sectionsVisibility?: Partial<Record<SectionKey, boolean>>;
   statusConfig?: StatusConfig;

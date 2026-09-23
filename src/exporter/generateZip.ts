@@ -39,17 +39,19 @@ export const generateStandaloneHtml = (project: ProjectData): string => {
     socials,
     location,
     seo,
-    sectionsOrder = ['hero', 'status', 'about', 'services', 'gallery', 'reviews', 'hours', 'location', 'socials', 'cta'],
+    sectionsOrder = ['hero', 'status', 'about', 'differentials', 'services', 'gallery', 'reviews', 'hours', 'location', 'socials', 'cta'],
     sectionsVisibility = {},
     statusConfig,
     whatsappConfig,
     googleReviewConfig,
     shareConfig,
     fontCategory = 'MODERNA',
-    socialIconStyle = 'glass'
+    socialIconStyle = 'glass',
+    serviceLayout = 'cards',
+    differentials = []
   } = project;
 
-  const pageTitle = escapeHtml(seo?.title || identity.name || 'Bio Fácil Oficial');
+  const pageTitle = escapeHtml(seo?.title || identity.name || 'Apresentação Oficial');
   const pageDesc = escapeHtml(seo?.description || identity.slogan || identity.description || '');
   const ogImg = sanitizeUrl(seo?.ogImage || identity.bannerUrl || identity.avatarUrl || '');
   const favicon = sanitizeUrl(seo?.favicon || identity.logoUrl || '');
@@ -104,6 +106,20 @@ export const generateStandaloneHtml = (project: ProjectData): string => {
     </section>
   ` : '';
 
+  const differentialsHtml = (sectionsVisibility.differentials !== false && differentials.length > 0) ? `
+    <section class="differentials-section">
+      <span class="section-label">NOSSOS DIFERENCIAIS</span>
+      <div class="diff-grid">
+        ${differentials.map((d) => `
+          <div class="diff-card">
+            <h4>${escapeHtml(d.title)}</h4>
+            <p>${escapeHtml(d.description)}</p>
+          </div>
+        `).join('')}
+      </div>
+    </section>
+  ` : '';
+
   const reviewsHtml = (sectionsVisibility.reviews !== false && googleReviewConfig?.enabled) ? `
     <section class="reviews-card">
       <div class="reviews-content">
@@ -111,7 +127,7 @@ export const generateStandaloneHtml = (project: ProjectData): string => {
           ${svgStar}${svgStar}${svgStar}${svgStar}${svgStar}
           <span class="stars-rating">5.0 (${escapeHtml(String(googleReviewConfig.reviewCount || 147))} avaliações)</span>
         </div>
-        <h4 class="reviews-title">${escapeHtml(googleReviewConfig.title || 'NOS AVALIE NO GOOGLE')}</h4>
+        <h4 class="reviews-title">${escapeHtml(googleReviewConfig.title || 'AVALIAÇÕES NO GOOGLE')}</h4>
         <p class="reviews-desc">${escapeHtml(googleReviewConfig.subtitle || 'Sua opinião é fundamental para nossa excelência.')}</p>
       </div>
       <a href="${sanitizeUrl(googleReviewConfig.url || location.mapsUrl || 'https://google.com')}" target="_blank" class="btn-review">${svgGg} Avaliar Agora</a>
@@ -119,9 +135,9 @@ export const generateStandaloneHtml = (project: ProjectData): string => {
   ` : '';
 
   const servicesHtml = (sectionsVisibility.services !== false && services.length > 0) ? `
-    <section class="services-section">
+    <section class="services-section layout-${serviceLayout}">
       <div class="section-head">
-        <h3 class="section-title">Serviços & Procedimentos</h3>
+        <h3 class="section-title">Especialidades & Atendimento</h3>
       </div>
       <div class="services-list">
         ${services.map((s) => `
@@ -131,12 +147,12 @@ export const generateStandaloneHtml = (project: ProjectData): string => {
               <div class="service-info">
                 <div class="service-header">
                   <h4>${escapeHtml(s.name)}</h4>
-                  <span class="service-price">${escapeHtml(s.price)}</span>
+                  ${s.price ? `<span class="service-price">${escapeHtml(s.price)}</span>` : ''}
                 </div>
                 <p>${escapeHtml(s.description)}</p>
                 <div class="service-action">
-                  ${s.featured ? `<span class="badge-featured">${svgStar} Mais Solicitado</span>` : '<span></span>'}
-                  <a href="${waUrl}" target="_blank" class="btn-service">${svgWa} ${escapeHtml(s.ctaText || 'Agendar')}</a>
+                  ${s.featured ? `<span class="badge-featured">${svgStar} Destaque</span>` : '<span></span>'}
+                  <a href="${waUrl}" target="_blank" class="btn-service">${svgWa} ${escapeHtml(s.ctaText || 'Quero Saber Mais')}</a>
                 </div>
               </div>
             </div>
@@ -155,7 +171,6 @@ export const generateStandaloneHtml = (project: ProjectData): string => {
         ${photos.map((p) => `
           <div class="photo-item" onclick="openModal('${sanitizeUrl(p.url)}')">
             <img src="${sanitizeUrl(p.url)}" alt="${escapeHtml(p.alt || p.caption)}" loading="lazy" />
-            ${p.caption ? `<div class="caption">${escapeHtml(p.caption)}</div>` : ''}
           </div>
         `).join('')}
       </div>
@@ -210,9 +225,8 @@ export const generateStandaloneHtml = (project: ProjectData): string => {
 
   const ctaHtml = (sectionsVisibility.cta !== false) ? `
     <footer class="footer-cta">
-      <a href="${waUrl}" target="_blank" class="main-cta-btn">${svgWa} <span>${escapeHtml(identity.title || 'Agendar Atendimento')}</span></a>
+      <a href="${waUrl}" target="_blank" class="main-cta-btn">${svgWa} <span>${escapeHtml(identity.title || 'Chamar no WhatsApp')}</span></a>
       <p class="copyright">${escapeHtml(identity.name)} • Todos os direitos reservados</p>
-      <p class="brand-credit">Biosite oficial criado na plataforma BIO FÁCIL</p>
     </footer>
   ` : '';
 
@@ -222,6 +236,7 @@ export const generateStandaloneHtml = (project: ProjectData): string => {
       case 'hero': return heroHtml;
       case 'status': return statusHtml;
       case 'about': return aboutHtml;
+      case 'differentials': return differentialsHtml;
       case 'services': return servicesHtml;
       case 'gallery': return galleryHtml;
       case 'reviews': return reviewsHtml;
@@ -242,29 +257,37 @@ export const generateStandaloneHtml = (project: ProjectData): string => {
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>${pageTitle}</title>
   <meta name="description" content="${pageDesc}">
+  <meta name="theme-color" content="${theme.background || '#07080D'}">
+
+  <!-- Open Graph -->
   <meta property="og:title" content="${pageTitle}">
   <meta property="og:description" content="${pageDesc}">
-  <meta property="og:image" content="${ogImg}">
-  <link rel="icon" href="${favicon}">
+  ${ogImg ? `<meta property="og:image" content="${ogImg}">` : ''}
+  <meta property="og:type" content="website">
+
+  <!-- Favicon -->
+  ${favicon ? `<link rel="icon" href="${favicon}">` : ''}
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Chakra+Petch:wght@400;600;700&family=Cinzel:wght@600;800;900&family=DM+Sans:ital,opsz,wght@0,9..40,400..800;1,9..40,400..800&family=Playfair+Display:ital,wght@0,600;0,800;0,900;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Syne:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Chakra+Petch:wght@400;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Syne:wght@400..800&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --primary: ${theme.primary || '#D97706'};
+      --primary: ${theme.primary};
       --secondary: ${theme.secondary || '#92400E'};
-      --accent: ${theme.accent || '#FDE68A'};
       --bg: ${theme.background || '#07080D'};
-      --surface: ${theme.surface || '#0F121C'};
+      --surface: ${theme.surface || '#0E111C'};
+      --card-bg: ${theme.cardBg || '#0E111C'};
+      --border: ${theme.border || 'rgba(255, 255, 255, 0.1)'};
       --text: ${theme.text || '#F8FAFC'};
+      --text-muted: ${theme.textMuted || '#94A3B8'};
       --font-heading: ${headingFontFamily};
       --font-body: 'Plus Jakarta Sans', sans-serif;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
       background-color: var(--bg);
       color: var(--text);
@@ -272,13 +295,13 @@ export const generateStandaloneHtml = (project: ProjectData): string => {
       min-height: 100vh;
       display: flex;
       justify-content: center;
-      padding: 16px 12px 80px;
+      padding: 0 16px;
     }
 
     .container {
       width: 100%;
       max-width: 440px;
-      margin: 0 auto;
+      padding: 32px 0 64px 0;
       display: flex;
       flex-direction: column;
       gap: 20px;
@@ -287,49 +310,50 @@ export const generateStandaloneHtml = (project: ProjectData): string => {
     /* Hero */
     .hero-section {
       text-align: center;
-      padding: 32px 16px 20px;
-      position: relative;
+      padding: 32px 20px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0) 100%);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
     }
     .hero-logo-box {
       width: 96px;
       height: 96px;
       border-radius: 50%;
-      margin: 0 auto 16px;
-      padding: 3px;
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      box-shadow: 0 0 25px rgba(217, 119, 6, 0.4);
+      padding: 2px;
+      background: linear-gradient(135deg, var(--primary), #ffffff, var(--secondary));
+      box-shadow: 0 0 30px rgba(217, 119, 6, 0.4);
     }
-    .hero-logo {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 50%;
-    }
+    .hero-logo { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
     .badge-hero {
       display: inline-block;
-      padding: 4px 12px;
+      padding: 4px 14px;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.15);
       font-size: 10px;
       font-weight: 800;
-      letter-spacing: 1.5px;
+      letter-spacing: 2px;
       text-transform: uppercase;
-      margin-bottom: 12px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      color: var(--primary);
     }
     .hero-title {
       font-family: var(--font-heading);
       font-size: 32px;
       font-weight: 900;
-      line-height: 1.15;
+      line-height: 1.1;
       text-transform: uppercase;
-      letter-spacing: -0.5px;
-      margin-bottom: 8px;
+      color: #fff;
     }
     .hero-slogan {
       font-size: 13px;
-      color: rgba(255, 255, 255, 0.75);
+      color: var(--text-muted);
       line-height: 1.5;
+      max-width: 320px;
     }
 
     /* Status Card */
@@ -337,40 +361,20 @@ export const generateStandaloneHtml = (project: ProjectData): string => {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 12px 16px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 16px;
-      backdrop-filter: blur(10px);
+      padding: 14px 18px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      backdrop-filter: blur(12px);
     }
-    .status-left {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 11px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .status-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: #10B981;
-      box-shadow: 0 0 8px #10B981;
-    }
-    .status-dot.closed {
-      background: #F59E0B;
-      box-shadow: 0 0 8px #F59E0B;
-    }
-    .status-hours {
-      color: rgba(255, 255, 255, 0.5);
-      font-size: 11px;
-    }
+    .status-left { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 800; }
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #10B981; box-shadow: 0 0 10px #10B981; }
+    .status-dot.closed { background: #F59E0B; box-shadow: 0 0 10px #F59E0B; }
+    .status-hours { font-weight: 500; color: var(--text-muted); }
     .btn-share {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      color: #FFF;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      color: #fff;
       padding: 6px 12px;
       border-radius: 12px;
       font-size: 11px;
@@ -381,298 +385,235 @@ export const generateStandaloneHtml = (project: ProjectData): string => {
       gap: 6px;
     }
 
-    /* About Card */
+    /* About */
     .about-card {
-      padding: 20px;
+      padding: 22px;
       background: var(--surface);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 20px;
-      font-size: 13px;
-      line-height: 1.6;
-      color: rgba(255, 255, 255, 0.8);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
     .section-label {
       font-size: 11px;
       font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
       color: var(--primary);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      display: block;
-      margin-bottom: 6px;
     }
+    .about-card p { font-size: 13px; line-height: 1.6; color: #cbd5e1; }
 
-    /* Reviews Card */
-    .reviews-card {
-      padding: 20px;
-      border-radius: 20px;
-      background: linear-gradient(135deg, rgba(217, 119, 6, 0.15), var(--surface));
-      border: 1px solid rgba(217, 119, 6, 0.3);
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
+    /* Differentials */
+    .differentials-section { display: flex; flex-direction: column; gap: 10px; }
+    .diff-grid { display: grid; grid-cols-1; gap: 8px; }
+    .diff-card {
+      padding: 14px 16px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: 18px;
     }
-    .stars-row {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      color: #FBBF24;
-    }
-    .stars-rating {
-      font-size: 12px;
-      font-weight: 800;
-      color: #FFF;
-      margin-left: 6px;
-    }
-    .reviews-title {
-      font-size: 14px;
-      font-weight: 900;
-      text-transform: uppercase;
-      color: #FFF;
-    }
-    .reviews-desc {
-      font-size: 12px;
-      color: rgba(255, 255, 255, 0.7);
-    }
-    .btn-review {
-      align-self: flex-start;
-      padding: 8px 16px;
-      border-radius: 12px;
-      background: linear-gradient(135deg, #F59E0B, #D97706);
-      color: #07080D;
-      font-size: 11px;
-      font-weight: 900;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
+    .diff-card h4 { font-size: 13px; font-weight: 800; color: #fff; margin-bottom: 2px; }
+    .diff-card p { font-size: 11px; color: var(--text-muted); line-height: 1.4; }
 
     /* Services */
-    .services-section { display: flex; flex-direction: column; gap: 12px; }
-    .section-head { display: flex; justify-content: space-between; align-items: center; }
-    .section-title {
-      font-family: var(--font-heading);
-      font-size: 18px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .services-list { display: flex; flex-direction: column; gap: 10px; }
+    .services-section { display: flex; flex-direction: column; gap: 14px; }
+    .section-head { display: flex; align-items: center; justify-content: space-between; }
+    .section-title { font-family: var(--font-heading); font-size: 18px; font-weight: 900; text-transform: uppercase; }
+    .services-list { display: flex; flex-direction: column; gap: 12px; }
     .service-card {
       padding: 16px;
-      background: var(--surface);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 18px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      transition: border-color 0.2s;
     }
     .service-card.featured {
       border-color: rgba(217, 119, 6, 0.4);
-      background: linear-gradient(135deg, var(--surface), rgba(217, 119, 6, 0.1));
+      background: linear-gradient(135deg, var(--card-bg) 0%, rgba(217, 119, 6, 0.08) 100%);
     }
-    .service-body { display: flex; gap: 12px; }
-    .service-thumb { width: 56px; height: 56px; border-radius: 12px; object-fit: cover; }
-    .service-info { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+    .service-body { display: flex; gap: 14px; }
+    .service-thumb { width: 64px; height: 64px; border-radius: 14px; object-fit: cover; border: 1px solid var(--border); flex-shrink: 0; }
+    .service-info { flex: 1; display: flex; flex-direction: column; gap: 6px; }
     .service-header { display: flex; justify-content: space-between; align-items: baseline; }
-    .service-header h4 { font-size: 14px; font-weight: 800; }
-    .service-price { font-size: 13px; font-weight: 800; color: var(--primary); }
-    .service-info p { font-size: 12px; color: rgba(255, 255, 255, 0.6); line-height: 1.4; }
-    .service-action { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; }
-    .badge-featured { font-size: 10px; font-weight: 800; color: #FBBF24; display: flex; align-items: center; gap: 4px; }
+    .service-header h4 { font-size: 15px; font-weight: 800; color: #fff; }
+    .service-price { font-size: 14px; font-weight: 900; color: var(--primary); font-family: monospace; }
+    .service-info p { font-size: 12px; color: var(--text-muted); line-height: 1.4; }
+    .service-action { display: flex; align-items: center; justify-content: space-between; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.05); }
+    .badge-featured { font-size: 10px; font-weight: 800; color: #fbbf24; text-transform: uppercase; display: flex; align-items: center; gap: 4px; }
     .btn-service {
-      padding: 6px 12px;
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 10px;
-      color: #FFF;
-      font-size: 11px;
-      font-weight: 700;
-      text-decoration: none;
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      gap: 4px;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 800;
+      text-decoration: none;
+      transition: 0.2s;
     }
+    .btn-service:hover { background: var(--primary); color: #000; }
 
     /* Gallery */
-    .gallery-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
-    }
+    .gallery-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
     .photo-item {
-      position: relative;
-      height: 140px;
-      border-radius: 14px;
+      aspect-ratio: 1;
+      border-radius: 18px;
       overflow: hidden;
+      border: 1px solid var(--border);
+      position: relative;
       cursor: pointer;
     }
-    .photo-item img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.4s ease;
-    }
+    .photo-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
     .photo-item:hover img { transform: scale(1.05); }
 
-    /* Action Buttons */
-    .buttons-section { display: flex; flex-direction: column; gap: 10px; }
-    .action-btn {
-      width: 100%;
-      padding: 16px 20px;
-      border-radius: 16px;
+    /* Reviews */
+    .reviews-card {
+      padding: 22px;
+      background: linear-gradient(135deg, rgba(217,119,6,0.1) 0%, var(--surface) 100%);
+      border: 1px solid rgba(217, 119, 6, 0.3);
+      border-radius: 24px;
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      text-decoration: none;
-      font-weight: 800;
-      font-size: 14px;
-      transition: all 0.2s ease;
+      flex-direction: column;
+      gap: 14px;
     }
-    .action-btn.style-solid {
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      color: #07080D;
-      box-shadow: 0 4px 20px rgba(217, 119, 6, 0.3);
-    }
-    .action-btn.style-glass {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      color: #FFF;
-      backdrop-filter: blur(10px);
-    }
-    .action-btn.style-outline {
-      border: 2px solid rgba(255, 255, 255, 0.2);
-      color: #FFF;
-    }
-
-    /* Socials */
-    .socials-section { text-align: center; margin-top: 10px; }
-    .socials-label { font-size: 10px; font-weight: 800; letter-spacing: 1.5px; color: rgba(255, 255, 255, 0.5); display: block; margin-bottom: 12px; }
-    .socials-list { display: flex; justify-content: center; gap: 12px; }
-    .social-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 14px;
-      display: flex;
+    .stars-row { display: flex; align-items: center; gap: 4px; color: #f59e0b; }
+    .stars-rating { font-size: 12px; font-weight: 800; color: #fff; margin-left: 6px; }
+    .reviews-title { font-size: 15px; font-weight: 900; text-transform: uppercase; color: #fff; }
+    .reviews-desc { font-size: 12px; color: var(--text-muted); }
+    .btn-review {
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      color: #FFF;
+      gap: 8px;
+      padding: 12px 20px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: #000;
+      font-size: 12px;
+      font-weight: 900;
       text-decoration: none;
-      transition: all 0.2s ease;
     }
-    .social-icon:hover { transform: scale(1.08); }
 
     /* Location */
     .location-card {
       padding: 20px;
       background: var(--surface);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 20px;
+      border: 1px solid var(--border);
+      border-radius: 24px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      font-size: 13px;
+      gap: 14px;
     }
-    .loc-item strong { display: block; font-size: 11px; text-transform: uppercase; color: var(--primary); margin-bottom: 2px; }
-    .map-link { color: var(--accent); text-decoration: none; font-size: 12px; font-weight: 700; margin-top: 4px; display: inline-block; }
+    .loc-item strong { display: block; font-size: 11px; text-transform: uppercase; color: var(--primary); letter-spacing: 1px; margin-bottom: 4px; }
+    .loc-item p { font-size: 13px; color: #fff; line-height: 1.4; }
+    .map-link { display: inline-block; margin-top: 6px; font-size: 12px; color: var(--primary); text-decoration: none; font-weight: 700; }
 
-    /* Footer */
-    .footer-cta { text-align: center; padding-top: 20px; display: flex; flex-direction: column; gap: 12px; align-items: center; }
-    .main-cta-btn {
-      padding: 16px 28px;
+    /* Socials */
+    .socials-section { text-align: center; display: flex; flex-direction: column; gap: 12px; }
+    .socials-label { font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); }
+    .socials-list { display: flex; justify-content: center; gap: 12px; }
+    .social-icon {
+      width: 48px;
+      height: 48px;
       border-radius: 16px;
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      color: #07080D;
-      font-weight: 900;
-      font-size: 14px;
-      text-decoration: none;
-      display: inline-flex;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      color: #fff;
+      display: flex;
       align-items: center;
-      gap: 8px;
-      box-shadow: 0 8px 25px rgba(217, 119, 6, 0.35);
+      justify-content: center;
+      text-decoration: none;
+      transition: transform 0.2s, background 0.2s;
     }
-    .copyright { font-size: 11px; color: rgba(255, 255, 255, 0.4); text-transform: uppercase; letter-spacing: 1px; }
-    .brand-credit { font-size: 10px; color: rgba(255, 255, 255, 0.25); }
+    .social-icon:hover { transform: translateY(-2px); background: rgba(255,255,255,0.1); }
+    .social-icon.wa { color: #10B981; }
+    .social-icon.ig { color: #EC4899; }
+    .social-icon.tt { color: #06B6D4; }
+    .social-icon.gg { color: #3B82F6; }
 
-    /* Floating WhatsApp */
+    /* Footer CTA */
+    .footer-cta { display: flex; flex-direction: column; gap: 16px; text-align: center; padding-top: 10px; }
+    .main-cta-btn {
+      width: 100%;
+      padding: 16px 24px;
+      border-radius: 18px;
+      background: var(--primary);
+      color: #000;
+      font-size: 14px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      text-decoration: none;
+      box-shadow: 0 10px 25px rgba(217, 119, 6, 0.4);
+    }
+    .copyright { font-size: 11px; color: var(--text-muted); }
+
+    /* Floating WhatsApp Button */
     .floating-wa {
       position: fixed;
       bottom: 24px;
-      ${whatsappConfig?.floatingPosition === 'left' ? 'left: 24px;' : 'right: 24px;'}
+      right: 24px;
       width: 56px;
       height: 56px;
       border-radius: 50%;
       background: #10B981;
-      color: #FFF;
+      color: #fff;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5);
-      z-index: 100;
+      box-shadow: 0 10px 30px rgba(16, 185, 129, 0.5);
       text-decoration: none;
-      transition: transform 0.2s ease;
+      z-index: 1000;
+      transition: transform 0.2s;
     }
-    .floating-wa:hover { transform: scale(1.1); }
+    .floating-wa:hover { transform: scale(1.08); }
 
-    /* Modal */
-    .modal-overlay {
+    /* Lightbox Modal */
+    .modal {
       display: none;
       position: fixed;
       inset: 0;
       background: rgba(0,0,0,0.95);
-      z-index: 200;
+      z-index: 2000;
       align-items: center;
       justify-content: center;
       padding: 16px;
     }
-    .modal-overlay.active { display: flex; }
-    .modal-overlay img { max-width: 90%; max-height: 85vh; border-radius: 16px; }
+    .modal.active { display: flex; }
+    .modal img { max-width: 100%; max-height: 90vh; border-radius: 18px; object-fit: contain; }
   </style>
 </head>
 <body>
   <div class="container">
     ${renderedSectionsHtml}
-    ${buttonsHtml}
   </div>
 
   ${(whatsappConfig?.showFloating !== false && cleanWaNumber) ? `
-    <a href="${waUrl}" target="_blank" class="floating-wa" title="Conversar no WhatsApp">
+    <a href="${waUrl}" target="_blank" class="floating-wa" title="Falar no WhatsApp">
       ${svgWa}
     </a>
   ` : ''}
 
-  <!-- Photo Lightbox Modal -->
-  <div id="photoModal" class="modal-overlay" onclick="closeModal()">
+  <div class="modal" id="photoModal" onclick="closeModal()">
     <img id="modalImg" src="" alt="Ampliada" />
   </div>
 
   <script>
-    // Automatic Status Calculation
-    function calculateStatus() {
-      const card = document.getElementById('statusCard');
-      if (!card) return;
-      const textElem = document.getElementById('statusText');
-      const dot = card.querySelector('.status-dot');
-      if (!dot || !dot.classList.contains('auto-calc')) return;
-
-      const now = new Date();
-      const currentMin = now.getHours() * 60 + now.getMinutes();
-
-      const [openH, openM] = '${statusConfig?.openTime || '08:00'}'.split(':').map(Number);
-      const [closeH, closeM] = '${statusConfig?.closeTime || '20:00'}'.split(':').map(Number);
-
-      const openMin = openH * 60 + openM;
-      const closeMin = closeH * 60 + closeM;
-
-      if (currentMin >= openMin && currentMin <= closeMin) {
-        textElem.textContent = 'ABERTO AGORA';
-        dot.classList.remove('closed');
-      } else {
-        textElem.textContent = 'FECHADO NO MOMENTO';
-        dot.classList.add('closed');
-      }
+    function openModal(src) {
+      var modal = document.getElementById('photoModal');
+      var img = document.getElementById('modalImg');
+      img.src = src;
+      modal.classList.add('active');
     }
-    calculateStatus();
-
-    // Web Share API
+    function closeModal() {
+      document.getElementById('photoModal').classList.remove('active');
+    }
     function handleShare() {
       if (navigator.share) {
         navigator.share({
@@ -681,77 +622,89 @@ export const generateStandaloneHtml = (project: ProjectData): string => {
         }).catch(function() {});
       } else {
         navigator.clipboard.writeText(window.location.href).then(function() {
-          alert('Link do biosite copiado para a área de transferência!');
+          alert('Link copiado para a área de transferência!');
         });
       }
     }
-
-    // Lightbox modal
-    function openModal(url) {
-      document.getElementById('modalImg').src = url;
-      document.getElementById('photoModal').classList.add('active');
-    }
-    function closeModal() {
-      document.getElementById('photoModal').classList.remove('active');
-    }
+    // Auto status calculate
+    (function checkStatus() {
+      var dot = document.querySelector('.status-dot.auto-calc');
+      var txt = document.getElementById('statusText');
+      if (!dot || !txt) return;
+      var now = new Date();
+      var mins = now.getHours() * 60 + now.getMinutes();
+      var openMins = 8 * 60;
+      var closeMins = 20 * 60;
+      if (mins >= openMins && mins <= closeMins) {
+        dot.classList.remove('closed');
+        txt.textContent = 'ABERTO AGORA';
+      } else {
+        dot.classList.add('closed');
+        txt.textContent = 'FECHADO NO MOMENTO';
+      }
+    })();
   </script>
 </body>
 </html>`;
 };
 
-export const exportProjectZip = async (project: ProjectData): Promise<void> => {
+export const exportProjectZip = async (project: ProjectData): Promise<Blob> => {
   const zip = new JSZip();
   const htmlContent = generateStandaloneHtml(project);
 
   zip.file('index.html', htmlContent);
+
   zip.file(
-    'README.md',
-    `# Biosite Oficial: ${project.identity.name}
-Gerado pela plataforma BIO FÁCIL.
+    'README.txt',
+    `=============================================================
+BIO FÁCIL — ARQUIVOS DO SEU BIOSITE OFICIAL
+=============================================================
 
-## Como Publicar Este Biosite Gratuitamente:
+Seu biosite está pronto para publicação!
 
-1. **Vercel**:
-   - Acesse vercel.com e faça login.
-   - Arraste esta pasta descompactada para a Vercel.
-   - Seu biosite estará online em menos de 30 segundos!
+INSTRUÇÕES DE PUBLICAÇÃO:
+1. Descompacte esta pasta.
+2. O arquivo principal é o "index.html".
+3. Você pode hospedá-lo gratuitamente em plataformas como:
+   - Vercel (vercel.com)
+   - Netlify (netlify.com)
+   - Cloudflare Pages (pages.cloudflare.com)
+   - GitHub Pages (pages.github.com)
+   - Hospedagem tradicional (cPanel, Apache, NGINX)
 
-2. **Netlify**:
-   - Acesse netlify.com
-   - Vá em "Deploy manually" e arraste a pasta com o arquivo index.html.
+Basta enviar o arquivo index.html. Ele contém todos os estilos, fontes,
+scripts e ícones necessários de forma 100% autônoma e independente.
 
-3. **Cloudflare Pages / GitHub Pages**:
-   - Faça upload do arquivo index.html no seu repositório ou projeto Pages.`
+Criado com BIO FÁCIL.
+=============================================================`
   );
 
+  const safeName = (project.nome || 'biosite').toLowerCase().replace(/[^a-z0-9]/g, '_');
   const blob = await zip.generateAsync({ type: 'blob' });
+
+  // Browser download trigger
   const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  const fileName = (project.identity.name || 'biofacil-projeto')
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, '-')
-    .replace(/-+/g, '-');
-  link.download = `${fileName}.zip`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${safeName}_biosite.zip`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
   URL.revokeObjectURL(url);
+
+  return blob;
 };
 
 export const downloadStandaloneHtml = (project: ProjectData): void => {
   const htmlContent = generateStandaloneHtml(project);
   const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+  const safeName = (project.nome || 'biosite').toLowerCase().replace(/[^a-z0-9]/g, '_');
   const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  const fileName = (project.identity.name || 'index')
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, '-')
-    .replace(/-+/g, '-');
-  link.download = `${fileName}.html`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${safeName}_index.html`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
   URL.revokeObjectURL(url);
 };

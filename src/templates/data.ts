@@ -1,4 +1,4 @@
-import { NichoInfo, NichoId, TemplateDefinition, ProjectData, TemplateLayout, GalleryStyle, FontCategory, SocialIconStyle } from '../types';
+import { NichoInfo, NichoId, TemplateDefinition, ProjectData, TemplateLayout, GalleryStyle, FontCategory, SocialIconStyle, ServiceLayoutStyle } from '../types';
 
 export const NICHOS_LIST: NichoInfo[] = [
   {
@@ -12,7 +12,7 @@ export const NICHOS_LIST: NichoInfo[] = [
     accentColor: '#D97706',
     secondaryColor: '#92400E',
     accentGlow: 'rgba(217, 119, 6, 0.4)',
-    badge: '10 MODELOS EXCLUSIVOS',
+    badge: 'COLEÇÃO EXCLUSIVA',
     tagline: 'A arte da barbearia elevada a uma experiência visual de cinema.',
     coverImage: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=1200&q=85',
     highlights: ['Lâmina e Navalha 3D', 'Agendamento Direto', 'Galeria de Cortes', 'Review Google Integrado']
@@ -28,10 +28,10 @@ export const NICHOS_LIST: NichoInfo[] = [
     accentColor: '#EC4899',
     secondaryColor: '#BE185D',
     accentGlow: 'rgba(236, 72, 153, 0.4)',
-    badge: '10 MODELOS EXCLUSIVOS',
+    badge: 'COLEÇÃO EXCLUSIVA',
     tagline: 'Elegância, brilho e valorização máxima do seu trabalho nas unhas.',
     coverImage: 'https://images.unsplash.com/photo-1632345031435-8727f6897d53?auto=format&fit=crop&w=1200&q=85',
-    highlights: ['Esmalte e Cristal 3D', 'Tabela de Procedimentos', 'Fotos em Alta Resolução', 'Status Aberto/Fechado']
+    highlights: ['Esmalte e Cristal 3D', 'Apresentação de Cuidados', 'Fotos em Alta Resolução', 'Status Aberto/Fechado']
   },
   {
     id: '03-salao',
@@ -44,10 +44,10 @@ export const NICHOS_LIST: NichoInfo[] = [
     accentColor: '#F59E0B',
     secondaryColor: '#B45309',
     accentGlow: 'rgba(245, 158, 11, 0.4)',
-    badge: '10 MODELOS EXCLUSIVOS',
+    badge: 'COLEÇÃO EXCLUSIVA',
     tagline: 'O requinte de um salão de alta costura na palma da mão da sua cliente.',
     coverImage: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=1200&q=85',
-    highlights: ['Tesoura Régia 3D', 'Cardápio de Mechas', 'Experiência Noiva', 'Avaliações Estreladas']
+    highlights: ['Tesoura Régia 3D', 'Especialidades & Mechas', 'Experiência Noiva', 'Avaliações Estreladas']
   },
   {
     id: '04-pizzaria',
@@ -60,264 +60,292 @@ export const NICHOS_LIST: NichoInfo[] = [
     accentColor: '#EF4444',
     secondaryColor: '#DC2626',
     accentGlow: 'rgba(239, 68, 68, 0.4)',
-    badge: '10 MODELOS EXCLUSIVOS',
-    tagline: 'Desperte o apetite imediato com imagens quentes e cardápio interativo.',
+    badge: 'COLEÇÃO EXCLUSIVA',
+    tagline: 'Desperte o apetite imediato com imagens quentes e pedidos diretos.',
     coverImage: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1200&q=85',
-    highlights: ['Fatia Forno a Lenha 3D', 'Cardápio com Preços', 'Pedido WhatsApp Direto', 'Horário de Fornada']
+    highlights: ['Fatia Forno a Lenha 3D', 'Especialidades Artesanais', 'Pedido WhatsApp Direto', 'Horário de Fornada']
   },
   {
     id: '05-boutique',
     number: '05',
     name: 'Boutique & Moda',
-    subtitle: 'Moda feminina, alfaiataria, streetwear e coleções exclusivas',
-    description: 'Preto de passarela, branco puro e reflexos de prata. Visual de lookbook de alta costura com visual clean e contemporâneo.',
-    iconName: 'shoppingbag',
-    vibe: 'Preto + Branco + Prata Editorial',
-    accentColor: '#A855F7',
-    secondaryColor: '#7E22CE',
-    accentGlow: 'rgba(168, 85, 247, 0.4)',
-    badge: '10 MODELOS EXCLUSIVOS',
-    tagline: 'Sua marca com a imponência visual das maiores grifes do mundo.',
+    subtitle: 'Roupas femininas, alfaiataria, acessórios e tendências',
+    description: 'Preto de passarela, branco puro e reflexos de prata. Vitrine de alta moda com foco em exclusividade e atendimento VIP.',
+    iconName: 'bag',
+    vibe: 'Preto de Passarela + Branco Puro + Prata',
+    accentColor: '#E2E8F0',
+    secondaryColor: '#94A3B8',
+    accentGlow: 'rgba(226, 232, 240, 0.4)',
+    badge: 'COLEÇÃO EXCLUSIVA',
+    tagline: 'A sofisticação da sua boutique em uma vitrine digital inesquecível.',
     coverImage: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=85',
-    highlights: ['Sacola de Luxo 3D', 'Vitrine de Looks', 'Links de Catálogo', 'Botão de Compra Rápida']
+    highlights: ['Sacola de Luxo 3D', 'Apresentação de Looks', 'Conexão Instagram & WhatsApp', 'Provador VIP']
   },
   {
     id: '06-corretor',
     number: '06',
-    name: 'Corretor de Imóveis',
-    subtitle: 'Imóveis de alto padrão, coberturas e lançamentos',
-    description: 'Azul safira profundo, ouro e detalhes de prata. Arquitetura moderna, solidez corporativa e agendamento de visitas VIP.',
+    name: 'Corretor & Imóveis',
+    subtitle: 'Casas de condomínio, apartamentos de luxo e investimentos',
+    description: 'Azul safira profundo, ouro escovado e mármore. Credibilidade inegável para corretores de alta renda e imobiliárias boutique.',
     iconName: 'building',
-    vibe: 'Azul Profundo + Dourado + Arquitetura',
+    vibe: 'Azul Safira + Ouro + Mármore Escuro',
     accentColor: '#3B82F6',
     secondaryColor: '#1D4ED8',
     accentGlow: 'rgba(59, 130, 246, 0.4)',
-    badge: '10 MODELOS EXCLUSIVOS',
-    tagline: 'A autoridade e a exclusividade que imóveis milionários exigem.',
+    badge: 'COLEÇÃO EXCLUSIVA',
+    tagline: 'Autoridade e credibilidade máxima para fechar negócios imobiliários.',
     coverImage: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=85',
-    highlights: ['Cobertura & Chave 3D', 'Galeria de Plantas e Fotos', 'Agendamento de Visita', 'Localização Privilegiada']
+    highlights: ['Mansão & Chave 3D', 'Especialidades do Corretor', 'CRECI & Confiança', 'Atendimento Direto']
   },
   {
     id: '07-personal',
     number: '07',
     name: 'Personal Trainer',
-    subtitle: 'Consultoria fitness, emagrecimento e alta performance',
-    description: 'Preto carvão, laranja neon e verde elétrico. Energia de campeonato, foco em resultados, planos de treino e evolução.',
+    subtitle: 'Musculação, emagrecimento, hipertrofia e consultoria online',
+    description: 'Preto carvão, laranja neon e verde elétrico. Alta performance, energia visual e autoridade técnica para treinadores.',
     iconName: 'dumbbell',
-    vibe: 'Preto + Laranja / Neon Esportivo',
-    accentColor: '#10B981',
-    secondaryColor: '#059669',
-    accentGlow: 'rgba(16, 185, 129, 0.4)',
-    badge: '10 MODELOS EXCLUSIVOS',
-    tagline: 'Transmita força, profissionalismo e conquiste novos alunos em minutos.',
+    vibe: 'Preto Carvão + Laranja Neon + Alta Energia',
+    accentColor: '#F97316',
+    secondaryColor: '#EA580C',
+    accentGlow: 'rgba(249, 115, 22, 0.4)',
+    badge: 'COLEÇÃO EXCLUSIVA',
+    tagline: 'Apresente seus métodos e transforme seguidores em alunos fiéis.',
     coverImage: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1200&q=85',
-    highlights: ['Halter Pro 3D', 'Planos de Treino', 'Antes & Depois', 'Inscrição WhatsApp']
+    highlights: ['Haltere Forjado 3D', 'Metodologias de Treino', 'Planos de Consultoria', 'Antes & Depois']
   },
   {
     id: '08-motorista',
     number: '08',
-    name: 'Motorista Particular & VIP',
-    subtitle: 'Transporte executivo, viagens, eventos e traslados',
-    description: 'Preto fosco, azul noturno e cromado reluzente. Segurança máxima, pontualidade, atendimento bilíngue e conforto executivo.',
+    name: 'Motorista Particular',
+    subtitle: 'Transporte executivo, viagens, aeroportos e eventos',
+    description: 'Preto fosco, azul noturno e cromado metálico. Segurança, pontualidade e discrição para motoristas de alto nível.',
     iconName: 'car',
-    vibe: 'Preto + Azul Metálico + Cromado Executivo',
-    accentColor: '#0EA5E9',
-    secondaryColor: '#0369A1',
-    accentGlow: 'rgba(14, 165, 233, 0.4)',
-    badge: '10 MODELOS EXCLUSIVOS',
-    tagline: 'A presença premium de um serviço de transporte de primeira classe.',
+    vibe: 'Preto Fosco + Azul Noturno + Cromado Metálico',
+    accentColor: '#60A5FA',
+    secondaryColor: '#2563EB',
+    accentGlow: 'rgba(96, 165, 250, 0.4)',
+    badge: 'COLEÇÃO EXCLUSIVA',
+    tagline: 'Transmita confiança imediata e garanta reservas diretas no seu WhatsApp.',
     coverImage: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1200&q=85',
-    highlights: ['Sedã Executivo 3D', 'Calculadora de Trajeto', 'Agendamento de Viagem', 'Frota Blindada e Conforto']
+    highlights: ['Sedan Executivo 3D', 'Rotas & Viagens', 'Chamar Imediato', 'Veículo Conforto']
   },
   {
     id: '09-mecanica',
     number: '09',
-    name: 'Mecânica & Centro Automotivo',
-    subtitle: 'Revisão automotiva, injeção, freios e estética veicular',
-    description: 'Grafite escovado, aço industrial e vermelho chama. Visual de oficina de ponta e equipe especializada em alta tecnologia veicular.',
+    name: 'Mecânica & Auto Center',
+    subtitle: 'Revisão automotiva, injeção, freios, suspensão e pneus',
+    description: 'Grafite escovado, aço industrial e laranja de segurança. Transparência técnica e solidez para oficinas modernas.',
     iconName: 'wrench',
-    vibe: 'Grafite + Aço + Laranja Industrial',
-    accentColor: '#F97316',
+    vibe: 'Grafite Escovado + Aço + Laranja Mecânico',
+    accentColor: '#FB923C',
     secondaryColor: '#C2410C',
-    accentGlow: 'rgba(249, 115, 22, 0.4)',
-    badge: '10 MODELOS EXCLUSIVOS',
-    tagline: 'Confiança mecânica traduzida em um design moderno e de alta precisão.',
-    coverImage: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&w=1200&q=85',
-    highlights: ['Engrenagem de Aço 3D', 'Checkup & Revisão', 'Orçamento Automático', 'Localização com Rota']
+    accentGlow: 'rgba(251, 146, 60, 0.4)',
+    badge: 'COLEÇÃO EXCLUSIVA',
+    tagline: 'Mostre a tecnologia e a seriedade da sua oficina com clareza total.',
+    coverImage: 'https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=1200&q=85',
+    highlights: ['Chave de Aço 3D', 'Diagnóstico Computadorizado', 'Localização Waze/Maps', 'Orçamento Rápido']
   },
   {
     id: '10-confeitaria',
     number: '10',
-    name: 'Confeitaria & Bolos Nobres',
-    subtitle: 'Bolos decorados, brigadeiros gourmet e doces finos',
-    description: 'Chocolate nobre, creme aveludado e tons de ouro e rosé. Luxo artesanal açucarado que transforma visitantes em encomendas.',
+    name: 'Confeitaria Artesanal',
+    subtitle: 'Bolos decorados, doces finos, tortas e sobremesas',
+    description: 'Chocolate belga, creme aveludado e toques de rosé gold. Doçura elegante com fotos de dar água na boca e pedidos rápidos.',
     iconName: 'cake',
-    vibe: 'Chocolate + Creme + Rosa / Dourado',
-    accentColor: '#F43F5E',
-    secondaryColor: '#BE123C',
-    accentGlow: 'rgba(244, 63, 94, 0.4)',
-    badge: '10 MODELOS EXCLUSIVOS',
-    tagline: 'A doçura artesanal com requinte de alta gastronomia e encomendas fáceis.',
+    vibe: 'Chocolate Belga + Creme + Rosé Gold Doce',
+    accentColor: '#F472B6',
+    secondaryColor: '#DB2777',
+    accentGlow: 'rgba(244, 114, 182, 0.4)',
+    badge: 'COLEÇÃO EXCLUSIVA',
+    tagline: 'Apresente suas criações mais irresistíveis e conquiste clientes à primeira vista.',
     coverImage: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=1200&q=85',
-    highlights: ['Bolo Régio 3D', 'Cardápio de Encomendas', 'Galeria de Doces', 'Depoimentos de Clientes']
+    highlights: ['Bolo Esculpido 3D', 'Galeria de Encomendas', 'Doces Finos', 'Review Google']
   }
 ];
 
-// As 10 Direções de Design Solicitadas (10 Experiências Únicas)
-export const MODEL_EXPERIENCES: Array<{
+export interface DesignStyleConfig {
   index: number;
-  key: string;
-  name: string;
   layout: TemplateLayout;
+  serviceLayout: ServiceLayoutStyle;
   galleryStyle: GalleryStyle;
   fontCategory: FontCategory;
   socialIconStyle: SocialIconStyle;
+  styleName: string;
+  tagline: string;
   description: string;
-}> = [
+}
+
+export const DESIGN_STYLES: DesignStyleConfig[] = [
   {
     index: 1,
-    key: '01',
-    name: 'Cinematic Luxury',
-    layout: 'cinematic-luxury',
-    galleryStyle: 'editorial',
-    fontCategory: 'ELEGANTE',
-    socialIconStyle: 'glow',
-    description: 'Hero cinematográfico com iluminação dramática, tipografia nobre e profundidade visual máxima.'
+    layout: 'cinematic',
+    serviceLayout: 'cards',
+    galleryStyle: 'masonry',
+    fontCategory: 'MODERNA',
+    socialIconStyle: 'glass',
+    styleName: 'Cinematic Hero',
+    tagline: 'Logo protagonista, fotografia com atmosfera de cinema e alta presença.',
+    description: 'Visual cinematográfico imersivo com logo central, contrastes nobres e seções reveladas com elegância.'
   },
   {
     index: 2,
-    key: '02',
-    name: 'Glass Premium',
-    layout: 'glass-premium',
-    galleryStyle: 'cards',
-    fontCategory: 'MODERNA',
-    socialIconStyle: 'glass',
-    description: 'Transparências refinadas, desfoque de fundo em camadas e contornos luminosos sutis.'
+    layout: 'editorial',
+    serviceLayout: 'minimal-list',
+    galleryStyle: 'editorial',
+    fontCategory: 'EDITORIAL',
+    socialIconStyle: 'minimal',
+    styleName: 'Editorial Magazine',
+    tagline: 'Estilo revista de alta costura com tipografia display e espaço visual.',
+    description: 'Diagramação assimétrica, títulos imponentes e linhas puras que valorizam a estética do profissional.'
   },
   {
     index: 3,
-    key: '03',
-    name: 'Editorial Magazine',
-    layout: 'editorial',
-    galleryStyle: 'masonry',
-    fontCategory: 'EDITORIAL',
-    socialIconStyle: 'minimal',
-    description: 'Estética de revista de alta costura com diagramação assimétrica e tipografia elegante.'
+    layout: 'glass',
+    serviceLayout: 'cards',
+    galleryStyle: 'cards',
+    fontCategory: 'MODERNA',
+    socialIconStyle: 'glass',
+    styleName: 'Glass Experience',
+    tagline: 'Camadas translúcidas com efeito vidro fosco, profundidade e glow suave.',
+    description: 'Glassmorphism de alto padrão com bordas brilhantes, badges flutuantes e sensação de leveza tecnológica.'
   },
   {
     index: 4,
-    key: '04',
-    name: '3D Glow Experience',
-    layout: '3d-glow',
-    galleryStyle: 'collage',
+    layout: 'immersive',
+    serviceLayout: 'photo-cards',
+    galleryStyle: 'full-width',
     fontCategory: 'BOLD',
-    socialIconStyle: '3d',
-    description: 'Elementos em alto relevo tridimensional com reflexos luminosos e badges flutuantes.'
+    socialIconStyle: 'original',
+    styleName: 'Immersive Photo',
+    tagline: 'Fotografia dominante em tela cheia com textos integrados à imagem.',
+    description: 'Para negócios onde a imagem é o maior vendedor. Imagens impactantes com sobreposições suaves e leitura limpa.'
   },
   {
     index: 5,
-    key: '05',
-    name: 'Minimal Luxury',
-    layout: 'minimal-luxury',
+    layout: 'minimal',
+    serviceLayout: 'minimal-list',
     galleryStyle: 'horizontal-scroll',
     fontCategory: 'MINIMAL',
     socialIconStyle: 'outline',
-    description: 'Espaço negativo sofisticado, contraste monocromático refinado e foco absoluto no produto.'
+    styleName: 'Minimal Luxury',
+    tagline: 'Silencioso, requintado e focado no essencial com espaço negativo nobre.',
+    description: 'Tipografia minimalista precisa, ausência de ruídos e valorização do bom gosto e sofisticação discreta.'
   },
   {
     index: 6,
-    key: '06',
-    name: 'Dark Experience',
-    layout: 'dark-experience',
-    galleryStyle: 'overlap',
+    layout: 'orbital',
+    serviceLayout: 'icons-grid',
+    galleryStyle: 'collage',
     fontCategory: 'BOLD',
-    socialIconStyle: 'glow',
-    description: 'Fundo preto absoluto com pontos de luz direcionados e cartões de forte presença visual.'
+    socialIconStyle: '3d',
+    styleName: 'Orbital Dynamic',
+    tagline: 'Logo central marcante com elementos de contato e atalhos em disposição radial.',
+    description: 'Composição dinâmica onde a marca fica no centro e as conexões orbitam de forma interativa e moderna.'
   },
   {
     index: 7,
-    key: '07',
-    name: 'Immersive Photo',
-    layout: 'immersive-photo',
-    galleryStyle: 'full-width',
+    layout: 'story',
+    serviceLayout: 'accordion',
+    galleryStyle: 'overlap',
     fontCategory: 'MODERNA',
     socialIconStyle: 'glass',
-    description: 'Fotografia protagonista de ponta a ponta com overlays graduais e atmosfera envolvente.'
+    styleName: 'Story Experience',
+    tagline: 'Uma jornada narrativa durante a rolagem: Marca → Essência → Provas → Contato.',
+    description: 'Estruturado como uma história sequencial que envolve o visitante e o conduz naturalmente até a decisão de contato.'
   },
   {
     index: 8,
-    key: '08',
-    name: 'Modern Cards',
-    layout: 'modern-cards',
+    layout: 'cards',
+    serviceLayout: 'cards',
     galleryStyle: 'cards',
     fontCategory: 'MODERNA',
     socialIconStyle: 'original',
-    description: 'Diagramação no estilo bento box contemporâneo com cartões modulares e microinterações.'
+    styleName: 'Premium Bento Cards',
+    tagline: 'Grid modular contemporâneo estilo Bento Box com ícones trabalhados.',
+    description: 'Cartões modulares de alto relevo que organizam especialidades, diferenciais e avaliações com extrema clareza.'
   },
   {
     index: 9,
-    key: '09',
-    name: 'Neon Motion',
-    layout: 'neon-motion',
+    layout: 'neon',
+    serviceLayout: 'tags',
     galleryStyle: 'carousel',
     fontCategory: 'ESPORTIVA',
     socialIconStyle: 'glow',
-    description: 'Cores vibrantes sobre fundo escuro com alta energia, movimento e dinamismo esportivo.'
+    styleName: 'Neon Energy',
+    tagline: 'Preto profundo com linhas luminosas, cores vivas e alta performance visual.',
+    description: 'Atmosfera noturna com traços de luz néon, estética futurista e chamadas de ação com máxima vibração.'
   },
   {
     index: 10,
-    key: '10',
-    name: 'Signature Exclusive',
     layout: 'signature',
+    serviceLayout: 'editorial',
     galleryStyle: 'editorial',
     fontCategory: 'ELEGANTE',
     socialIconStyle: '3d',
-    description: 'Visual exclusivo de assinatura com selo de garantia, elementos dourados e acabamento de alfaiataria.'
+    styleName: 'Signature Exclusive',
+    tagline: 'O modelo mais exclusivo e sofisticado, com selo de assinatura e acabamento VIP.',
+    description: 'Combinação refinada de fotografia autoral, selo de autenticidade, tipografia de luxo e contato direto personalizado.'
   }
 ];
 
-interface NichoTemplateBlueprint {
+// Niche Specific Realistic Content (WITHOUT forced prices, with tailored CTAs)
+interface NicheDomainConfig {
   names: string[];
   slogans: string[];
-  titles: string[];
-  sampleServices: Array<{ name: string; desc: string; price: string; icon: string }>;
-  samplePhotos: string[];
+  badges: string[];
+  abouts: string[];
+  primaryCtaLabel: string;
+  primaryCtaMessage: string;
+  serviceCtaLabel: string;
+  specialties: Array<{ name: string; description: string; iconName: string; imageUrl?: string }>;
+  differentials: Array<{ title: string; description: string; iconName: string }>;
+  photos: string[];
   hours: string;
   address: string;
 }
 
-const NICHO_BLUEPRINTS: Record<NichoId, NichoTemplateBlueprint> = {
+const NICHE_DOMAIN_DATA: Record<NichoId, NicheDomainConfig> = {
   '01-barbearia': {
     names: [
       'The Royal Razor Club',
-      'Black Vintage Barber',
-      'Iron & Comb Streetwear',
+      'Black Vintage Barbershop',
+      'Iron & Comb Studio',
       'Gentleman Society Lounge',
-      'Monarch Grooming Studio',
-      'Fade Master Pro Studio',
-      'Bourbon & Blade Barbershop',
-      'Urban Viking Shave Club',
-      'Executive Grooming Experience',
+      'Monarch Grooming',
+      'Fade Master Atelier',
+      'Bourbon & Blade',
+      'Urban Viking Shave',
+      'Executive Grooming Club',
       'The Heritage Cut & Shave'
     ],
     slogans: [
-      'Onde a tradição secular encontra a excelência contemporânea.',
-      'Cortes de alta precisão para homens que não negociam padrão.',
-      'Sua imagem é o seu cartão de visitas mais valioso.'
+      'Onde a tradição secular da navalha encontra o estilo contemporâneo.',
+      'Cortes de alta precisão e barboterapia para quem valoriza sua imagem.',
+      'Sua imagem é seu cartão de visitas mais valioso.'
     ],
-    titles: ['Barbearia Tradicional & Lounge', 'Mestres do Fade & Navalha', 'Clube de Cavalheiros'],
-    sampleServices: [
-      { name: 'Corte Degradê na Tesoura & Máquina', desc: 'Acabamento milimétrico, lavagem com shampoo mentolado e finalização com pomada matte.', price: 'R$ 75,00', icon: 'scissors' },
-      { name: 'Barboterapia com Toalha Quente', desc: 'Vapor de ozônio, hidratação com óleos nobres, massagem facial e navalha afiada.', price: 'R$ 60,00', icon: 'crown' },
-      { name: 'Experiência Completa (Cabelo + Barba + Bebida)', desc: 'Corte completo, barboterapia, alinhamento de sobrancelha e drink de cortesia.', price: 'R$ 125,00', icon: 'award' },
-      { name: 'Selagem Térmica & Pigmentação Barba', desc: 'Alinhamento dos fios rebeldes e definição nítida do contorno facial.', price: 'R$ 85,00', icon: 'sparkles' }
+    badges: ['BARBEARIA PREMIUM', 'MESTRES DA NAVALHA', 'TRADIÇÃO & ESTILO'],
+    abouts: [
+      'Criamos uma atmosfera única que une o conforto dos clubes clássicos de cavalheiros à técnica milimétrica dos cortes modernos. Aqui, cada atendimento é uma pausa relaxante com toalha quente, navalha e bebida selecionada.'
     ],
-    samplePhotos: [
+    primaryCtaLabel: 'Chamar no WhatsApp',
+    primaryCtaMessage: 'Olá! Gostaria de saber mais sobre os horários e atendimentos da barbearia.',
+    serviceCtaLabel: 'Quero Saber Mais',
+    specialties: [
+      { name: 'Corte Degradê & Fade de Precisão', description: 'Acabamento milimétrico com tesoura e máquina, lavagem refrescante e finalização impecável.', iconName: 'scissors' },
+      { name: 'Barboterapia com Toalha Quente', description: 'Vapor de ozônio, óleos nobres para hidratação e escanhoação clássica com navalha afiada.', iconName: 'award' },
+      { name: 'Alinhamento & Pigmentação', description: 'Definição nítida dos contornos da barba e cabelo para um visual alinhado por dias.', iconName: 'sparkles' },
+      { name: 'Experiência Completa do Cavalheiro', description: 'Cabelo, barba completa, alinhamento de sobrancelhas e momento de descontração.', iconName: 'crown' }
+    ],
+    differentials: [
+      { title: 'Toalha Quente & Ozônio', description: 'Relaxamento profundo em todas as barboterapias.', iconName: 'sparkles' },
+      { title: 'Pontualidade Britânica', description: 'Seu horário é sagrado e respeitado.', iconName: 'clock' },
+      { title: 'Ambiente Clássico', description: 'Bebidas selecionadas e clima reservado.', iconName: 'crown' }
+    ],
+    photos: [
       'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=1000&q=80',
       'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?auto=format&fit=crop&w=1000&q=80',
       'https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&w=1000&q=80',
-      'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?auto=format&fit=crop&w=1000&q=80',
-      'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?auto=format&fit=crop&w=1000&q=80'
+      'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?auto=format&fit=crop&w=1000&q=80'
     ],
     hours: 'Segunda a Sábado: 09:00 às 20:00 • Domingo: Fechado',
     address: 'Av. Paulista, 1500 — Jardins, São Paulo - SP'
@@ -328,466 +356,563 @@ const NICHO_BLUEPRINTS: Record<NichoId, NichoTemplateBlueprint> = {
       'Lumière Nail Studio',
       'Velvet Pink Gel Bar',
       'Nude Elegance Designer',
-      'Diamond Gloss Nail Art',
-      'Chic & Shine Atelier',
+      'Diamond Gloss Atelier',
+      'Chic & Shine Nail Bar',
       'Rose Gold Nail Lounge',
       'Modern Frenchie Studio',
-      'Opulence Nail Designer',
+      'Opulence Nail Design',
       'Glow & Glam Nail Boutique',
-      'Haute Manicure Haute Couture'
+      'Haute Manicure Atelier'
     ],
     slogans: [
       'Unhas perfeitas com técnica impecável e durabilidade prolongada.',
       'O luxo e o cuidado que as suas mãos merecem todos os dias.',
       'Sua auto-estima elevada através de detalhes encantadores.'
     ],
-    titles: ['Atelier de Nail Design', 'Alongamento em Gel & Esmaltação', 'Unhas de Alto Padrão'],
-    sampleServices: [
-      { name: 'Alongamento em Fibra de Vidro Slim', desc: 'Curvatura natural e estrutura ultrafina com acabamento imperceptível.', price: 'R$ 180,00', icon: 'sparkles' },
-      { name: 'Blindagem Diamante com Esmaltação em Gel', desc: 'Brilho espelhado que não descasca e dura mais de 20 dias.', price: 'R$ 95,00', icon: 'award' },
-      { name: 'Nail Art Minimalista / Francesa Reversa', desc: 'Arte exclusiva desenhada à mão por profissionais renomadas.', price: 'R$ 60,00', icon: 'heart' },
-      { name: 'Manicure & Pedicure Spa dos Pés', desc: 'Esfoliação revigorante, hidratação profunda e cutilagem russa.', price: 'R$ 110,00', icon: 'star' }
+    badges: ['NAIL DESIGNER VIP', 'ALONGAMENTOS DE LUXO', 'ESPECIALISTA EM GEL'],
+    abouts: [
+      'Dedicada à saúde e estética das unhas naturais e alongamentos. Trabalhamos exclusivamente com produtos hipoalergênicos e técnicas internacionais que preservam a integridade e garantem acabamento ultrafino.'
     ],
-    samplePhotos: [
+    primaryCtaLabel: 'Falar com a Especialista',
+    primaryCtaMessage: 'Olá! Gostaria de consultar disponibilidades e tirar dúvidas sobre as unhas.',
+    serviceCtaLabel: 'Consultar Detalhes',
+    specialties: [
+      { name: 'Alongamento em Fibra de Vidro Slim', description: 'Curvatura natural e estrutura ultrafina com acabamento resistente e imperceptível.', iconName: 'sparkles' },
+      { name: 'Blindagem Diamante com Gel', description: 'Proteção para unhas naturais com brilho espelhado que não descasca por semanas.', iconName: 'award' },
+      { name: 'Nail Art Autoral & Francesa Reversa', description: 'Designs exclusivos, encapsuladas e traços delicados desenhados à mão.', iconName: 'heart' },
+      { name: 'Spa das Mãos & Pés com Cutilagem Russa', description: 'Esfoliação profunda, hidratação nutritiva e corte contínuo sem ferir as cutículas.', iconName: 'star' }
+    ],
+    differentials: [
+      { title: 'Biossegurança Total', description: 'Materiais 100% esterilizados em autoclave hospitalar.', iconName: 'shield' },
+      { title: 'Durabilidade Superior', description: 'Produtos importados de alta aderência.', iconName: 'sparkles' },
+      { title: 'Ambiente Acolhedor', description: 'Espaço pensado para seu relaxamento e conforto.', iconName: 'heart' }
+    ],
+    photos: [
       'https://images.unsplash.com/photo-1632345031435-8727f6897d53?auto=format&fit=crop&w=1000&q=80',
       'https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=1000&q=80',
       'https://images.unsplash.com/photo-1519014816548-bf5fe059798b?auto=format&fit=crop&w=1000&q=80',
       'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=1000&q=80'
     ],
-    hours: 'Terça a Sábado: 09:00 às 19:00 • Domingo e Segunda: Fechado',
-    address: 'Rua Oscar Freire, 820 — Cerqueira César, São Paulo - SP'
+    hours: 'Terça a Sábado: 09:00 às 19:00 • Segunda e Domingo: Fechado',
+    address: 'Rua Oscar Freire, 920 — Cerqueira César, São Paulo - SP'
   },
 
   '03-salao': {
     names: [
-      'Maison de Beauté',
-      'Aura Golden Hair Studio',
-      'L’Éclat Salão & Spa',
-      'Blonde & Brunette Concept',
-      'Royal Velvet Beauty',
-      'Couture Hair & Makeup',
-      'Lumiar Salão Internacional',
-      'Studio Diamond Coiffure',
-      'Splendore Noivas & Cabelos',
-      'Essência Pura Hair Lounge'
+      'Maison de Beauté Royale',
+      'Aura & Blonde Concept',
+      'L’Éclat Hair & Spa',
+      'St. Germain Visagismo',
+      'Illumina Beauty Lounge',
+      'Vogue Hair Experience',
+      'Bella Donna Hair Atelier',
+      'Sovereign Salon & Spa',
+      'Prism Color & Cut',
+      'Atelier Haute Coiffure'
     ],
     slogans: [
-      'Transformações que revelam a sua beleza mais autêntica e radiante.',
-      'Especialistas em mechas iluminadas, saúde capilar e dia da noiva.',
-      'Mais que um salão: um refúgio de sofisticação e bem-estar.'
+      'Transformações que realçam sua identidade e celebram sua beleza única.',
+      'Colorações refinadas, loiros saudáveis e visagismo de alto nível.',
+      'O luxo de cuidar de si em um ambiente exclusivo.'
     ],
-    titles: ['Salão Conceito & Spa', 'Hair Stylist & Colorimetria', 'Beleza de Alto Padrão'],
-    sampleServices: [
-      { name: 'Morena Iluminada / Mechas Sombré', desc: 'Tons quentes de avelã e caramelo com transição suave e brilho espelhado.', price: 'R$ 380,00', icon: 'crown' },
-      { name: 'Loiro Champagne com Tratamento Kérastase', desc: 'Descoloração segura com proteção capilar e matização personalizada.', price: 'R$ 520,00', icon: 'sparkles' },
-      { name: 'Corte Visagista & Escova Modelada', desc: 'Design de corte que valoriza os traços do seu rosto com movimento natural.', price: 'R$ 160,00', icon: 'scissors' },
-      { name: 'Pacote Dia da Noiva Real', desc: 'Produção completa de maquiagem, penteado, massagem relaxante e champanhe.', price: 'R$ 1.450,00', icon: 'award' }
+    badges: ['SALÃO CONCEITO', 'VISAGISMO & LOIROS', 'HAIR & SPA EXCLUSIVO'],
+    abouts: [
+      'Combinamos análise visagista, ciência capilar e as melhores marcas do mundo (Kérastase, Wella, L’Oréal) para criar cortes, mechas e tratamentos que valorizam a harmonia do seu rosto e preservam a saúde do cabelo.'
     ],
-    samplePhotos: [
+    primaryCtaLabel: 'Consultar Disponibilidade',
+    primaryCtaMessage: 'Olá! Gostaria de falar sobre transformação capilar e horários disponíveis.',
+    serviceCtaLabel: 'Conhecer Mais',
+    specialties: [
+      { name: 'Mechas Personalizadas & Iluminação', description: 'Morena iluminada, blonde contour e técnicas exclusivas de transição suave.', iconName: 'sparkles' },
+      { name: 'Corte Visagista & Alinhamento', description: 'Estudo do formato facial para valorizar ângulos e trazer leveza ao comprimento.', iconName: 'scissors' },
+      { name: 'Cronograma Capilar & Reconstrução', description: 'Tratamentos intensivos para reposição de lipídios, queratina e brilho espelhado.', iconName: 'crown' },
+      { name: 'Produção Completa & Dia da Noiva', description: 'Penteados contemporâneos, maquiagem de alta fixação e suíte privativa.', iconName: 'heart' }
+    ],
+    differentials: [
+      { title: 'Diagnóstico Capilar Prévio', description: 'Teste de mecha e análise de integridade em todos os procedimentos.', iconName: 'award' },
+      { title: 'Produtos Globais de Luxo', description: 'Somente linhas profissionais de primeira linha mundial.', iconName: 'crown' },
+      { title: 'Atendimento Individualizado', description: 'Atenção total do especialista durante seu processo.', iconName: 'star' }
+    ],
+    photos: [
       'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=1000&q=80',
+      'https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?auto=format&fit=crop&w=1000&q=80',
       'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=1000&q=80',
-      'https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=1000&q=80',
-      'https://images.unsplash.com/photo-1580618672591-eb180b1a973f?auto=format&fit=crop&w=1000&q=80'
+      'https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=1000&q=80'
     ],
-    hours: 'Terça a Sábado: 09:00 às 20:00 • Domingo: Fechado',
-    address: 'Av. Brigadeiro Faria Lima, 2232 — Itaim Bibi, São Paulo - SP'
+    hours: 'Terça a Sábado: 09:00 às 20:00 • Domingo e Segunda: Fechado',
+    address: 'Av. Brigadeiro Faria Lima, 2200 — Itaim Bibi, São Paulo - SP'
   },
 
   '04-pizzaria': {
     names: [
-      'Don Corleone Forno a Lenha',
-      'Bella Napoli Pizza Napolitana',
-      'Fire & Crust Artisan Pizzas',
-      'Il Padrino Forneria Rústica',
-      'La Famiglia Trattoria & Pizza',
-      'Veneza Forneria Gourmet',
-      'San Gennaro Pizza Bar',
-      'Osteria del Forno 1889',
-      'Bravíssimo Pizzaria Express',
-      'Rosso Pomodoro Trattoria'
+      'Don Forno Napolitano',
+      'Bella Fornalha Artesanal',
+      'Vesúvio Pizza Bar',
+      'La Famiglia Trattoria',
+      'Farina & Fuoco Pizzaria',
+      'Spacca Napoli Crust',
+      'Mamma Mia Forneria',
+      'Rustica Wood Fired Pizza',
+      'Piazza d’Oro Gastronomia',
+      'San Pietro Forno a Lenha'
     ],
     slogans: [
-      'Fermentação natural de 48 horas, farinha italiana e o calor da lenha.',
-      'A verdadeira pizza napolitana no coração da sua noite.',
-      'Sabor que une tradição, crocância e ingredientes selecionados.'
+      'Fermentação natural de 48 horas, forno a lenha e molho de tomates italianos.',
+      'A verdadeira tradição italiana em cada fatia estaladiça e suculenta.',
+      'Sabor que reúne pessoas e celebra os melhores momentos.'
     ],
-    titles: ['Pizzaria & Forneria Artesanal', 'Pizza Napolitana ao Forno a Lenha', 'Gastronomia Italiana'],
-    sampleServices: [
-      { name: 'Pizza Margherita DOC Napolitana', desc: 'Molho pomodoro San Marzano, mozzarella de búfala, manjericão fresco e azeite extravirgem.', price: 'R$ 68,00', icon: 'pizza' },
-      { name: 'Pizza Parma Real com Rúcula & Burrata', desc: 'Presunto de Parma maturado 24 meses, burrata cremosa e redução de balsâmico.', price: 'R$ 88,00', icon: 'award' },
-      { name: 'Pizza Diavola Especial (Calabresa Picante)', desc: 'Salame picante artesanal, queijo fior di latte e toque de mel silvestre picante.', price: 'R$ 74,00', icon: 'flame' },
-      { name: 'Pizza Doce Nutella com Morangos Frescos', desc: 'Massa crocante assada ao forno com Nutella pura, lâminas de morango e castanhas.', price: 'R$ 56,00', icon: 'heart' }
+    badges: ['FORNO A LENHA ARTESANAL', 'FERMENTAÇÃO 48H', 'MASSAS ESPECIAIS'],
+    abouts: [
+      'Respeitamos a cartilha clássica da pizza napolitana: farinha 00 importada, fermentação lenta e queijos selecionados. O resultado é uma borda aerada, leve e extremamente fácil de digerir.'
     ],
-    samplePhotos: [
+    primaryCtaLabel: 'Pedir pelo WhatsApp',
+    primaryCtaMessage: 'Olá! Gostaria de ver o cardápio de hoje e fazer meu pedido!',
+    serviceCtaLabel: 'Ver Detalhes do Sabor',
+    specialties: [
+      { name: 'Pizzas Clássicas & Especiais da Casa', description: 'Burrata trufada, Margherita D.O.P., Parma com rúcula fresca e combinações autorais.', iconName: 'pizza' },
+      { name: 'Massas Frescas & Focaccias', description: 'Focaccia ao alecrim e azeite extravirgem, lasanhas gratinadas no forno de pedra.', iconName: 'award' },
+      { name: 'Sobremesas Italianas Tradicionais', description: 'Calzone de Nutella com morangos frescos e Tiramisù com mascarpone autêntico.', iconName: 'heart' },
+      { name: 'Carta de Vinhos & Cervejas Artesanais', description: 'Rótulos cuidadosamente selecionados para harmonizar perfeitamente com cada fornada.', iconName: 'star' }
+    ],
+    differentials: [
+      { title: 'Forno a Lenha a 450°C', description: 'Cozimento rápido que preserva a suculência e o aroma defumado.', iconName: 'flame' },
+      { title: 'Ingredientes D.O.P.', description: 'Tomates San Marzano e azeite extravirgem italiano.', iconName: 'award' },
+      { title: 'Entrega Rápida e Quente', description: 'Embalagens térmicas projetadas para manter o crocante.', iconName: 'clock' }
+    ],
+    photos: [
       'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1000&q=80',
-      'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=1000&q=80',
       'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=1000&q=80',
+      'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=1000&q=80',
       'https://images.unsplash.com/photo-1590947132387-155cc02f3212?auto=format&fit=crop&w=1000&q=80'
     ],
-    hours: 'Todos os dias: 18:00 às 23:30 • Sexta e Sábado até 00:30',
-    address: 'Rua Treze de Maio, 940 — Bela Vista, São Paulo - SP'
+    hours: 'Terça a Domingo: 18:30 às 23:30 • Segunda: Fechado',
+    address: 'Rua Bela Cintra, 1100 — Consolação, São Paulo - SP'
   },
 
   '05-boutique': {
     names: [
-      'Atelier Privé Boutique',
-      'Maison Blanche Fashion',
-      'Velvet Noir Concept Store',
-      'Aura Chic Moda & Acessórios',
-      'The Urban Lookbook',
-      'Silk & Cotton Moda Feminina',
-      'Haute Streetwear Studio',
+      'Maison Chérie Boutique',
+      'Noir & Blanc Concept',
+      'Aura Fashion House',
+      'Velluto Moda Feminina',
       'L’Élégance Closet',
-      'Monochrome Fashion Studio',
-      'Signature Glamour Boutique'
+      'Sartorial Chic Boutique',
+      'Palais Moda & Estilo',
+      'Urban Glamour Concept',
+      'Monochrome Atelier',
+      'Sovereign Closet Deluxe'
     ],
     slogans: [
-      'Peças exclusivas de alta alfaiataria e moda contemporânea.',
-      'Vista a sua melhor versão com elegância atemporal.',
-      'Curadoria refinada de tecidos nobres e caimento impecável.'
+      'Curadoria de alta moda, peças atemporais e alfaiataria impecável.',
+      'Vista a sua melhor versão com peças selecionadas para mulheres autênticas.',
+      'Estilo, elegância e exclusividade em cada costura.'
     ],
-    titles: ['Boutique de Moda & Estilo', 'Alta Costura & Alfaiataria', 'Concept Store Feminina'],
-    sampleServices: [
-      { name: 'Conjunto Alfaiataria Linho Nobre', desc: 'Blazer estruturado com calça reta de corte impecável em linho 100% puro.', price: 'R$ 490,00', icon: 'shoppingbag' },
-      { name: 'Vestido Midi Seda com Decote Degagê', desc: 'Fluidez elegante com acabamento invisível para festas e jantares sofisticados.', price: 'R$ 380,00', icon: 'sparkles' },
-      { name: 'Consultoria de Estilo & Colorimetria', desc: 'Sessão individual com stylist para montagem de looks inteligentes.', price: 'R$ 250,00', icon: 'award' },
-      { name: 'Bolsa Estruturada em Couro Bovino', desc: 'Design geométrico com fecho banhado a ouro e forro aveludado.', price: 'R$ 320,00', icon: 'heart' }
+    badges: ['NOVA COLEÇÃO', 'CURADORIA DE LUXO', 'ATENDIMENTO PERSONALIZADO'],
+    abouts: [
+      'Somos uma boutique com olhar refinado sobre a moda contemporânea. Cada peça de nossa coleção é selecionada para mulheres que buscam tecidos nobres, caimento sob medida e peças versáteis para transitar do trabalho aos eventos mais exclusivos.'
     ],
-    samplePhotos: [
+    primaryCtaLabel: 'Falar com a Loja',
+    primaryCtaMessage: 'Olá! Gostaria de consultar peças da nova coleção e atendimento no WhatsApp!',
+    serviceCtaLabel: 'Consultar Look',
+    specialties: [
+      { name: 'Alfaiataria Feminina & Linho Puro', description: 'Blazers estruturados, calças pantalona e coletes com acabamento de alta costura.', iconName: 'bag' },
+      { name: 'Vestidos de Festa & Cocktail', description: 'Tecidos fluidos, sedas acetinadas e modelagens pensadas para ocasiões inesquecíveis.', iconName: 'sparkles' },
+      { name: 'Acessórios & Bolsas em Couro Legítimo', description: 'Cintos de acabamento nobre, bolsas estruturadas e joias contemporâneas.', iconName: 'crown' },
+      { name: 'Consultoria de Estilo & Provador VIP', description: 'Atendimento com horário reservado e assessoria para montagem de malas e cápsulas.', iconName: 'heart' }
+    ],
+    differentials: [
+      { title: 'Peças Exclusivas e Limitadas', description: 'Poucas unidades por modelo para garantir que seu look seja único.', iconName: 'award' },
+      { title: 'Envio Expresso para Todo o Brasil', description: 'Embalagem perfumada e entrega com seguro até a sua porta.', iconName: 'bag' },
+      { title: 'Atendimento VIP por Vídeo ou Presencial', description: 'Veja caimento e detalhes ao vivo antes de escolher.', iconName: 'star' }
+    ],
+    photos: [
       'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1000&q=80',
       'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1000&q=80',
       'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1000&q=80',
-      'https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1000&q=80'
+      'https://images.unsplash.com/photo-1469334031218-e382a71b716b?auto=format&fit=crop&w=1000&q=80'
     ],
-    hours: 'Segunda a Sábado: 10:00 às 20:00 • Domingo: 14:00 às 19:00',
-    address: 'Shopping Cidade Jardim, Piso 2 — Morumbi, São Paulo - SP'
+    hours: 'Segunda a Sábado: 10:00 às 20:00 • Domingo: Fechado',
+    address: 'Alameda Lorena, 1450 — Jardins, São Paulo - SP'
   },
 
   '06-corretor': {
     names: [
-      'Prime Skyline Imóveis de Luxo',
-      'Horizonte Real Estate VIP',
-      'Apex Mansões & Coberturas',
-      'Golden Key Consultoria Imobiliária',
-      'Metropolitan Investimentos Imobiliários',
-      'The Penthouse Collection',
-      'Magnata Imóveis Alto Padrão',
-      'Veritas Imobiliária & Incorporações',
-      'Prestige Private Broker',
-      'Terra Magna Fazendas & Mansões'
+      'Prime Real Estate Advisor',
+      'Golden Key Imóveis de Alto Padrão',
+      'Apex Investimentos Imobiliários',
+      'Soberano Casas & Condomínios',
+      'Vanguard Real Estate Group',
+      'Mansões & Coberturas Exclusivas',
+      'Horizonte Imóveis Urbanos & Rurais',
+      'Alliance Consultoria Imobiliária',
+      'Prestige Private Properties',
+      'Patrimônio & Futuro Imóveis'
     ],
     slogans: [
-      'Conectamos investidores aos imóveis mais extraordinários do país.',
-      'Segurança jurídica, discrição e acesso aos lançamentos mais cobiçados.',
-      'O endereço dos seus sonhos com consultoria patrimonial completa.'
+      'Assessoria imobiliária de alto padrão para quem busca patrimônio seguro.',
+      'Mansões em condomínios fechados, coberturas e oportunidades de investimento.',
+      'Confidencialidade, agilidade e excelência na realização do seu melhor negócio.'
     ],
-    titles: ['Consultor de Imóveis de Luxo', 'Mansões, Coberturas & Lançamentos', 'Real Estate VIP Broker'],
-    sampleServices: [
-      { name: 'Cobertura Duplex com Piscina Aquecida', desc: '4 suítes, 600m² privativos, vista panorâmica 360° para o parque.', price: 'R$ 8.900.000', icon: 'building' },
-      { name: 'Mansão em Condomínio Fechado Alpha', desc: 'Arquitetura biofílica contemporânea com energia solar e automação completa.', price: 'R$ 5.400.000', icon: 'home' },
-      { name: 'Studio Premium para Renda de Locação', desc: 'Pronto para morar com alta taxa de rentabilidade na Faria Lima.', price: 'R$ 890.000', icon: 'award' },
-      { name: 'Consultoria de Avaliação e Perícia', desc: 'Laudo técnico oficial de mercado para compra, venda ou inventário.', price: 'Sob Consulta', icon: 'shield' }
+    badges: ['CRECI 184.920-F', 'IMÓVEIS DE ALTO PADRÃO', 'ASSESSORIA PRIVADA'],
+    abouts: [
+      'Atuação especializada no mercado imobiliário premium. Ofereço acompanhamento jurídico integral, avaliação de mercado precisa e acesso antecipado aos lançamentos e residências mais cobiçadas da região.'
     ],
-    samplePhotos: [
+    primaryCtaLabel: 'Falar com o Corretor',
+    primaryCtaMessage: 'Olá! Gostaria de agendar uma conversa sobre imóveis de alto padrão.',
+    serviceCtaLabel: 'Solicitar Apresentação',
+    specialties: [
+      { name: 'Compra e Venda de Mansões & Coberturas', description: 'Seleção restrita de residências de alto luxo em condomínios fechados e bairros nobres.', iconName: 'building' },
+      { name: 'Consultoria de Investimentos Imobiliários', description: 'Análise de rentabilidade, valorização futura e fundos para preservação de capital.', iconName: 'award' },
+      { name: 'Imóveis Rurais & Haras Selecionados', description: 'Fazendas produtivas, chácaras de lazer e propriedades rurais com documentação 100%.', iconName: 'star' },
+      { name: 'Avaliação Mercadológica & Jurídica', description: 'Laudo técnico de valor e checagem de certidões para negociações 100% seguras.', iconName: 'shield' }
+    ],
+    differentials: [
+      { title: 'Sigilo e Confidencialidade', description: 'Transações discretas para clientes que exigem privacidade.', iconName: 'shield' },
+      { title: 'Visitas VIP Agendadas', description: 'Atendimento exclusivo nos horários mais convenientes para você.', iconName: 'clock' },
+      { title: 'Segurança Jurídica Completa', description: 'Equipe jurídica especializada cuidando de cada contrato.', iconName: 'award' }
+    ],
+    photos: [
       'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1000&q=80',
       'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1000&q=80',
-      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1000&q=80',
-      'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1000&q=80'
+      'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1000&q=80',
+      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1000&q=80'
     ],
-    hours: 'Atendimento sob agendamento prévio • 08:00 às 21:00',
-    address: 'Av. Pres. Juscelino Kubitschek, 1909 — Vila Nova Conceição, SP'
+    hours: 'Segunda a Sábado: 08:00 às 20:00 • Domingo com agendamento',
+    address: 'Av. das Nações Unidas, 14401 — Vila Gertrudes, São Paulo - SP'
   },
 
   '07-personal': {
     names: [
       'Titan Performance Coach',
-      'Iron Will Consultoria Fitness',
-      'Apex Bodybuilding & Health',
-      'Vortex Treinamento Funcional',
-      'Velocity High Performance',
-      'Alpha Shape Consultoria Online',
-      'Elite Fitness & Emagrecimento',
-      'Spartan Strength Lab',
-      'BioForce Personal Trainer',
-      'Black Diamond Coach'
+      'Iron Will Personal Trainer',
+      'Apex Human Performance',
+      'Vigor & Forma Consultoria',
+      'Kratos Elite Training',
+      'Focus & Strength Studio',
+      'Prime Body Coaching',
+      'Velocity Fitness Lab',
+      'Metabolic Elite Trainer',
+      'Master Personal Training'
     ],
     slogans: [
-      'Resultados sólidos através de ciência do exercício e disciplina diária.',
-      'Treinos personalizados para emagrecimento, hipertrofia e longevidade.',
-      'Sua melhor versão física e mental começa no próximo treino.'
+      'Metodologia científica para emagrecimento, hipertrofia e performance duradoura.',
+      'Treinos personalizados para quem tem pouco tempo e busca resultados reais.',
+      'A disciplina de hoje constrói a sua melhor versão amanhã.'
     ],
-    titles: ['Personal Trainer & Preparador Físico', 'Consultoria Fitness Online & Presencial', 'Alta Performance & Saúde'],
-    sampleServices: [
-      { name: 'Consultoria Online Completa (Treino + Dieta)', desc: 'Planilha personalizada no app, vídeos explicativos e suporte 24h via WhatsApp.', price: 'R$ 290,00/mês', icon: 'dumbbell' },
-      { name: 'Acompanhamento Presencial VIP (3x por semana)', desc: 'Correção biomecânica em tempo real, periodização e motivação contínua.', price: 'R$ 950,00/mês', icon: 'award' },
-      { name: 'Protocolo de Emagrecimento Rápido 60 Dias', desc: 'Metodologia exclusiva de queima calórica com preservação de massa magra.', price: 'R$ 480,00', icon: 'flame' },
-      { name: 'Avaliação Física por Bioimpedância', desc: 'Análise detalhada de composição corporal, gordura visceral e metabolismo basal.', price: 'R$ 150,00', icon: 'sparkles' }
+    badges: ['CREF 094821-G/SP', 'ALTA PERFORMANCE', 'CONSULTORIA ONLINE & PRESENCIAL'],
+    abouts: [
+      'Com mais de 10 anos de experiência e centenas de transformações corporais consolidadas, combino biomecânica aplicada, periodização inteligente e suporte nutricional para que você atinja seus objetivos sem lesões e com consistência.'
     ],
-    samplePhotos: [
+    primaryCtaLabel: 'Iniciar Minha Consultoria',
+    primaryCtaMessage: 'Olá! Quero saber como funciona a sua consultoria de treinos e acompanhamento!',
+    serviceCtaLabel: 'Conhecer o Método',
+    specialties: [
+      { name: 'Personal Trainer Presencial Exclusivo', description: 'Supervisão direta em academia de alto padrão, estúdio privativo ou condomínio.', iconName: 'dumbbell' },
+      { name: 'Consultoria Online com App Próprio', description: 'Periodização mensal, vídeos explicativos de execução e correção diária de postura.', iconName: 'sparkles' },
+      { name: 'Protocolo de Emagrecimento Rápido & Seguro', description: 'Estratégias de treino metabólico com foco em perda de gordura preservando massa magra.', iconName: 'flame' },
+      { name: 'Hipertrofia & Força com Periodização', description: 'Progressão de carga calculada e ajustes constantes para quebrar platôs de evolução.', iconName: 'award' }
+    ],
+    differentials: [
+      { title: 'Treinos Baseados em Ciência', description: 'Sem modismos: técnicas validadas pela fisiologia do exercício.', iconName: 'award' },
+      { title: 'Suporte Direto no WhatsApp', description: 'Tire dúvidas sobre execução e rotina sempre que precisar.', iconName: 'message' },
+      { title: 'Avaliação Física Regular', description: 'Medições e fotos comparativas para acompanhar a evolução real.', iconName: 'star' }
+    ],
+    photos: [
       'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1000&q=80',
       'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=1000&q=80',
-      'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=1000&q=80',
-      'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=1000&q=80'
+      'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=1000&q=80',
+      'https://images.unsplash.com/photo-1574680096145-d05b474e2155?auto=format&fit=crop&w=1000&q=80'
     ],
-    hours: 'Segunda a Sexta: 06:00 às 21:00 • Sábado: 08:00 às 13:00',
-    address: 'Atendimento nas principais academias de SP ou Studio Privado'
+    hours: 'Segunda a Sexta: 06:00 às 22:00 • Sábado: 07:00 às 13:00',
+    address: 'Atendimento nos Melhores Bairros & Online em Todo o País'
   },
 
   '08-motorista': {
     names: [
-      'Black Chauffeur Transporte Executivo',
-      'Royal Ride Traslados VIP',
-      'Apex Private Driver',
-      'Diplomat Executive Mobility',
-      'Prime Car Viagens & Eventos',
-      'Monarch Driver Corporativo',
-      'Vip Shuttle Transfer Aeroporto',
-      'Signature Limousine Experience',
-      'Safe Way Motorista Particular',
-      'Elite Executive Mobility'
+      'Black Chauffeur Brasil',
+      'Executive Driver VIP',
+      'Prestige Transporte Privado',
+      'Prime Route Motorista Particular',
+      'Elite Concierge & Viagens',
+      'Sovereign Black Car',
+      'Apex Viagens & Traslados',
+      'Vanguard Executivo 24h',
+      'Royal Comfort Transfer',
+      'Signature Black Mobility'
     ],
     slogans: [
-      'Pontualidade britânica, discrição absoluta e veículos blindados de luxo.',
-      'Viagens corporativas e traslados para quem valoriza seu tempo e segurança.',
-      'A mais alta classe em transporte privativo com motorista bilíngue.'
+      'Transporte executivo com pontualidade britânica, discrição e segurança absoluta.',
+      'Viagens para cidades vizinhas, traslados de aeroporto e diárias corporativas.',
+      'Seu tempo e conforto tratados com a seriedade que você merece.'
     ],
-    titles: ['Motorista Particular & Traslado VIP', 'Transporte Executivo de Luxo', 'Mobilidade Corporativa Privativa'],
-    sampleServices: [
-      { name: 'Traslado Executivo Aeroporto (Guarulhos / Congonhas)', desc: 'Recepção com placa nominal no desembarque, água e Wi-Fi a bordo.', price: 'R$ 250,00', icon: 'car' },
-      { name: 'Diária Corporativa Completa (Até 10 Horas)', desc: 'Sedã de luxo blindado à disposição com motorista executivo trajado.', price: 'R$ 980,00', icon: 'award' },
-      { name: 'Transporte para Eventos & Casamentos', desc: 'Chegada triunfal com motorista uniformizado e atendimento VIP.', price: 'R$ 650,00', icon: 'crown' },
-      { name: 'Viagens Interestaduais Privativas', desc: 'Conforto total para viagens em rodovia com máxima segurança e tranquilidade.', price: 'Sob Consulta', icon: 'map' }
+    badges: ['MOTORISTA EXECUTIVO', 'FROTA BLACK COM AR & WI-FI', 'ATENDIMENTO 24H'],
+    abouts: [
+      'Serviço profissional de motorista particular com veículo executivo higienizado, ar-condicionado, água mineral gelada e direção defensiva certificada. Ideal para executivos, famílias e eventos especiais.'
     ],
-    samplePhotos: [
+    primaryCtaLabel: 'Solicitar Viagem / Corrida',
+    primaryCtaMessage: 'Olá! Gostaria de consultar valores e agendar uma viagem/traslado com você!',
+    serviceCtaLabel: 'Ver Detalhes do Trajeto',
+    specialties: [
+      { name: 'Traslados para Aeroportos (Guarulhos / Congonhas)', description: 'Monitoramento do seu voo em tempo real com recepção pontual no desembarque.', iconName: 'car' },
+      { name: 'Viagens Intermunicipais & Litoral / Interior', description: 'Deslocamentos confortáveis sem pressa com paradas sob demanda e pedágios inclusos.', iconName: 'award' },
+      { name: 'Diárias Corporativas & Eventos Sociais', description: 'Carro e motorista à sua disposição exclusiva pelo período contratado.', iconName: 'crown' },
+      { name: 'Atendimento para Famílias & Terceira Idade', description: 'Atenção redobrada, auxílio com bagagens e condução suave e cuidadosa.', iconName: 'heart' }
+    ],
+    differentials: [
+      { title: 'Pontualidade 100% Garantida', description: 'Chegada com 15 minutos de antecedência no local combinado.', iconName: 'clock' },
+      { title: 'Conforto e Conectividade', description: 'Veículo com ar-condicionado, carregadores de celular e Wi-Fi a bordo.', iconName: 'star' },
+      { title: 'Direção Defensiva Certificada', description: 'Mais de 15 anos de estrada sem histórico de incidentes.', iconName: 'shield' }
+    ],
+    photos: [
       'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1000&q=80',
-      'https://images.unsplash.com/photo-1502877338535-766e1452684a?auto=format&fit=crop&w=1000&q=80',
-      'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=1000&q=80',
-      'https://images.unsplash.com/photo-1550355291-bbee04a92027?auto=format&fit=crop&w=1000&q=80'
+      'https://images.unsplash.com/photo-1508974239320-0a029497e820?auto=format&fit=crop&w=1000&q=80',
+      'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=1000&q=80',
+      'https://images.unsplash.com/photo-1511919884226-fd3cad34687c?auto=format&fit=crop&w=1000&q=80'
     ],
-    hours: 'Disponibilidade 24 horas por dia com agendamento prévio',
-    address: 'Atendimento em toda a Grande São Paulo e Regiões Metropolitanas'
+    hours: 'Atendimento 24 Horas com Agendamento Prévio',
+    address: 'São Paulo, Grande SP, Litoral e Cidades Vizinhas'
   },
 
   '09-mecanica': {
     names: [
-      'Precision Car Mecânica & Performance',
       'Iron Engine Centro Automotivo',
-      'Apex Motors Revisão de Precisão',
-      'Vortice Automecânica & Injeção',
-      'Master Tech Oficina Especializada',
-      'Titanium Oficina Premium',
-      'Speedway Mecânica Geral',
-      'Autocenter Formula 1',
-      'Torque & Pistão Mecânica',
-      'Garage 99 Racing & Estética'
+      'Precision Car Mecânica de Alta Linha',
+      'Apex Auto Tech & Diagnóstico',
+      'Titan Motors Oficina Especializada',
+      'Vanguard Performance Mecânica',
+      'Mestre das Peças Auto Center',
+      'Soberano Injeção & Freios',
+      'Turbo & Asfalto Reparos',
+      'Oficina Alemã Car Service',
+      'Prime Drive Centro Automotivo'
     ],
     slogans: [
-      'Diagnóstico computadorizado de ponta com garantia total de serviços.',
-      'Sua segurança e a integridade do seu veículo em mãos especializadas.',
-      'Mais de 15 anos de excelência em mecânica nacional e importada.'
+      'Diagnóstico computadorizado de ponta e transparência mecânica completa.',
+      'Revisões preventivas, freios, injeção eletrônica e ar-condicionado automotivo.',
+      'A saúde do seu carro tratada com seriedade técnica e garantia comprovada.'
     ],
-    titles: ['Centro Automotivo de Alta Precisão', 'Mecânica Geral, Freios & Injeção', 'Especialistas em Importados'],
-    sampleServices: [
-      { name: 'Revisão Preventiva Completa (40 Itens)', desc: 'Checagem de suspensão, freios, fluidos, correias e scanner de injeção eletrônica.', price: 'R$ 280,00', icon: 'wrench' },
-      { name: 'Troca de Óleo Sintético com Filtros Originais', desc: 'Óleo de especificação do fabricante para máxima vida útil do motor.', price: 'R$ 220,00', icon: 'award' },
-      { name: 'Alinhamento 3D Computadorizado & Balanceamento', desc: 'Elimina trepidações e garante desgaste uniforme dos pneus.', price: 'R$ 130,00', icon: 'shield' },
-      { name: 'Higienização de Ar Condicionado com Ozônio', desc: 'Eliminação total de bactérias, ácaros e odores desagradáveis no habitáculo.', price: 'R$ 120,00', icon: 'sparkles' }
+    badges: ['CENTRO AUTOMOTIVO', 'DIAGNÓSTICO COMPUTADORIZADO', 'PEÇAS ORIGINAIS'],
+    abouts: [
+      'Oficina moderna equipada com scanners atualizados para todas as marcas nacionais e importadas. Você recebe fotos e vídeos de cada etapa do conserto com orçamento prévio aprovado antes de qualquer intervenção.'
     ],
-    samplePhotos: [
-      'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&w=1000&q=80',
+    primaryCtaLabel: 'Pedir Orçamento no WhatsApp',
+    primaryCtaMessage: 'Olá! Meu carro está precisando de revisão/reparo e gostaria de tirar uma dúvida.',
+    serviceCtaLabel: 'Ver Como Funciona',
+    specialties: [
+      { name: 'Diagnóstico Eletrônico Computadorizado', description: 'Leitura de falhas na injeção, sensores, módulo central e painel com scanner de última geração.', iconName: 'wrench' },
+      { name: 'Revisão Preventiva & Troca de Fluidos', description: 'Troca de óleo sintético, filtros de ar/combustível e checagem completa de mais de 40 itens.', iconName: 'award' },
+      { name: 'Sistema de Freios, ABS & Suspensão', description: 'Troca de pastilhas, discos, amortecedores e alinhamento a laser com tecnologia 3D.', iconName: 'shield' },
+      { name: 'Manutenção de Câmbio & Ar-Condicionado', description: 'Troca de óleo de câmbio automático e higienização com oxi-sanitização da cabine.', iconName: 'sparkles' }
+    ],
+    differentials: [
+      { title: 'Orçamento 100% Transparente', description: 'Nenhuma peça é trocada sem sua autorização expressa em vídeo.', iconName: 'award' },
+      { title: 'Garantia por Escrito', description: 'Todas as peças e serviços com garantia documentada.', iconName: 'shield' },
+      { title: 'Sala de Espera Climatizada', description: 'Espaço com café expresso e Wi-Fi enquanto seu carro é analisado.', iconName: 'star' }
+    ],
+    photos: [
       'https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=1000&q=80',
+      'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&w=1000&q=80',
       'https://images.unsplash.com/photo-1517524008697-84bbe3c3fd98?auto=format&fit=crop&w=1000&q=80',
       'https://images.unsplash.com/photo-1530046339160-ce3e530c7d2f?auto=format&fit=crop&w=1000&q=80'
     ],
-    hours: 'Segunda a Sexta: 08:00 às 18:00 • Sábado: 08:00 às 13:00',
-    address: 'Av. Engenheiro Caetano Álvares, 4500 — Santana, São Paulo - SP'
+    hours: 'Segunda a Sexta: 08:00 às 18:00 • Sábado: 08:00 às 12:30',
+    address: 'Av. Santo Amaro, 3200 — Brooklin, São Paulo - SP'
   },
 
   '10-confeitaria': {
     names: [
-      'Maison du Chocolat & Bolos',
-      'Fleur de Sucre Confeitaria Nobre',
-      'Velvet Cake Doces & Festas',
-      'L’Amour Atelier de Doces Finos',
-      'Dulce Amore Confeitaria Gourmet',
-      'Bolo Real Confeitaria Artesanal',
-      'Sweet Symphony Pâtisserie',
-      'Brigaderia & Café Parisiense',
-      'Chantilly & Caramelo Studio',
-      'Sublime Bolo & Sobremesas'
+      'Le Sucre Confeitaria Artesanal',
+      'Chocolat & Vanille Doceria',
+      'Doce Arte Atelier de Bolos',
+      'Dolce Vita Sobremesas Finas',
+      'Maison Gateau Bolos de Festa',
+      'Belga & Caramelo Patisserie',
+      'Velvet Cake Confeitaria Afetiva',
+      'Doçuras da Rainha Atelier',
+      'Atelier Fleur de Sucre',
+      'Prestige Patisserie Royale'
     ],
     slogans: [
-      'Bolos e doces artesanais que transformam qualquer momento em celebração.',
-      'Ingredientes nobres, chocolate belga e muito amor em cada detalhe.',
-      'Sua festa inesquecível com o sabor da verdadeira confeitaria afetiva.'
+      'Bolos esculpidos, doces finos e sobremesas que transformam momentos em festa.',
+      'Chocolate belga genuíno, frutas frescas e receitas criadas com alma.',
+      'O sabor da confeitaria afetiva em sua mais pura sofisticação.'
     ],
-    titles: ['Confeitaria Fina & Bolos Decorados', 'Doces Artesanais & Pâtisserie', 'Bolos Festivos & Sobremesas'],
-    sampleServices: [
-      { name: 'Bolo Festivo Decorado Red Velvet com Frutas Vermelhas', desc: 'Massa aveludada, recheio de cream cheese frosting e morangos frescos.', price: 'R$ 140,00/kg', icon: 'cake' },
-      { name: 'Bolo de Chocolate Belga com Brigadeiro Brûlée', desc: 'Massa úmida 70% cacau com brigadeiro crocante maçaricado.', price: 'R$ 130,00/kg', icon: 'award' },
-      { name: 'Cento de Brigadeiros Gourmet Sortidos', desc: 'Pistache, Ninho com Nutella, Meio Amargo belga e Caramelo Flor de Sal.', price: 'R$ 160,00', icon: 'heart' },
-      { name: 'Caixa Degustação para Noivas & Aniversários', desc: '6 mini fatias de sabores clássicos para escolha do cardápio do seu evento.', price: 'R$ 65,00', icon: 'sparkles' }
+    badges: ['CONFEITARIA ARTESANAL', 'CHOCOLATE BELGA', 'ENCOMENDAS EXCLUSIVAS'],
+    abouts: [
+      'Unimos a elegância da patisserie francesa ao calor dos doces artesanais brasileiros. Produzimos bolos decorados para aniversários e casamentos, além de brigadeiros gourmet e caixas especiais de presente sob encomenda.'
     ],
-    samplePhotos: [
+    primaryCtaLabel: 'Fazer Encomenda no WhatsApp',
+    primaryCtaMessage: 'Olá! Gostaria de fazer uma encomenda de bolo/doces para uma data especial!',
+    serviceCtaLabel: 'Conhecer Sabores',
+    specialties: [
+      { name: 'Bolos Decorados & Personalizados', description: 'Camadas de massa úmida, recheios trufados artesanais e finalização em buttercream aveludado.', iconName: 'cake' },
+      { name: 'Doces Finos para Eventos & Casamentos', description: 'Bombons lapidados, camafeus de nozes, brigadeiros gourmet com confeitos belgas.', iconName: 'sparkles' },
+      { name: 'Sobremesas de Domingo na Travessa', description: 'Bolo de cenoura com calda vulcânica, tortas de pistache e banoffee artesanal.', iconName: 'heart' },
+      { name: 'Caixas de Presente & Lembranças VIP', description: 'Embalagens especiais com laço de cetim para presentear em datas comemorativas.', iconName: 'award' }
+    ],
+    differentials: [
+      { title: 'Chocolate Callebaut Genuíno', description: 'Sem conservantes artificiais ou gordura hidrogenada.', iconName: 'award' },
+      { title: 'Produção Feita Sob Encomenda', description: 'Seu bolo sai fresquinho do forno poucas horas antes da entrega.', iconName: 'clock' },
+      { title: 'Design Autoral e Delicado', description: 'Cada criação é uma obra de arte pensada para seu evento.', iconName: 'heart' }
+    ],
+    photos: [
       'https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=1000&q=80',
       'https://images.unsplash.com/photo-1535141192574-5d4897c13136?auto=format&fit=crop&w=1000&q=80',
-      'https://images.unsplash.com/photo-1587314168485-3236d6710814?auto=format&fit=crop&w=1000&q=80',
-      'https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?auto=format&fit=crop&w=1000&q=80'
+      'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=1000&q=80',
+      'https://images.unsplash.com/photo-1587314168485-3236d6710814?auto=format&fit=crop&w=1000&q=80'
     ],
-    hours: 'Terça a Sábado: 09:30 às 19:00 • Domingo: 10:00 às 16:00',
-    address: 'Rua Harmonia, 321 — Vila Madalena, São Paulo - SP'
+    hours: 'Segunda a Sábado: 09:00 às 19:00 • Domingo: Retirada de encomendas',
+    address: 'Rua Mourato Coelho, 750 — Pinheiros, São Paulo - SP'
   }
 };
 
-// Gerador Oficial dos 100 Templates Únicos e Completos
+// Generates 100 complete, distinct, authentic templates (10 niches × 10 experiences)
 export const ALL_TEMPLATES: TemplateDefinition[] = [];
 
 NICHOS_LIST.forEach((nicho) => {
-  const bp = NICHO_BLUEPRINTS[nicho.id];
+  const domain = NICHE_DOMAIN_DATA[nicho.id];
 
-  MODEL_EXPERIENCES.forEach((exp, expIdx) => {
-    const templateIndex = exp.index;
-    const templateId = `${nicho.id}-${String(templateIndex).padStart(2, '0')}`;
-    const templateName = bp.names[expIdx] || `${nicho.name} ${exp.name}`;
-    const slogan = bp.slogans[expIdx % bp.slogans.length];
-    const title = bp.titles[expIdx % bp.titles.length];
+  DESIGN_STYLES.forEach((style, idx) => {
+    const templateIndex = idx + 1;
+    const templateKey = templateIndex < 10 ? `0${templateIndex}` : `${templateIndex}`;
+    const templateId = `${nicho.id}-${templateKey}`;
 
-    // Primary & Theme Colors based on Niche and Experience
-    const primary = nicho.accentColor;
-    const secondary = nicho.secondaryColor || '#6B21A8';
-    const accent = nicho.accentColor;
+    // Unique brand name & identity per template
+    const brandName = domain.names[idx] || `${nicho.name} ${style.styleName}`;
+    const slogan = domain.slogans[idx % domain.slogans.length];
+    const badge = domain.badges[idx % domain.badges.length];
+    const about = domain.abouts[0];
 
-    const defaultData: Omit<ProjectData, 'projectId' | 'userId' | 'createdAt' | 'updatedAt'> = {
-      nome: templateName,
+    // Colors adjusted by layout vibe while respecting niche personality
+    let themeBg = '#07080D';
+    let themeSurface = '#0E111C';
+    let themeBorder = 'rgba(255, 255, 255, 0.1)';
+
+    if (style.layout === 'minimal') {
+      themeBg = '#090A0F';
+      themeSurface = '#11131A';
+    } else if (style.layout === 'neon') {
+      themeBg = '#030407';
+      themeSurface = '#090B12';
+      themeBorder = `${nicho.accentColor}40`;
+    } else if (style.layout === 'editorial') {
+      themeBg = '#0A0B10';
+      themeSurface = '#12141F';
+    }
+
+    const defaultTheme = {
+      primary: nicho.accentColor,
+      secondary: nicho.secondaryColor || '#D97706',
+      accent: '#FDE68A',
+      background: themeBg,
+      surface: themeSurface,
+      text: '#F8FAFC',
+      textMuted: '#94A3B8',
+      cardBg: themeSurface,
+      border: themeBorder,
+      fontHeading: style.fontCategory === 'EDITORIAL' ? 'Bodoni Moda' : style.fontCategory === 'ELEGANTE' ? 'Playfair Display' : 'Plus Jakarta Sans',
+      fontBody: 'Plus Jakarta Sans'
+    };
+
+    // Services for this template (NO PRICES, realistic descriptions & tailored CTA)
+    const services = domain.specialties.map((s, sIdx) => ({
+      id: `svc_${templateId}_${sIdx}`,
+      name: s.name,
+      description: s.description,
+      iconName: s.iconName,
+      imageUrl: domain.photos[sIdx % domain.photos.length],
+      ctaText: domain.serviceCtaLabel,
+      featured: sIdx === 0
+    }));
+
+    const photos = domain.photos.map((url, pIdx) => ({
+      id: `photo_${templateId}_${pIdx}`,
+      url,
+      caption: '',
+      alt: `${brandName} Foto ${pIdx + 1}`,
+      position: pIdx
+    }));
+
+    const defaultData: TemplateDefinition['defaultData'] = {
       nicho: nicho.id,
       templateId,
+      nome: brandName,
       identity: {
-        name: templateName,
+        name: brandName,
         slogan,
-        badge: `${nicho.badge} • ${exp.name.toUpperCase()}`,
-        title,
-        subtitle: slogan,
-        description: `${slogan} Atendimento com hora marcada e facilidade de agendamento via WhatsApp.`,
-        about: `Somos referência em ${nicho.name.toLowerCase()} com atendimento de alto padrão. Nosso compromisso é entregar uma experiência singular, aliando técnicas de ponta, produtos nobres e um atendimento exclusivo pensado em cada detalhe.`,
-        logoUrl: bp.samplePhotos[0] || nicho.coverImage,
-        avatarUrl: bp.samplePhotos[1] || nicho.coverImage,
-        bannerUrl: nicho.coverImage
+        badge,
+        title: domain.primaryCtaLabel,
+        subtitle: 'Atendimento com Hora Marcada e WhatsApp Direto',
+        description: about,
+        about,
+        logoUrl: domain.photos[0],
+        avatarUrl: domain.photos[1],
+        bannerUrl: domain.photos[0]
       },
-      theme: {
-        primary,
-        secondary,
-        accent,
-        background: '#07080D',
-        surface: '#0F121C',
-        text: '#F8FAFC',
-        textMuted: '#94A3B8',
-        cardBg: '#131724',
-        border: 'rgba(255, 255, 255, 0.1)',
-        fontHeading: exp.fontCategory === 'ELEGANTE' ? 'Playfair Display' : exp.fontCategory === 'BOLD' ? 'Syne' : exp.fontCategory === 'EDITORIAL' ? 'Bodoni Moda' : 'Plus Jakarta Sans',
-        fontBody: 'Plus Jakarta Sans'
-      },
-      photos: bp.samplePhotos.map((url, i) => ({
-        id: `photo_${i + 1}`,
-        url,
-        caption: `Destaque do Atendimento 0${i + 1}`,
-        alt: `${nicho.name} Foto 0${i + 1}`,
-        position: i
-      })),
-      galleryStyle: exp.galleryStyle,
-      services: bp.sampleServices.map((s, idx) => ({
-        id: `serv_${idx + 1}`,
-        name: s.name,
-        description: s.desc,
-        price: s.price,
-        imageUrl: bp.samplePhotos[idx % bp.samplePhotos.length],
-        iconName: s.icon,
-        ctaText: 'Agendar pelo WhatsApp',
-        featured: idx === 0 || idx === 1
-      })),
+      theme: defaultTheme,
+      photos,
+      galleryStyle: style.galleryStyle,
+      services,
       buttons: [
         {
-          id: 'btn_1',
-          text: 'Falar Diretamente no WhatsApp',
-          url: 'https://wa.me/5511999998888',
+          id: `btn_${templateId}_1`,
+          text: domain.primaryCtaLabel,
+          url: '#',
           iconName: 'whatsapp',
-          style: exp.layout.includes('3d') ? '3d' : exp.layout.includes('glow') ? 'glow' : 'solid',
-          color: primary,
+          style: 'solid',
+          color: nicho.accentColor,
           size: 'lg',
           align: 'center'
         },
         {
-          id: 'btn_2',
-          text: 'Acompanhar no Instagram',
-          url: 'https://instagram.com',
-          iconName: 'instagram',
-          style: 'glass',
-          color: '#E1306C',
-          size: 'md',
-          align: 'center'
-        },
-        {
-          id: 'btn_3',
-          text: 'Como Chegar (Google Maps)',
-          url: 'https://maps.google.com',
+          id: `btn_${templateId}_2`,
+          text: 'Localização no Google Maps',
+          url: '#',
           iconName: 'map',
-          style: 'outline',
-          color: '#3B82F6',
+          style: 'glass',
+          color: '#FFFFFF',
           size: 'md',
           align: 'center'
         }
       ],
       socials: {
-        whatsapp: {
-          enabled: true,
-          number: '5511999998888',
-          message: `Olá! Vim pelo biosite e gostaria de saber mais informações sobre os serviços de ${nicho.name}.`,
-          label: 'WhatsApp Oficial'
-        },
-        instagram: {
-          enabled: true,
-          username: `@${nicho.id.replace(/^\d+-/, '')}.oficial`,
-          url: 'https://instagram.com'
-        },
-        tiktok: {
-          enabled: true,
-          username: `@${nicho.id.replace(/^\d+-/, '')}`,
-          url: 'https://tiktok.com'
-        },
-        google: {
-          enabled: true,
-          url: 'https://google.com'
-        },
-        googleReview: {
-          enabled: true,
-          url: 'https://maps.google.com'
-        },
-        facebook: {
-          enabled: false,
-          url: ''
-        }
+        whatsapp: { enabled: true, number: '11999999999', message: domain.primaryCtaMessage, label: 'WhatsApp' },
+        instagram: { enabled: true, username: brandName.toLowerCase().replace(/[^a-z0-9]/g, ''), url: 'https://instagram.com' },
+        tiktok: { enabled: true, username: brandName.toLowerCase().replace(/[^a-z0-9]/g, ''), url: 'https://tiktok.com' },
+        google: { enabled: true, url: 'https://google.com' },
+        googleReview: { enabled: true, url: 'https://google.com' },
+        facebook: { enabled: false, url: '' }
       },
       location: {
-        address: bp.address,
+        address: domain.address,
         city: 'São Paulo - SP',
-        phone: '(11) 99999-8888',
-        hours: bp.hours,
+        phone: '(11) 99999-9999',
+        hours: domain.hours,
         mapsUrl: 'https://maps.google.com'
       },
       seo: {
-        title: `${templateName} — ${nicho.name} Oficial`,
-        description: `${slogan} Agende seu horário com praticidade.`,
-        ogImage: nicho.coverImage,
-        favicon: bp.samplePhotos[0] || nicho.coverImage
+        title: `${brandName} — Apresentação Oficial`,
+        description: slogan,
+        ogImage: domain.photos[0],
+        favicon: domain.photos[0]
       },
 
-      // Configurações dos Componentes Especiais
-      fontCategory: exp.fontCategory,
-      socialIconStyle: exp.socialIconStyle,
-      sectionsOrder: ['hero', 'status', 'about', 'services', 'gallery', 'reviews', 'hours', 'location', 'socials', 'cta'],
+      // Premium Experience Fields
+      fontCategory: style.fontCategory,
+      socialIconStyle: style.socialIconStyle,
+      serviceLayout: style.serviceLayout,
+      differentials: domain.differentials.map((d, dIdx) => ({
+        id: `diff_${templateId}_${dIdx}`,
+        title: d.title,
+        description: d.description,
+        iconName: d.iconName
+      })),
+      sectionsOrder: ['hero', 'status', 'about', 'differentials', 'services', 'gallery', 'reviews', 'hours', 'location', 'socials', 'cta'],
       sectionsVisibility: {
         hero: true,
         status: true,
         about: true,
+        differentials: true,
         services: true,
         gallery: true,
         reviews: true,
@@ -799,32 +924,32 @@ NICHOS_LIST.forEach((nicho) => {
       statusConfig: {
         enabled: true,
         autoCalculate: true,
-        openTime: '08:00',
+        openTime: '09:00',
         closeTime: '20:00',
         customText: 'ABERTO AGORA',
-        customMessage: 'Atendimento por ordem de chegada ou agendamento'
+        customMessage: 'Atendimento com horário agendado ou sob consulta imediata'
       },
       whatsappConfig: {
         enabled: true,
-        number: '5511999998888',
-        message: `Olá! Vim pelo biosite e gostaria de atendimento.`,
-        label: 'Conversar no WhatsApp',
+        number: '11999999999',
+        message: domain.primaryCtaMessage,
+        label: domain.primaryCtaLabel,
         style: 'floating',
         floatingPosition: 'right',
         showFloating: true
       },
       googleReviewConfig: {
         enabled: true,
-        url: 'https://maps.google.com',
+        url: 'https://google.com',
         rating: 5.0,
-        reviewCount: 120 + (expIdx * 14),
-        title: 'NOS AVALIE NO GOOGLE',
-        subtitle: 'Sua opinião é fundamental para nossa contínua excelência.',
+        reviewCount: 147 + (idx * 12),
+        title: 'AVALIAÇÕES NO GOOGLE',
+        subtitle: 'Excelência reconhecida por nossos clientes.',
         style: 'gold'
       },
       shareConfig: {
         enabled: true,
-        label: 'COMPARTILHAR BIOSITE'
+        label: 'Compartilhar'
       }
     };
 
@@ -832,12 +957,12 @@ NICHOS_LIST.forEach((nicho) => {
       id: templateId,
       nichoId: nicho.id,
       index: templateIndex,
-      name: templateName,
-      styleName: `${exp.name} • ${nicho.name}`,
-      description: `${exp.description} ${slogan}`,
-      layout: exp.layout,
-      galleryStyle: exp.galleryStyle,
-      defaultTheme: defaultData.theme,
+      name: `${brandName}`,
+      styleName: `${style.styleName}`,
+      description: `${style.tagline}`,
+      layout: style.layout,
+      galleryStyle: style.galleryStyle,
+      defaultTheme,
       defaultData
     });
   });
@@ -850,4 +975,3 @@ export const getTemplatesByNicho = (nichoId: NichoId): TemplateDefinition[] => {
 export const getTemplateById = (id: string): TemplateDefinition | undefined => {
   return ALL_TEMPLATES.find((t) => t.id === id);
 };
-

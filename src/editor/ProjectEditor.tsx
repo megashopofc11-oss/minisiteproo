@@ -402,7 +402,8 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({
     hero: 'Capa / Hero Principal',
     status: 'Status Aberto / Fechado',
     about: 'Sobre Nós / História',
-    services: 'Serviços & Procedimentos',
+    differentials: 'Diferenciais da Marca',
+    services: 'Especialidades & Atendimento',
     gallery: 'Galeria Visual de Fotos',
     reviews: 'Avaliações Google Reviews',
     hours: 'Horários de Atendimento',
@@ -1133,7 +1134,7 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({
             )}
           </div>
 
-          {/* 10. SERVIÇOS & PROCEDIMENTOS */}
+          {/* 10. ESPECIALIDADES & SERVIÇOS */}
           <div className="rounded-2xl border border-white/10 bg-[#0D0F1C] overflow-hidden">
             <button
               type="button"
@@ -1142,58 +1143,97 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({
             >
               <span className="flex items-center gap-2">
                 <Sparkles size={16} className="text-amber-400" />
-                SERVIÇOS & PREÇOS ({(project.services || []).length})
+                ESPECIALIDADES & SERVIÇOS ({(project.services || []).length})
               </span>
               {openSections.servicos ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
             </button>
 
             {openSections.servicos && (
-              <div className="p-4 pt-0 space-y-3 border-t border-white/5">
-                {(project.services || []).map((s, idx) => (
-                  <div key={s.id} className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-2 relative">
-                    <button
-                      type="button"
-                      onClick={() => removeService(s.id)}
-                      className="absolute top-2 right-2 text-rose-400 hover:text-rose-300 p-1 cursor-pointer"
-                      title="Excluir Serviço"
-                    >
-                      <Trash2 size={14} />
-                    </button>
+              <div className="p-4 pt-0 space-y-4 border-t border-white/5">
+                <div>
+                  <label className="text-[11px] font-bold text-slate-400 block mb-1.5">
+                    Estilo de Apresentação das Especialidades
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {[
+                      { key: 'cards', label: 'Cards de Luxo' },
+                      { key: 'minimal-list', label: 'Lista Editorial' },
+                      { key: 'icons-grid', label: 'Grade de Ícones' },
+                      { key: 'accordion', label: 'Accordion' },
+                      { key: 'photo-cards', label: 'Fotos em Destaque' }
+                    ].map((opt) => (
+                      <button
+                        key={opt.key}
+                        type="button"
+                        onClick={() => setProject((prev) => ({ ...prev, serviceLayout: opt.key as any }))}
+                        className={`py-2 px-2 text-center rounded-xl text-[10px] font-black uppercase border cursor-pointer ${
+                          (project.serviceLayout || 'cards') === opt.key
+                            ? 'border-amber-400 bg-amber-500/10 text-amber-300'
+                            : 'border-white/10 text-slate-400'
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-                    <div className="grid grid-cols-2 gap-2 pr-6">
+                <div className="space-y-3">
+                  {(project.services || []).map((s) => (
+                    <div key={s.id} className="p-3.5 rounded-xl bg-white/5 border border-white/10 space-y-2.5 relative">
+                      <button
+                        type="button"
+                        onClick={() => removeService(s.id)}
+                        className="absolute top-2.5 right-2.5 text-rose-400 hover:text-rose-300 p-1 cursor-pointer"
+                        title="Excluir Serviço"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pr-6">
+                        <input
+                          type="text"
+                          value={s.name}
+                          onChange={(e) => updateService(s.id, { name: e.target.value })}
+                          placeholder="Nome da Especialidade / Serviço"
+                          className="px-2.5 py-1.5 rounded-lg bg-black/40 border border-white/10 text-white text-xs font-bold"
+                        />
+                        <input
+                          type="text"
+                          value={s.ctaText || ''}
+                          onChange={(e) => updateService(s.id, { ctaText: e.target.value })}
+                          placeholder="Texto do Botão (Ex: Quero Saber Mais)"
+                          className="px-2.5 py-1.5 rounded-lg bg-black/40 border border-white/10 text-amber-300 text-xs font-bold"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <input
+                          type="text"
+                          value={s.price || ''}
+                          onChange={(e) => updateService(s.id, { price: e.target.value })}
+                          placeholder="Preço (Opcional - deixe vazio p/ não mostrar)"
+                          className="px-2.5 py-1.5 rounded-lg bg-black/40 border border-white/10 text-slate-300 text-xs font-mono"
+                        />
+                        <input
+                          type="text"
+                          value={s.imageUrl || ''}
+                          onChange={(e) => updateService(s.id, { imageUrl: e.target.value })}
+                          placeholder="URL da foto (opcional)"
+                          className="px-2.5 py-1.5 rounded-lg bg-black/40 border border-white/10 text-slate-400 text-xs"
+                        />
+                      </div>
+
                       <input
                         type="text"
-                        value={s.name}
-                        onChange={(e) => updateService(s.id, { name: e.target.value })}
-                        placeholder="Nome do Serviço"
-                        className="px-2.5 py-1.5 rounded-lg bg-black/40 border border-white/10 text-white text-xs font-bold"
-                      />
-                      <input
-                        type="text"
-                        value={s.price}
-                        onChange={(e) => updateService(s.id, { price: e.target.value })}
-                        placeholder="Preço (Ex: R$ 80,00)"
-                        className="px-2.5 py-1.5 rounded-lg bg-black/40 border border-white/10 text-amber-400 text-xs font-bold font-mono"
+                        value={s.description}
+                        onChange={(e) => updateService(s.id, { description: e.target.value })}
+                        placeholder="Pequena descrição da especialidade"
+                        className="w-full px-2.5 py-1.5 rounded-lg bg-black/40 border border-white/10 text-slate-300 text-xs"
                       />
                     </div>
-
-                    <input
-                      type="text"
-                      value={s.description}
-                      onChange={(e) => updateService(s.id, { description: e.target.value })}
-                      placeholder="Pequena descrição do benefício"
-                      className="w-full px-2.5 py-1.5 rounded-lg bg-black/40 border border-white/10 text-slate-300 text-xs"
-                    />
-
-                    <input
-                      type="text"
-                      value={s.imageUrl || ''}
-                      onChange={(e) => updateService(s.id, { imageUrl: e.target.value })}
-                      placeholder="URL da foto do serviço (opcional)"
-                      className="w-full px-2.5 py-1.5 rounded-lg bg-black/40 border border-white/10 text-slate-400 text-xs"
-                    />
-                  </div>
-                ))}
+                  ))}
+                </div>
 
                 <button
                   type="button"
@@ -1201,7 +1241,7 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({
                   className="w-full py-2.5 rounded-xl border border-dashed border-white/20 hover:border-amber-400 text-slate-300 hover:text-white text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <Plus size={14} />
-                  <span>Adicionar Novo Serviço</span>
+                  <span>Adicionar Especialidade</span>
                 </button>
               </div>
             )}
