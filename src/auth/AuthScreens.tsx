@@ -134,7 +134,7 @@ export const AuthScreens: React.FC<AuthScreensProps> = ({ onSuccess }) => {
                 CADASTRO RECUSADO
               </h2>
               <p className="text-xs text-slate-300 leading-relaxed max-w-xs mx-auto">
-                No momento, o seu cadastro não foi aprovado pela administração do BioSite Pro.
+                No momento, o seu cadastro não foi aprovado pela administração do Bio Fácil.
               </p>
             </div>
 
@@ -326,15 +326,15 @@ export const AuthScreens: React.FC<AuthScreensProps> = ({ onSuccess }) => {
       <div className="w-full max-w-md bg-[#0D0F1A]/90 border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-2xl relative z-10 space-y-6">
         {/* Brand Header */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-bold tracking-wider uppercase mb-1">
-            <Sparkles size={13} className="text-purple-400" />
-            SaaS Premium 2.0
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs font-bold tracking-wider uppercase mb-1">
+            <Sparkles size={13} className="text-amber-400" />
+            Plataforma Criativa Premium
           </div>
           <h1 className="text-3xl font-black text-white tracking-tight">
-            BIOSITE <span className="text-gradient-purple">PRO 2.0</span>
+            BIO <span className="bg-gradient-to-r from-amber-400 via-purple-300 to-purple-400 bg-clip-text text-transparent">FÁCIL</span>
           </h1>
-          <p className="text-xs text-slate-400">
-            Construtor profissional de biosites cinematográficos
+          <p className="text-xs text-slate-300 font-medium">
+            Crie biosites que impressionam.
           </p>
         </div>
 

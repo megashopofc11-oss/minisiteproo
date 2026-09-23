@@ -29,6 +29,17 @@ export type NichoId =
   | '10-confeitaria';
 
 export type TemplateLayout =
+  | 'cinematic-luxury'
+  | 'glass-premium'
+  | 'editorial'
+  | '3d-glow'
+  | 'minimal-luxury'
+  | 'dark-experience'
+  | 'immersive-photo'
+  | 'modern-cards'
+  | 'neon-motion'
+  | 'signature'
+  // Backward compatibility aliases
   | 'cinematic-split'
   | 'luxury-editorial'
   | 'dark-cyber'
@@ -39,6 +50,40 @@ export type TemplateLayout =
   | 'floating-hero'
   | 'bold-street'
   | 'diagonal-energy';
+
+export type FontCategory =
+  | 'MODERNA'
+  | 'ELEGANTE'
+  | 'BOLD'
+  | 'EDITORIAL'
+  | 'MINIMAL'
+  | 'ESPORTIVA';
+
+export type SocialIconStyle =
+  | 'original'
+  | 'minimal'
+  | 'outline'
+  | 'glass'
+  | 'glow'
+  | '3d';
+
+export type WhatsAppStyle =
+  | 'floating'
+  | 'button'
+  | 'card'
+  | 'circular';
+
+export type SectionKey =
+  | 'hero'
+  | 'status'
+  | 'about'
+  | 'services'
+  | 'gallery'
+  | 'reviews'
+  | 'hours'
+  | 'location'
+  | 'socials'
+  | 'cta';
 
 export interface ThemeConfig {
   primary: string;
@@ -132,6 +177,40 @@ export interface ProjectIdentity {
   bannerUrl: string;
 }
 
+export interface StatusConfig {
+  enabled: boolean;
+  autoCalculate: boolean;
+  openTime: string; // e.g. "09:00"
+  closeTime: string; // e.g. "19:00"
+  customText?: string; // e.g. "ABERTO AGORA" or "FECHADO NO MOMENTO"
+  customMessage?: string; // e.g. "Atendimento por ordem de chegada ou agendamento"
+}
+
+export interface WhatsAppConfig {
+  enabled: boolean;
+  number: string;
+  message: string;
+  label: string;
+  style: WhatsAppStyle;
+  floatingPosition: 'right' | 'left';
+  showFloating: boolean;
+}
+
+export interface GoogleReviewConfig {
+  enabled: boolean;
+  url: string;
+  rating: number; // e.g. 5.0
+  reviewCount: number; // e.g. 128
+  title: string; // e.g. "NOS AVALIE NO GOOGLE"
+  subtitle: string; // e.g. "Sua opinião faz a diferença."
+  style: 'gold' | 'glass' | 'minimal';
+}
+
+export interface ShareConfig {
+  enabled: boolean;
+  label: string;
+}
+
 export interface ProjectData {
   projectId: string;
   userId: string;
@@ -149,6 +228,16 @@ export interface ProjectData {
   socials: SocialLinks;
   location: LocationInfo;
   seo: SeoConfig;
+
+  // Premium Features & Upgrades
+  fontCategory?: FontCategory;
+  socialIconStyle?: SocialIconStyle;
+  sectionsOrder?: SectionKey[];
+  sectionsVisibility?: Partial<Record<SectionKey, boolean>>;
+  statusConfig?: StatusConfig;
+  whatsappConfig?: WhatsAppConfig;
+  googleReviewConfig?: GoogleReviewConfig;
+  shareConfig?: ShareConfig;
 }
 
 export interface TemplateDefinition {
@@ -173,6 +262,10 @@ export interface NichoInfo {
   iconName: string;
   vibe: string;
   accentColor: string;
+  secondaryColor?: string;
+  accentGlow?: string;
   badge: string;
   coverImage: string;
+  tagline?: string;
+  highlights?: string[];
 }

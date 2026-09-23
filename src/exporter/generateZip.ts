@@ -30,15 +30,33 @@ const sanitizeUrl = (url: string, defaultProtocol = 'https://'): string => {
 };
 
 export const generateStandaloneHtml = (project: ProjectData): string => {
-  const { identity, theme, photos, services, buttons, socials, location, seo } = project;
+  const {
+    identity,
+    theme,
+    photos = [],
+    services = [],
+    buttons = [],
+    socials,
+    location,
+    seo,
+    sectionsOrder = ['hero', 'status', 'about', 'services', 'gallery', 'reviews', 'hours', 'location', 'socials', 'cta'],
+    sectionsVisibility = {},
+    statusConfig,
+    whatsappConfig,
+    googleReviewConfig,
+    shareConfig,
+    fontCategory = 'MODERNA',
+    socialIconStyle = 'glass'
+  } = project;
 
-  const pageTitle = escapeHtml(seo?.title || identity.name || 'BioSite Oficial');
+  const pageTitle = escapeHtml(seo?.title || identity.name || 'Bio Fácil Oficial');
   const pageDesc = escapeHtml(seo?.description || identity.slogan || identity.description || '');
   const ogImg = sanitizeUrl(seo?.ogImage || identity.bannerUrl || identity.avatarUrl || '');
   const favicon = sanitizeUrl(seo?.favicon || identity.logoUrl || '');
 
-  const cleanWaNumber = (socials?.whatsapp?.number || '').replace(/\D/g, '');
-  const waMsg = encodeURIComponent(socials?.whatsapp?.message || 'Olá! Vim pelo biosite.');
+  const waNumber = whatsappConfig?.number || socials?.whatsapp?.number || '';
+  const cleanWaNumber = waNumber.replace(/\D/g, '');
+  const waMsg = encodeURIComponent(whatsappConfig?.message || socials?.whatsapp?.message || 'Olá! Vim pelo biosite.');
   const waUrl = cleanWaNumber ? `https://wa.me/${cleanWaNumber}?text=${waMsg}` : '#';
 
   // SVG Brand Icons
@@ -47,51 +65,175 @@ export const generateStandaloneHtml = (project: ProjectData): string => {
   const svgTt = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-1.01-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.24 1.07-.14 1.61.24 1.14 1.18 2.07 2.31 2.34.86.23 1.81.11 2.58-.33.72-.39 1.25-1.08 1.44-1.87.1-.4.15-.82.15-1.24V.02z"/></svg>`;
   const svgGg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"/></svg>`;
   const svgMap = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>`;
-  const svgStar = `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+  const svgStar = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+  const svgShare = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>`;
 
-  const photosHtml = (photos || [])
-    .map(
-      (p) => `
-    <div class="photo-item" onclick="openModal('${sanitizeUrl(p.url)}')">
-      <img src="${sanitizeUrl(p.url)}" alt="${escapeHtml(p.alt || p.caption)}" loading="lazy" />
-      ${p.caption ? `<div class="caption">${escapeHtml(p.caption)}</div>` : ''}
-    </div>`
-    )
-    .join('');
+  // Font family determination
+  let headingFontFamily = "'Plus Jakarta Sans', sans-serif";
+  if (fontCategory === 'ELEGANTE') headingFontFamily = "'Playfair Display', serif";
+  if (fontCategory === 'BOLD') headingFontFamily = "'Syne', sans-serif";
+  if (fontCategory === 'EDITORIAL') headingFontFamily = "'Bodoni Moda', serif";
+  if (fontCategory === 'MINIMAL') headingFontFamily = "'DM Sans', sans-serif";
+  if (fontCategory === 'ESPORTIVA') headingFontFamily = "'Chakra Petch', sans-serif";
 
-  const servicesHtml = (services || [])
-    .map(
-      (s) => `
-    <div class="service-card ${s.featured ? 'featured' : ''}">
-      <div class="service-body">
-        ${s.imageUrl ? `<img src="${sanitizeUrl(s.imageUrl)}" class="service-thumb" alt="${escapeHtml(s.name)}" loading="lazy" />` : ''}
-        <div class="service-info">
-          <div class="service-header">
-            <h4>${escapeHtml(s.name)}</h4>
-            <span class="service-price">${escapeHtml(s.price)}</span>
-          </div>
-          <p>${escapeHtml(s.description)}</p>
-          <div class="service-action">
-            ${s.featured ? `<span class="badge-featured">${svgStar} Mais Solicitado</span>` : '<span></span>'}
-            <a href="${waUrl}" target="_blank" class="btn-service">${svgWa} ${escapeHtml(s.ctaText || 'Agendar')}</a>
-          </div>
-        </div>
+  // Section Generators
+  const heroHtml = `
+    <header class="hero-section">
+      ${identity.logoUrl ? `<div class="hero-logo-box"><img src="${sanitizeUrl(identity.logoUrl)}" alt="${escapeHtml(identity.name)}" class="hero-logo" /></div>` : ''}
+      ${identity.badge ? `<span class="badge-hero">${escapeHtml(identity.badge)}</span>` : ''}
+      <h1 class="hero-title">${escapeHtml(identity.name)}</h1>
+      <p class="hero-slogan">${escapeHtml(identity.slogan)}</p>
+    </header>
+  `;
+
+  const statusHtml = (sectionsVisibility.status !== false && statusConfig?.enabled) ? `
+    <section class="status-card" id="statusCard">
+      <div class="status-left">
+        <span class="status-dot ${statusConfig?.autoCalculate ? 'auto-calc' : ''}"></span>
+        <span class="status-text" id="statusText">ABERTO AGORA</span>
+        <span class="status-hours">• ${escapeHtml(statusConfig.openTime || '08:00')} às ${escapeHtml(statusConfig.closeTime || '20:00')}</span>
       </div>
-    </div>`
-    )
-    .join('');
+      <button class="btn-share" onclick="handleShare()">${svgShare} Compartilhar</button>
+    </section>
+  ` : '';
 
-  const buttonsHtml = (buttons || [])
-    .map((b) => {
-      const isWa = b.iconName === 'whatsapp';
-      const targetUrl = isWa ? waUrl : sanitizeUrl(b.url);
-      return `
-    <a href="${targetUrl}" target="_blank" class="action-btn style-${b.style}">
-      <span>${escapeHtml(b.text)}</span>
-      <span class="chevron">→</span>
-    </a>`;
-    })
-    .join('');
+  const aboutHtml = (sectionsVisibility.about !== false && identity.about) ? `
+    <section class="about-card">
+      <span class="section-label">Sobre Nossa Proposta</span>
+      <p>${escapeHtml(identity.about)}</p>
+    </section>
+  ` : '';
+
+  const reviewsHtml = (sectionsVisibility.reviews !== false && googleReviewConfig?.enabled) ? `
+    <section class="reviews-card">
+      <div class="reviews-content">
+        <div class="stars-row">
+          ${svgStar}${svgStar}${svgStar}${svgStar}${svgStar}
+          <span class="stars-rating">5.0 (${escapeHtml(String(googleReviewConfig.reviewCount || 147))} avaliações)</span>
+        </div>
+        <h4 class="reviews-title">${escapeHtml(googleReviewConfig.title || 'NOS AVALIE NO GOOGLE')}</h4>
+        <p class="reviews-desc">${escapeHtml(googleReviewConfig.subtitle || 'Sua opinião é fundamental para nossa excelência.')}</p>
+      </div>
+      <a href="${sanitizeUrl(googleReviewConfig.url || location.mapsUrl || 'https://google.com')}" target="_blank" class="btn-review">${svgGg} Avaliar Agora</a>
+    </section>
+  ` : '';
+
+  const servicesHtml = (sectionsVisibility.services !== false && services.length > 0) ? `
+    <section class="services-section">
+      <div class="section-head">
+        <h3 class="section-title">Serviços & Procedimentos</h3>
+      </div>
+      <div class="services-list">
+        ${services.map((s) => `
+          <div class="service-card ${s.featured ? 'featured' : ''}">
+            <div class="service-body">
+              ${s.imageUrl ? `<img src="${sanitizeUrl(s.imageUrl)}" class="service-thumb" alt="${escapeHtml(s.name)}" loading="lazy" />` : ''}
+              <div class="service-info">
+                <div class="service-header">
+                  <h4>${escapeHtml(s.name)}</h4>
+                  <span class="service-price">${escapeHtml(s.price)}</span>
+                </div>
+                <p>${escapeHtml(s.description)}</p>
+                <div class="service-action">
+                  ${s.featured ? `<span class="badge-featured">${svgStar} Mais Solicitado</span>` : '<span></span>'}
+                  <a href="${waUrl}" target="_blank" class="btn-service">${svgWa} ${escapeHtml(s.ctaText || 'Agendar')}</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </section>
+  ` : '';
+
+  const galleryHtml = (sectionsVisibility.gallery !== false && photos.length > 0) ? `
+    <section class="gallery-section">
+      <div class="section-head">
+        <h3 class="section-title">Galeria Visual</h3>
+      </div>
+      <div class="gallery-grid">
+        ${photos.map((p) => `
+          <div class="photo-item" onclick="openModal('${sanitizeUrl(p.url)}')">
+            <img src="${sanitizeUrl(p.url)}" alt="${escapeHtml(p.alt || p.caption)}" loading="lazy" />
+            ${p.caption ? `<div class="caption">${escapeHtml(p.caption)}</div>` : ''}
+          </div>
+        `).join('')}
+      </div>
+    </section>
+  ` : '';
+
+  const hoursLocationHtml = ((sectionsVisibility.hours !== false && location.hours) || (sectionsVisibility.location !== false && location.address)) ? `
+    <section class="location-card">
+      ${(sectionsVisibility.hours !== false && location.hours) ? `
+        <div class="loc-item">
+          <strong>Horário de Funcionamento</strong>
+          <p>${escapeHtml(location.hours)}</p>
+        </div>
+      ` : ''}
+      ${(sectionsVisibility.location !== false && location.address) ? `
+        <div class="loc-item">
+          <strong>Localização Privilegiada</strong>
+          <p>${escapeHtml(location.address)}</p>
+          ${location.mapsUrl ? `<a href="${sanitizeUrl(location.mapsUrl)}" target="_blank" class="map-link">Ver rota no Google Maps →</a>` : ''}
+        </div>
+      ` : ''}
+    </section>
+  ` : '';
+
+  const buttonsHtml = (buttons.length > 0) ? `
+    <section class="buttons-section">
+      ${buttons.map((b) => {
+        const isWa = b.iconName === 'whatsapp';
+        const targetUrl = isWa ? waUrl : sanitizeUrl(b.url);
+        return `
+          <a href="${targetUrl}" target="_blank" class="action-btn style-${b.style}">
+            <span>${escapeHtml(b.text)}</span>
+            <span class="chevron">→</span>
+          </a>
+        `;
+      }).join('')}
+    </section>
+  ` : '';
+
+  const socialsHtml = (sectionsVisibility.socials !== false) ? `
+    <section class="socials-section">
+      <span class="socials-label">CONECTE-SE EM NOSSOS CANAIS</span>
+      <div class="socials-list style-${socialIconStyle}">
+        ${socials?.whatsapp?.enabled && waUrl ? `<a href="${waUrl}" target="_blank" class="social-icon wa">${svgWa}</a>` : ''}
+        ${socials?.instagram?.enabled && socials.instagram.url ? `<a href="${sanitizeUrl(socials.instagram.url)}" target="_blank" class="social-icon ig">${svgIg}</a>` : ''}
+        ${socials?.tiktok?.enabled && socials.tiktok.url ? `<a href="${sanitizeUrl(socials.tiktok.url)}" target="_blank" class="social-icon tt">${svgTt}</a>` : ''}
+        ${socials?.google?.enabled && socials.google.url ? `<a href="${sanitizeUrl(socials.google.url)}" target="_blank" class="social-icon gg">${svgGg}</a>` : ''}
+        ${location?.mapsUrl ? `<a href="${sanitizeUrl(location.mapsUrl)}" target="_blank" class="social-icon map">${svgMap}</a>` : ''}
+      </div>
+    </section>
+  ` : '';
+
+  const ctaHtml = (sectionsVisibility.cta !== false) ? `
+    <footer class="footer-cta">
+      <a href="${waUrl}" target="_blank" class="main-cta-btn">${svgWa} <span>${escapeHtml(identity.title || 'Agendar Atendimento')}</span></a>
+      <p class="copyright">${escapeHtml(identity.name)} • Todos os direitos reservados</p>
+      <p class="brand-credit">Biosite oficial criado na plataforma BIO FÁCIL</p>
+    </footer>
+  ` : '';
+
+  // Sections Render Order Mapper
+  const renderSection = (key: string) => {
+    switch (key) {
+      case 'hero': return heroHtml;
+      case 'status': return statusHtml;
+      case 'about': return aboutHtml;
+      case 'services': return servicesHtml;
+      case 'gallery': return galleryHtml;
+      case 'reviews': return reviewsHtml;
+      case 'hours':
+      case 'location': return hoursLocationHtml;
+      case 'socials': return socialsHtml;
+      case 'cta': return ctaHtml;
+      default: return '';
+    }
+  };
+
+  const renderedSectionsHtml = sectionsOrder.map((k) => renderSection(k)).join('');
 
   return `<!DOCTYPE html>
 <html lang="pt-BR">
@@ -103,558 +245,513 @@ export const generateStandaloneHtml = (project: ProjectData): string => {
   <meta property="og:title" content="${pageTitle}">
   <meta property="og:description" content="${pageDesc}">
   <meta property="og:image" content="${ogImg}">
-  <meta property="og:type" content="website">
   <link rel="icon" href="${favicon}">
+
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Chakra+Petch:wght@400;600;700&family=Cinzel:wght@600;800;900&family=DM+Sans:ital,opsz,wght@0,9..40,400..800;1,9..40,400..800&family=Playfair+Display:ital,wght@0,600;0,800;0,900;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Syne:wght@600;700;800;900&display=swap" rel="stylesheet">
+
   <style>
     :root {
-      --primary: ${theme.primary};
-      --secondary: ${theme.secondary};
-      --accent: ${theme.accent};
-      --bg: ${theme.background};
-      --surface: ${theme.surface};
-      --text: ${theme.text};
-      --text-muted: ${theme.textMuted};
+      --primary: ${theme.primary || '#D97706'};
+      --secondary: ${theme.secondary || '#92400E'};
+      --accent: ${theme.accent || '#FDE68A'};
+      --bg: ${theme.background || '#07080D'};
+      --surface: ${theme.surface || '#0F121C'};
+      --text: ${theme.text || '#F8FAFC'};
+      --font-heading: ${headingFontFamily};
+      --font-body: 'Plus Jakarta Sans', sans-serif;
     }
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     body {
       background-color: var(--bg);
       color: var(--text);
+      font-family: var(--font-body);
       min-height: 100vh;
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 24px 16px;
-      -webkit-font-smoothing: antialiased;
+      justify-content: center;
+      padding: 16px 12px 80px;
     }
+
     .container {
       width: 100%;
-      max-width: 580px;
+      max-width: 440px;
       margin: 0 auto;
-    }
-    /* Hero */
-    .hero-banner {
-      width: 100%;
-      height: 190px;
-      border-radius: 24px;
-      overflow: hidden;
-      position: relative;
-      background-size: cover;
-      background-position: center;
-      border: 1px solid rgba(255,255,255,0.08);
-      margin-bottom: -50px;
-    }
-    .hero-banner-overlay {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(to bottom, transparent 30%, var(--bg) 95%);
-    }
-    .hero-identity {
-      position: relative;
-      z-index: 10;
       display: flex;
       flex-direction: column;
-      align-items: center;
+      gap: 20px;
+    }
+
+    /* Hero */
+    .hero-section {
       text-align: center;
-      margin-bottom: 28px;
-    }
-    .avatar-wrapper {
+      padding: 32px 16px 20px;
       position: relative;
-      margin-bottom: 12px;
     }
-    .avatar-img {
+    .hero-logo-box {
       width: 96px;
       height: 96px;
-      border-radius: 20px;
-      object-fit: cover;
-      border: 3px solid var(--bg);
-      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-    }
-    .status-dot {
-      position: absolute;
-      bottom: -2px;
-      right: -2px;
-      width: 18px;
-      height: 18px;
       border-radius: 50%;
-      background: #10B981;
-      border: 2px solid var(--bg);
+      margin: 0 auto 16px;
+      padding: 3px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      box-shadow: 0 0 25px rgba(217, 119, 6, 0.4);
     }
-    .badge {
+    .hero-logo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+    .badge-hero {
       display: inline-block;
       padding: 4px 12px;
       border-radius: 999px;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.05em;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
       text-transform: uppercase;
-      background: rgba(255,255,255,0.08);
-      color: var(--primary);
-      border: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 12px;
+    }
+    .hero-title {
+      font-family: var(--font-heading);
+      font-size: 32px;
+      font-weight: 900;
+      line-height: 1.15;
+      text-transform: uppercase;
+      letter-spacing: -0.5px;
       margin-bottom: 8px;
     }
-    h1 {
-      font-size: 26px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      margin-bottom: 6px;
-      color: #FFFFFF;
-    }
-    .slogan {
+    .hero-slogan {
       font-size: 13px;
-      color: var(--text-muted);
+      color: rgba(255, 255, 255, 0.75);
       line-height: 1.5;
-      max-width: 440px;
     }
-    /* Buttons */
-    .buttons-group {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-bottom: 32px;
-    }
-    .action-btn {
+
+    /* Status Card */
+    .status-card {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 16px 20px;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 16px;
-      text-decoration: none;
-      font-weight: 700;
-      font-size: 14px;
-      transition: all 0.2s ease;
+      backdrop-filter: blur(10px);
     }
-    .action-btn.style-solid {
-      background: var(--primary);
-      color: #000;
-    }
-    .action-btn.style-gradient {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-      color: #FFF;
-      box-shadow: 0 8px 20px -4px rgba(139, 92, 246, 0.4);
-    }
-    .action-btn.style-glass {
-      background: rgba(255,255,255,0.08);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255,255,255,0.15);
-      color: #FFF;
-    }
-    .action-btn.style-outline {
-      border: 2px solid var(--primary);
-      color: #FFF;
-    }
-    .action-btn:hover {
-      transform: translateY(-2px);
-      filter: brightness(1.1);
-    }
-    /* Services */
-    .section-title {
-      font-size: 16px;
-      font-weight: 700;
-      margin-bottom: 14px;
+    .status-left {
       display: flex;
       align-items: center;
       gap: 8px;
-      color: #FFFFFF;
-    }
-    .section-title::before {
-      content: '';
-      display: inline-block;
-      width: 6px;
-      height: 16px;
-      border-radius: 3px;
-      background: var(--primary);
-    }
-    .services-group {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-bottom: 32px;
-    }
-    .service-card {
-      background: var(--surface);
-      border: 1px solid rgba(255,255,255,0.07);
-      border-radius: 18px;
-      padding: 14px;
-      transition: border 0.2s;
-    }
-    .service-card.featured {
-      border-color: var(--primary);
-    }
-    .service-body {
-      display: flex;
-      gap: 14px;
-    }
-    .service-thumb {
-      width: 70px;
-      height: 70px;
-      border-radius: 12px;
-      object-fit: cover;
-      flex-shrink: 0;
-    }
-    .service-info {
-      flex: 1;
-      min-width: 0;
-    }
-    .service-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 4px;
-    }
-    .service-header h4 {
-      font-size: 14px;
-      font-weight: 700;
-      color: #FFF;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .service-price {
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 800;
-      color: var(--primary);
-      padding: 2px 8px;
-      border-radius: 6px;
-      background: rgba(255,255,255,0.05);
-      flex-shrink: 0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
-    .service-info p {
-      font-size: 12px;
-      color: var(--text-muted);
-      line-height: 1.4;
-      margin-bottom: 10px;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #10B981;
+      box-shadow: 0 0 8px #10B981;
     }
-    .service-action {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+    .status-dot.closed {
+      background: #F59E0B;
+      box-shadow: 0 0 8px #F59E0B;
     }
-    .badge-featured {
+    .status-hours {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 11px;
+    }
+    .btn-share {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #FFF;
+      padding: 6px 12px;
+      border-radius: 12px;
       font-size: 11px;
       font-weight: 700;
-      color: #FBBF24;
-      display: inline-flex;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* About Card */
+    .about-card {
+      padding: 20px;
+      background: var(--surface);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      font-size: 13px;
+      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.8);
+    }
+    .section-label {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    /* Reviews Card */
+    .reviews-card {
+      padding: 20px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, rgba(217, 119, 6, 0.15), var(--surface));
+      border: 1px solid rgba(217, 119, 6, 0.3);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .stars-row {
+      display: flex;
       align-items: center;
       gap: 4px;
+      color: #FBBF24;
     }
-    .btn-service {
+    .stars-rating {
+      font-size: 12px;
+      font-weight: 800;
+      color: #FFF;
+      margin-left: 6px;
+    }
+    .reviews-title {
+      font-size: 14px;
+      font-weight: 900;
+      text-transform: uppercase;
+      color: #FFF;
+    }
+    .reviews-desc {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+    .btn-review {
+      align-self: flex-start;
+      padding: 8px 16px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #F59E0B, #D97706);
+      color: #07080D;
+      font-size: 11px;
+      font-weight: 900;
+      text-decoration: none;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 6px 14px;
+    }
+
+    /* Services */
+    .services-section { display: flex; flex-direction: column; gap: 12px; }
+    .section-head { display: flex; justify-content: space-between; align-items: center; }
+    .section-title {
+      font-family: var(--font-heading);
+      font-size: 18px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .services-list { display: flex; flex-direction: column; gap: 10px; }
+    .service-card {
+      padding: 16px;
+      background: var(--surface);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 18px;
+    }
+    .service-card.featured {
+      border-color: rgba(217, 119, 6, 0.4);
+      background: linear-gradient(135deg, var(--surface), rgba(217, 119, 6, 0.1));
+    }
+    .service-body { display: flex; gap: 12px; }
+    .service-thumb { width: 56px; height: 56px; border-radius: 12px; object-fit: cover; }
+    .service-info { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+    .service-header { display: flex; justify-content: space-between; align-items: baseline; }
+    .service-header h4 { font-size: 14px; font-weight: 800; }
+    .service-price { font-size: 13px; font-weight: 800; color: var(--primary); }
+    .service-info p { font-size: 12px; color: rgba(255, 255, 255, 0.6); line-height: 1.4; }
+    .service-action { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; }
+    .badge-featured { font-size: 10px; font-weight: 800; color: #FBBF24; display: flex; align-items: center; gap: 4px; }
+    .btn-service {
+      padding: 6px 12px;
+      background: rgba(255, 255, 255, 0.08);
       border-radius: 10px;
-      background: var(--primary);
       color: #FFF;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
       text-decoration: none;
-      transition: opacity 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 4px;
     }
-    .btn-service:hover {
-      opacity: 0.9;
-    }
-    /* Photos */
+
+    /* Gallery */
     .gallery-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-      margin-bottom: 32px;
+      gap: 8px;
     }
     .photo-item {
-      height: 150px;
-      border-radius: 16px;
-      overflow: hidden;
       position: relative;
+      height: 140px;
+      border-radius: 14px;
+      overflow: hidden;
       cursor: pointer;
-      border: 1px solid rgba(255,255,255,0.08);
     }
     .photo-item img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      transition: transform 0.3s;
+      transition: transform 0.4s ease;
     }
-    .photo-item:hover img {
-      transform: scale(1.05);
+    .photo-item:hover img { transform: scale(1.05); }
+
+    /* Action Buttons */
+    .buttons-section { display: flex; flex-direction: column; gap: 10px; }
+    .action-btn {
+      width: 100%;
+      padding: 16px 20px;
+      border-radius: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 14px;
+      transition: all 0.2s ease;
     }
-    .photo-item .caption {
-      position: absolute;
-      bottom: 0;
-      inset-x: 0;
-      padding: 8px;
-      background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
-      font-size: 11px;
-      font-weight: 600;
+    .action-btn.style-solid {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: #07080D;
+      box-shadow: 0 4px 20px rgba(217, 119, 6, 0.3);
+    }
+    .action-btn.style-glass {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
       color: #FFF;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      backdrop-filter: blur(10px);
     }
-    /* Location Card */
-    .info-card {
+    .action-btn.style-outline {
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      color: #FFF;
+    }
+
+    /* Socials */
+    .socials-section { text-align: center; margin-top: 10px; }
+    .socials-label { font-size: 10px; font-weight: 800; letter-spacing: 1.5px; color: rgba(255, 255, 255, 0.5); display: block; margin-bottom: 12px; }
+    .socials-list { display: flex; justify-content: center; gap: 12px; }
+    .social-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #FFF;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    .social-icon:hover { transform: scale(1.08); }
+
+    /* Location */
+    .location-card {
+      padding: 20px;
       background: var(--surface);
-      border: 1px solid rgba(255,255,255,0.08);
+      border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 20px;
-      padding: 18px;
-      margin-bottom: 32px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
+      font-size: 13px;
     }
-    .info-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-    .info-actions {
-      display: flex;
-      gap: 8px;
-      margin-top: 8px;
-      padding-top: 12px;
-      border-top: 1px solid rgba(255,255,255,0.08);
-    }
-    .info-btn {
-      flex: 1;
-      padding: 9px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.12);
-      color: #FFF;
-      font-size: 12px;
-      font-weight: 700;
-      text-align: center;
+    .loc-item strong { display: block; font-size: 11px; text-transform: uppercase; color: var(--primary); margin-bottom: 2px; }
+    .map-link { color: var(--accent); text-decoration: none; font-size: 12px; font-weight: 700; margin-top: 4px; display: inline-block; }
+
+    /* Footer */
+    .footer-cta { text-align: center; padding-top: 20px; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+    .main-cta-btn {
+      padding: 16px 28px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: #07080D;
+      font-weight: 900;
+      font-size: 14px;
       text-decoration: none;
       display: inline-flex;
       align-items: center;
-      justify-content: center;
-      gap: 6px;
+      gap: 8px;
+      box-shadow: 0 8px 25px rgba(217, 119, 6, 0.35);
     }
-    /* Socials */
-    .social-bar {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      margin-bottom: 32px;
-    }
-    .social-icon {
-      width: 44px;
-      height: 44px;
-      border-radius: 14px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.1);
+    .copyright { font-size: 11px; color: rgba(255, 255, 255, 0.4); text-transform: uppercase; letter-spacing: 1px; }
+    .brand-credit { font-size: 10px; color: rgba(255, 255, 255, 0.25); }
+
+    /* Floating WhatsApp */
+    .floating-wa {
+      position: fixed;
+      bottom: 24px;
+      ${whatsappConfig?.floatingPosition === 'left' ? 'left: 24px;' : 'right: 24px;'}
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: #10B981;
+      color: #FFF;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #FFF;
+      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5);
+      z-index: 100;
       text-decoration: none;
-      transition: all 0.2s;
+      transition: transform 0.2s ease;
     }
-    .social-icon:hover {
-      transform: scale(1.1);
-      border-color: var(--primary);
-    }
-    footer {
-      text-align: center;
-      padding-top: 20px;
-      border-top: 1px solid rgba(255,255,255,0.08);
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-    /* Lightbox Modal */
-    #lightbox {
+    .floating-wa:hover { transform: scale(1.1); }
+
+    /* Modal */
+    .modal-overlay {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.92);
-      z-index: 9999;
+      background: rgba(0,0,0,0.95);
+      z-index: 200;
       align-items: center;
       justify-content: center;
       padding: 16px;
-      cursor: pointer;
     }
-    #lightbox img {
-      max-width: 90vw;
-      max-height: 85vh;
-      border-radius: 16px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.8);
-    }
+    .modal-overlay.active { display: flex; }
+    .modal-overlay img { max-width: 90%; max-height: 85vh; border-radius: 16px; }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- Hero Banner -->
-    <div class="hero-banner" style="background-image: url('${sanitizeUrl(identity.bannerUrl || identity.avatarUrl || identity.logoUrl)}')">
-      <div class="hero-banner-overlay"></div>
-    </div>
-
-    <!-- Identity -->
-    <div class="hero-identity">
-      <div class="avatar-wrapper">
-        <img src="${sanitizeUrl(identity.avatarUrl || identity.logoUrl)}" class="avatar-img" alt="${escapeHtml(identity.name)}">
-        <span class="status-dot"></span>
-      </div>
-      ${identity.badge ? `<span class="badge">${escapeHtml(identity.badge)}</span>` : ''}
-      <h1>${escapeHtml(identity.name)}</h1>
-      <p class="slogan">${escapeHtml(identity.slogan)}</p>
-    </div>
-
-    <!-- Action Buttons -->
-    ${buttons && buttons.length > 0 ? `<div class="buttons-group">${buttonsHtml}</div>` : ''}
-
-    <!-- Services -->
-    ${services && services.length > 0 ? `
-    <div class="section-title">Serviços & Atendimentos</div>
-    <div class="services-group">${servicesHtml}</div>` : ''}
-
-    <!-- Gallery -->
-    ${photos && photos.length > 0 ? `
-    <div class="section-title">Galeria de Fotos</div>
-    <div class="gallery-grid">${photosHtml}</div>` : ''}
-
-    <!-- Location Card -->
-    ${location?.address ? `
-    <div class="info-card">
-      <div class="info-item">
-        <span>📍</span>
-        <span>${escapeHtml(location.address)}, ${escapeHtml(location.city)}</span>
-      </div>
-      ${location.hours ? `
-      <div class="info-item">
-        <span>🕒</span>
-        <span>${escapeHtml(location.hours)}</span>
-      </div>` : ''}
-      ${location.phone ? `
-      <div class="info-item">
-        <span>📞</span>
-        <span>${escapeHtml(location.phone)}</span>
-      </div>` : ''}
-      <div class="info-actions">
-        ${location.mapsUrl ? `<a href="${sanitizeUrl(location.mapsUrl)}" target="_blank" class="info-btn">${svgMap} Como Chegar</a>` : ''}
-        ${socials?.googleReview?.enabled && socials.googleReview.url ? `<a href="${sanitizeUrl(socials.googleReview.url)}" target="_blank" class="info-btn">${svgStar} Avalie no Google</a>` : ''}
-      </div>
-    </div>` : ''}
-
-    <!-- Social Bar -->
-    <div class="social-bar">
-      ${cleanWaNumber ? `<a href="${waUrl}" target="_blank" class="social-icon" title="WhatsApp">${svgWa}</a>` : ''}
-      ${socials?.instagram?.enabled && socials.instagram.url ? `<a href="${sanitizeUrl(socials.instagram.url)}" target="_blank" class="social-icon" title="Instagram">${svgIg}</a>` : ''}
-      ${socials?.tiktok?.enabled && socials.tiktok.url ? `<a href="${sanitizeUrl(socials.tiktok.url)}" target="_blank" class="social-icon" title="TikTok">${svgTt}</a>` : ''}
-      ${socials?.google?.enabled && socials.google.url ? `<a href="${sanitizeUrl(socials.google.url)}" target="_blank" class="social-icon" title="Google">${svgGg}</a>` : ''}
-    </div>
-
-    <!-- Footer -->
-    <footer>
-      <p><strong>${escapeHtml(identity.name)}</strong></p>
-      <p>© ${new Date().getFullYear()} — Todos os direitos reservados</p>
-    </footer>
+    ${renderedSectionsHtml}
+    ${buttonsHtml}
   </div>
 
-  <!-- Lightbox Modal -->
-  <div id="lightbox" onclick="closeModal()">
-    <img id="lightbox-img" src="" alt="Visualização">
+  ${(whatsappConfig?.showFloating !== false && cleanWaNumber) ? `
+    <a href="${waUrl}" target="_blank" class="floating-wa" title="Conversar no WhatsApp">
+      ${svgWa}
+    </a>
+  ` : ''}
+
+  <!-- Photo Lightbox Modal -->
+  <div id="photoModal" class="modal-overlay" onclick="closeModal()">
+    <img id="modalImg" src="" alt="Ampliada" />
   </div>
 
   <script>
+    // Automatic Status Calculation
+    function calculateStatus() {
+      const card = document.getElementById('statusCard');
+      if (!card) return;
+      const textElem = document.getElementById('statusText');
+      const dot = card.querySelector('.status-dot');
+      if (!dot || !dot.classList.contains('auto-calc')) return;
+
+      const now = new Date();
+      const currentMin = now.getHours() * 60 + now.getMinutes();
+
+      const [openH, openM] = '${statusConfig?.openTime || '08:00'}'.split(':').map(Number);
+      const [closeH, closeM] = '${statusConfig?.closeTime || '20:00'}'.split(':').map(Number);
+
+      const openMin = openH * 60 + openM;
+      const closeMin = closeH * 60 + closeM;
+
+      if (currentMin >= openMin && currentMin <= closeMin) {
+        textElem.textContent = 'ABERTO AGORA';
+        dot.classList.remove('closed');
+      } else {
+        textElem.textContent = 'FECHADO NO MOMENTO';
+        dot.classList.add('closed');
+      }
+    }
+    calculateStatus();
+
+    // Web Share API
+    function handleShare() {
+      if (navigator.share) {
+        navigator.share({
+          title: document.title,
+          url: window.location.href
+        }).catch(function() {});
+      } else {
+        navigator.clipboard.writeText(window.location.href).then(function() {
+          alert('Link do biosite copiado para a área de transferência!');
+        });
+      }
+    }
+
+    // Lightbox modal
     function openModal(url) {
-      document.getElementById('lightbox-img').src = url;
-      document.getElementById('lightbox').style.display = 'flex';
+      document.getElementById('modalImg').src = url;
+      document.getElementById('photoModal').classList.add('active');
     }
     function closeModal() {
-      document.getElementById('lightbox').style.display = 'none';
-      document.getElementById('lightbox-img').src = '';
+      document.getElementById('photoModal').classList.remove('active');
     }
   </script>
 </body>
 </html>`;
 };
 
-export const exportProjectZip = async (project: ProjectData): Promise<Blob> => {
+export const exportProjectZip = async (project: ProjectData): Promise<void> => {
   const zip = new JSZip();
+  const htmlContent = generateStandaloneHtml(project);
 
-  // 1. Generate standalone index.html
-  const standaloneHtml = generateStandaloneHtml(project);
-  zip.file('index.html', standaloneHtml);
+  zip.file('index.html', htmlContent);
+  zip.file(
+    'README.md',
+    `# Biosite Oficial: ${project.identity.name}
+Gerado pela plataforma BIO FÁCIL.
 
-  // 2. Generate vercel.json for static hosting
-  const vercelJson = JSON.stringify(
-    {
-      version: 2,
-      cleanUrls: true,
-      headers: [
-        {
-          source: '/(.*)',
-          headers: [
-            { key: 'X-Content-Type-Options', value: 'nosniff' },
-            { key: 'X-Frame-Options', value: 'DENY' },
-            { key: 'X-XSS-Protection', value: '1; mode=block' }
-          ]
-        }
-      ]
-    },
-    null,
-    2
+## Como Publicar Este Biosite Gratuitamente:
+
+1. **Vercel**:
+   - Acesse vercel.com e faça login.
+   - Arraste esta pasta descompactada para a Vercel.
+   - Seu biosite estará online em menos de 30 segundos!
+
+2. **Netlify**:
+   - Acesse netlify.com
+   - Vá em "Deploy manually" e arraste a pasta com o arquivo index.html.
+
+3. **Cloudflare Pages / GitHub Pages**:
+   - Faça upload do arquivo index.html no seu repositório ou projeto Pages.`
   );
-  zip.file('vercel.json', vercelJson);
 
-  // 3. Generate comprehensive README.txt
-  const readmeContent = `=====================================================
-BIOSITE PRO 2.0 — SEU SITE ESTÁ PRONTO PARA PUBLICAR
-=====================================================
+  const blob = await zip.generateAsync({ type: 'blob' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  const fileName = (project.identity.name || 'biofacil-projeto')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '-')
+    .replace(/-+/g, '-');
+  link.download = `${fileName}.zip`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+};
 
-Projeto: ${project.nome}
-Gerado em: ${new Date().toLocaleString('pt-BR')}
-
-Este pacote contém um site 100% estático, independente e ultra-rápido.
-NÃO necessita de banco de dados, PHP ou Node.js para funcionar.
-
------------------------------------------------------
-COMO PUBLICAR NA VERCEL (Recomendado):
------------------------------------------------------
-1. Acesse https://vercel.com
-2. Crie uma conta gratuita ou faça login
-3. Clique em "Add New..." -> "Project"
-4. Arraste e solte esta pasta descompactada diretamente na Vercel
-   OU suba para um repositório GitHub e importe na Vercel.
-5. Clique em "Deploy". Seu biosite estará online em menos de 30 segundos!
-
------------------------------------------------------
-COMO PUBLICAR NA NETLIFY:
------------------------------------------------------
-1. Acesse https://app.netlify.com/drop
-2. Arraste e solte a pasta descompactada no quadrado de upload.
-3. Pronto! O site receberá uma URL pública instantânea.
-
------------------------------------------------------
-OUTRAS HOSPEDAGENS (Hostinger, cPanel, Cloudflare Pages):
------------------------------------------------------
-Basta enviar o arquivo "index.html" para a pasta "public_html" ou "www"
-da sua hospedagem.
-
------------------------------------------------------
-CONTEÚDO DO PACOTE:
------------------------------------------------------
-- index.html   -> Página principal completa, responsiva e otimizada.
-- vercel.json  -> Configuração de cabeçalhos de segurança para Vercel.
-- README.txt   -> Este manual de publicação.
-
-BioSite Pro 2.0 — Tecnologia para conversão e alto padrão visual.
-`;
-  zip.file('README.txt', readmeContent);
-
-  // Generate ZIP blob
-  return await zip.generateAsync({ type: 'blob' });
+export const downloadStandaloneHtml = (project: ProjectData): void => {
+  const htmlContent = generateStandaloneHtml(project);
+  const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  const fileName = (project.identity.name || 'index')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '-')
+    .replace(/-+/g, '-');
+  link.download = `${fileName}.html`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 };
