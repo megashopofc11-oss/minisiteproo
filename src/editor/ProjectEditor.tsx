@@ -265,6 +265,19 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({
     }));
   };
 
+  const updateLogoConfig = (updates: Partial<NonNullable<ProjectData['logoConfig']>>) => {
+    setProject((prev) => ({
+      ...prev,
+      logoConfig: {
+        size: prev.logoConfig?.size || 'lg',
+        align: prev.logoConfig?.align || 'center',
+        position: prev.logoConfig?.position || 'hero',
+        background: prev.logoConfig?.background || 'none',
+        ...updates
+      }
+    }));
+  };
+
   // Section Ordering & Visibility Controls (Requisito 18)
   const toggleSectionVisibility = (key: SectionKey) => {
     setProject((prev) => ({
@@ -605,35 +618,125 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({
             </button>
 
             {openSections.logo_capa && (
-              <div className="p-4 pt-0 space-y-3 border-t border-white/5">
-                <div>
-                  <label className="text-[11px] font-bold text-slate-400 block mb-1">URL do Logo (PNG transparente / JPG)</label>
-                  <input
-                    type="text"
-                    value={project.identity.logoUrl}
-                    onChange={(e) => updateIdentity('logoUrl', e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:border-amber-400 outline-none"
-                  />
+              <div className="p-4 pt-0 space-y-4 border-t border-white/5">
+                {/* 1. LOGO PRINCIPAL (PNG TRANSPARENTE) */}
+                <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/10 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black text-amber-400 uppercase tracking-wider">
+                      Logo da Marca / Empresa
+                    </span>
+                    <span className="text-[10px] text-slate-400">PNG transparente</span>
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-400 block mb-1">
+                      URL da Logo (PNG, SVG, WEBP)
+                    </label>
+                    <input
+                      type="text"
+                      value={project.identity.logoUrl || ''}
+                      onChange={(e) => updateIdentity('logoUrl', e.target.value)}
+                      placeholder="https://exemplo.com/logo.png"
+                      className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:border-amber-400 outline-none"
+                    />
+                    <p className="text-[10px] text-slate-400 mt-1">
+                      A logo não é recortada em círculo: ela preserva o formato original e proporções reais.
+                    </p>
+                  </div>
+
+                  {/* Logo Controls: Size, Align, Background */}
+                  <div className="grid grid-cols-2 gap-2 pt-1">
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-400 block mb-1">Tamanho da Logo</label>
+                      <select
+                        value={project.logoConfig?.size || 'lg'}
+                        onChange={(e) => updateLogoConfig({ size: e.target.value as any })}
+                        className="w-full px-2.5 py-1.5 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:border-amber-400 outline-none"
+                      >
+                        <option value="sm" className="bg-[#0D0F1C]">Pequena (48px)</option>
+                        <option value="md" className="bg-[#0D0F1C]">Média (64px)</option>
+                        <option value="lg" className="bg-[#0D0F1C]">Grande (96px)</option>
+                        <option value="xl" className="bg-[#0D0F1C]">Extra Grande (128px)</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-400 block mb-1">Alinhamento</label>
+                      <select
+                        value={project.logoConfig?.align || 'center'}
+                        onChange={(e) => updateLogoConfig({ align: e.target.value as any })}
+                        className="w-full px-2.5 py-1.5 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:border-amber-400 outline-none"
+                      >
+                        <option value="center" className="bg-[#0D0F1C]">Centro</option>
+                        <option value="left" className="bg-[#0D0F1C]">Esquerda</option>
+                        <option value="right" className="bg-[#0D0F1C]">Direita</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-400 block mb-1">Fundo da Logo</label>
+                    <div className="grid grid-cols-4 gap-1.5">
+                      {[
+                        { id: 'none', label: 'Nenhum' },
+                        { id: 'glass', label: 'Vidro' },
+                        { id: 'light', label: 'Claro' },
+                        { id: 'dark', label: 'Escuro' }
+                      ].map((item) => {
+                        const isSelected = (project.logoConfig?.background || 'none') === item.id;
+                        return (
+                          <button
+                            key={item.id}
+                            type="button"
+                            onClick={() => updateLogoConfig({ background: item.id as any })}
+                            className={`py-1.5 px-2 rounded-xl text-[10px] font-bold border text-center transition-all cursor-pointer ${
+                              isSelected
+                                ? 'bg-amber-500 text-slate-950 border-amber-400 font-black'
+                                : 'bg-white/5 border-white/10 text-slate-300 hover:text-white'
+                            }`}
+                          >
+                            {item.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
 
-                <div>
-                  <label className="text-[11px] font-bold text-slate-400 block mb-1">URL Foto Principal (Avatar / Foto de Perfil)</label>
-                  <input
-                    type="text"
-                    value={project.identity.avatarUrl}
-                    onChange={(e) => updateIdentity('avatarUrl', e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:border-amber-400 outline-none"
-                  />
-                </div>
+                {/* 2. FOTOGRAFIAS (DISTINTAS DA LOGO) */}
+                <div className="p-3 rounded-2xl bg-white/[0.03] border border-white/10 space-y-3">
+                  <span className="text-xs font-black text-amber-400 uppercase tracking-wider block">
+                    Fotografias de Destaque
+                  </span>
 
-                <div>
-                  <label className="text-[11px] font-bold text-slate-400 block mb-1">URL Banner de Fundo Cinematográfico</label>
-                  <input
-                    type="text"
-                    value={project.identity.bannerUrl}
-                    onChange={(e) => updateIdentity('bannerUrl', e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:border-amber-400 outline-none"
-                  />
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-400 block mb-1">
+                      Foto Principal / Banner do Hero
+                    </label>
+                    <input
+                      type="text"
+                      value={project.identity.bannerUrl || ''}
+                      onChange={(e) => updateIdentity('bannerUrl', e.target.value)}
+                      placeholder="https://exemplo.com/banner.jpg"
+                      className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:border-amber-400 outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-400 block mb-1">
+                      Foto do Profissional / Especialista
+                    </label>
+                    <input
+                      type="text"
+                      value={project.identity.avatarUrl || ''}
+                      onChange={(e) => updateIdentity('avatarUrl', e.target.value)}
+                      placeholder="https://exemplo.com/profissional.jpg"
+                      className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:border-amber-400 outline-none"
+                    />
+                    <p className="text-[10px] text-slate-400 mt-1">
+                      Usada especialmente nos modelos focados no profissional (ex: Modelo 09 - Profile).
+                    </p>
+                  </div>
                 </div>
               </div>
             )}

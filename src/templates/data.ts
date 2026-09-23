@@ -12,7 +12,7 @@ export const NICHOS_LIST: NichoInfo[] = [
     accentColor: '#D97706',
     secondaryColor: '#92400E',
     accentGlow: 'rgba(217, 119, 6, 0.4)',
-    badge: 'COLEÇÃO EXCLUSIVA',
+    badge: 'ALTA PRECISÃO',
     tagline: 'A arte da barbearia elevada a uma experiência visual de cinema.',
     coverImage: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=1200&q=85',
     highlights: ['Lâmina e Navalha 3D', 'Agendamento Direto', 'Galeria de Cortes', 'Review Google Integrado']
@@ -28,7 +28,7 @@ export const NICHOS_LIST: NichoInfo[] = [
     accentColor: '#EC4899',
     secondaryColor: '#BE185D',
     accentGlow: 'rgba(236, 72, 153, 0.4)',
-    badge: 'COLEÇÃO EXCLUSIVA',
+    badge: 'ESTÉTICA VIP',
     tagline: 'Elegância, brilho e valorização máxima do seu trabalho nas unhas.',
     coverImage: 'https://images.unsplash.com/photo-1632345031435-8727f6897d53?auto=format&fit=crop&w=1200&q=85',
     highlights: ['Esmalte e Cristal 3D', 'Apresentação de Cuidados', 'Fotos em Alta Resolução', 'Status Aberto/Fechado']
@@ -44,7 +44,7 @@ export const NICHOS_LIST: NichoInfo[] = [
     accentColor: '#F59E0B',
     secondaryColor: '#B45309',
     accentGlow: 'rgba(245, 158, 11, 0.4)',
-    badge: 'COLEÇÃO EXCLUSIVA',
+    badge: 'ALTA COSTURA',
     tagline: 'O requinte de um salão de alta costura na palma da mão da sua cliente.',
     coverImage: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=1200&q=85',
     highlights: ['Tesoura Régia 3D', 'Especialidades & Mechas', 'Experiência Noiva', 'Avaliações Estreladas']
@@ -60,7 +60,7 @@ export const NICHOS_LIST: NichoInfo[] = [
     accentColor: '#EF4444',
     secondaryColor: '#DC2626',
     accentGlow: 'rgba(239, 68, 68, 0.4)',
-    badge: 'COLEÇÃO EXCLUSIVA',
+    badge: 'FORNO A LENHA',
     tagline: 'Desperte o apetite imediato com imagens quentes e pedidos diretos.',
     coverImage: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1200&q=85',
     highlights: ['Fatia Forno a Lenha 3D', 'Especialidades Artesanais', 'Pedido WhatsApp Direto', 'Horário de Fornada']
@@ -76,7 +76,7 @@ export const NICHOS_LIST: NichoInfo[] = [
     accentColor: '#E2E8F0',
     secondaryColor: '#94A3B8',
     accentGlow: 'rgba(226, 232, 240, 0.4)',
-    badge: 'COLEÇÃO EXCLUSIVA',
+    badge: 'FASHION & LUXO',
     tagline: 'A sofisticação da sua boutique em uma vitrine digital inesquecível.',
     coverImage: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=85',
     highlights: ['Sacola de Luxo 3D', 'Apresentação de Looks', 'Conexão Instagram & WhatsApp', 'Provador VIP']
@@ -92,7 +92,7 @@ export const NICHOS_LIST: NichoInfo[] = [
     accentColor: '#3B82F6',
     secondaryColor: '#1D4ED8',
     accentGlow: 'rgba(59, 130, 246, 0.4)',
-    badge: 'COLEÇÃO EXCLUSIVA',
+    badge: 'ALTO PADRÃO',
     tagline: 'Autoridade e credibilidade máxima para fechar negócios imobiliários.',
     coverImage: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=85',
     highlights: ['Mansão & Chave 3D', 'Especialidades do Corretor', 'CRECI & Confiança', 'Atendimento Direto']
@@ -108,7 +108,7 @@ export const NICHOS_LIST: NichoInfo[] = [
     accentColor: '#F97316',
     secondaryColor: '#EA580C',
     accentGlow: 'rgba(249, 115, 22, 0.4)',
-    badge: 'COLEÇÃO EXCLUSIVA',
+    badge: 'PERFORMANCE',
     tagline: 'Apresente seus métodos e transforme seguidores em alunos fiéis.',
     coverImage: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1200&q=85',
     highlights: ['Haltere Forjado 3D', 'Metodologias de Treino', 'Planos de Consultoria', 'Antes & Depois']
@@ -124,7 +124,7 @@ export const NICHOS_LIST: NichoInfo[] = [
     accentColor: '#60A5FA',
     secondaryColor: '#2563EB',
     accentGlow: 'rgba(96, 165, 250, 0.4)',
-    badge: 'COLEÇÃO EXCLUSIVA',
+    badge: 'TRANSPORTE VIP',
     tagline: 'Transmita confiança imediata e garanta reservas diretas no seu WhatsApp.',
     coverImage: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1200&q=85',
     highlights: ['Sedan Executivo 3D', 'Rotas & Viagens', 'Chamar Imediato', 'Veículo Conforto']
@@ -140,7 +140,7 @@ export const NICHOS_LIST: NichoInfo[] = [
     accentColor: '#FB923C',
     secondaryColor: '#C2410C',
     accentGlow: 'rgba(251, 146, 60, 0.4)',
-    badge: 'COLEÇÃO EXCLUSIVA',
+    badge: 'TECNOLOGIA & PRECISÃO',
     tagline: 'Mostre a tecnologia e a seriedade da sua oficina com clareza total.',
     coverImage: 'https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=1200&q=85',
     highlights: ['Chave de Aço 3D', 'Diagnóstico Computadorizado', 'Localização Waze/Maps', 'Orçamento Rápido']
@@ -156,7 +156,7 @@ export const NICHOS_LIST: NichoInfo[] = [
     accentColor: '#F472B6',
     secondaryColor: '#DB2777',
     accentGlow: 'rgba(244, 114, 182, 0.4)',
-    badge: 'COLEÇÃO EXCLUSIVA',
+    badge: 'CONFEITARIA FINA',
     tagline: 'Apresente suas criações mais irresistíveis e conquiste clientes à primeira vista.',
     coverImage: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=1200&q=85',
     highlights: ['Bolo Esculpido 3D', 'Galeria de Encomendas', 'Doces Finos', 'Review Google']
@@ -185,18 +185,18 @@ export const DESIGN_STYLES: DesignStyleConfig[] = [
     socialIconStyle: 'glass',
     styleName: 'Cinematic Hero',
     tagline: 'Logo protagonista, fotografia com atmosfera de cinema e alta presença.',
-    description: 'Visual cinematográfico imersivo com logo central, contrastes nobres e seções reveladas com elegância.'
+    description: 'Visual cinematográfico com logo central solto, contrastes nobres e seções reveladas com elegância.'
   },
   {
     index: 2,
     layout: 'editorial',
-    serviceLayout: 'minimal-list',
+    serviceLayout: 'editorial',
     galleryStyle: 'editorial',
     fontCategory: 'EDITORIAL',
     socialIconStyle: 'minimal',
     styleName: 'Editorial Magazine',
     tagline: 'Estilo revista de alta costura com tipografia display e espaço visual.',
-    description: 'Diagramação assimétrica, títulos imponentes e linhas puras que valorizam a estética do profissional.'
+    description: 'Diagramação assimétrica, títulos imponentes e serviços apresentados como palavras grandes sem cards.'
   },
   {
     index: 3,
@@ -206,8 +206,8 @@ export const DESIGN_STYLES: DesignStyleConfig[] = [
     fontCategory: 'MODERNA',
     socialIconStyle: 'glass',
     styleName: 'Glass Experience',
-    tagline: 'Camadas translúcidas com efeito vidro fosco, profundidade e glow suave.',
-    description: 'Glassmorphism de alto padrão com bordas brilhantes, badges flutuantes e sensação de leveza tecnológica.'
+    tagline: 'Hero full-screen com card translúcido flutuante e botões de vidro fosco.',
+    description: 'Glassmorphism de alto padrão com bordas luminosas, botões glass e sensação de profundidade 3D.'
   },
   {
     index: 4,
@@ -217,8 +217,8 @@ export const DESIGN_STYLES: DesignStyleConfig[] = [
     fontCategory: 'BOLD',
     socialIconStyle: 'original',
     styleName: 'Immersive Photo',
-    tagline: 'Fotografia dominante em tela cheia com textos integrados à imagem.',
-    description: 'Para negócios onde a imagem é o maior vendedor. Imagens impactantes com sobreposições suaves e leitura limpa.'
+    tagline: 'Experiência baseada em capítulos visuais onde cada scroll revela uma fotografia.',
+    description: 'Pouquíssimos cards, fotografia dominante em tela cheia com textos integrados diretamente à imagem.'
   },
   {
     index: 5,
@@ -228,52 +228,52 @@ export const DESIGN_STYLES: DesignStyleConfig[] = [
     fontCategory: 'MINIMAL',
     socialIconStyle: 'outline',
     styleName: 'Minimal Luxury',
-    tagline: 'Silencioso, requintado e focado no essencial com espaço negativo nobre.',
-    description: 'Tipografia minimalista precisa, ausência de ruídos e valorização do bom gosto e sofisticação discreta.'
+    tagline: 'Fundo off-white luminoso, tipografia preta elegante e espaço negativo nobre.',
+    description: 'Visual diurno e silencioso com logo em respiro amplo, ausência de ruídos e detalhes discretos.'
   },
   {
     index: 6,
-    layout: 'orbital',
+    layout: 'urban',
     serviceLayout: 'icons-grid',
     galleryStyle: 'collage',
     fontCategory: 'BOLD',
     socialIconStyle: '3d',
-    styleName: 'Orbital Dynamic',
-    tagline: 'Logo central marcante com elementos de contato e atalhos em disposição radial.',
-    description: 'Composição dinâmica onde a marca fica no centro e as conexões orbitam de forma interativa e moderna.'
+    styleName: 'Urban Brutalist',
+    tagline: 'Preto e cinzas industriais, tipografia marcante em blocos e atmosfera jovem.',
+    description: 'Grids visuais, linhas de alta atitude, fotografia urbana e numeração técnica direta.'
   },
   {
     index: 7,
-    layout: 'story',
+    layout: 'classic-club',
     serviceLayout: 'accordion',
     galleryStyle: 'overlap',
-    fontCategory: 'MODERNA',
+    fontCategory: 'ELEGANTE',
     socialIconStyle: 'glass',
-    styleName: 'Story Experience',
-    tagline: 'Uma jornada narrativa durante a rolagem: Marca → Essência → Provas → Contato.',
-    description: 'Estruturado como uma história sequencial que envolve o visitante e o conduz naturalmente até a decisão de contato.'
+    styleName: 'Classic Club',
+    tagline: 'Marrom escuro, couro nobre, dourado envelhecido e visual de clube exclusivo.',
+    description: 'Composição acolhedora inspirada em ateliês e lounges clássicos com serifas requintadas.'
   },
   {
     index: 8,
-    layout: 'cards',
+    layout: 'motion',
     serviceLayout: 'cards',
     galleryStyle: 'cards',
     fontCategory: 'MODERNA',
-    socialIconStyle: 'original',
-    styleName: 'Premium Bento Cards',
-    tagline: 'Grid modular contemporâneo estilo Bento Box com ícones trabalhados.',
-    description: 'Cartões modulares de alto relevo que organizam especialidades, diferenciais e avaliações com extrema clareza.'
+    socialIconStyle: 'glow',
+    styleName: 'Motion Dynamic',
+    tagline: 'Elementos com iluminação viva, cards com microinterações e visual energético.',
+    description: 'Transições visuais suaves, relevos luminosos e botões que saltam aos olhos do cliente.'
   },
   {
     index: 9,
-    layout: 'neon',
+    layout: 'profile',
     serviceLayout: 'tags',
     galleryStyle: 'carousel',
-    fontCategory: 'ESPORTIVA',
-    socialIconStyle: 'glow',
-    styleName: 'Neon Energy',
-    tagline: 'Preto profundo com linhas luminosas, cores vivas e alta performance visual.',
-    description: 'Atmosfera noturna com traços de luz néon, estética futurista e chamadas de ação com máxima vibração.'
+    fontCategory: 'MODERNA',
+    socialIconStyle: 'glass',
+    styleName: 'Profile do Especialista',
+    tagline: 'Foco no profissional, sua foto de destaque, história autoral e agenda direta.',
+    description: 'Destaque pessoal do fundador ou especialista, conectando autoridade e atendimento individual.'
   },
   {
     index: 10,
@@ -283,8 +283,8 @@ export const DESIGN_STYLES: DesignStyleConfig[] = [
     fontCategory: 'ELEGANTE',
     socialIconStyle: '3d',
     styleName: 'Signature Exclusive',
-    tagline: 'O modelo mais exclusivo e sofisticado, com selo de assinatura e acabamento VIP.',
-    description: 'Combinação refinada de fotografia autoral, selo de autenticidade, tipografia de luxo e contato direto personalizado.'
+    tagline: 'O modelo mais exclusivo com selo de autenticidade, reviews VIP e concierge.',
+    description: 'Composição assimétrica de alto luxo, selo dourado de assinatura e botão direto de concierge VIP.'
   }
 ];
 
@@ -786,28 +786,55 @@ NICHOS_LIST.forEach((nicho) => {
     // Colors adjusted by layout vibe while respecting niche personality
     let themeBg = '#07080D';
     let themeSurface = '#0E111C';
+    let themeText = '#F8FAFC';
+    let themeTextMuted = '#94A3B8';
     let themeBorder = 'rgba(255, 255, 255, 0.1)';
 
     if (style.layout === 'minimal') {
+      // 05 — Minimal Luxury (Off-White Luminoso)
+      themeBg = '#FAF9F6';
+      themeSurface = '#FFFFFF';
+      themeText = '#0F172A';
+      themeTextMuted = '#64748B';
+      themeBorder = 'rgba(0, 0, 0, 0.08)';
+    } else if (style.layout === 'classic-club') {
+      // 07 — Classic Club (Couro & Mogno Escuro com Dourado Envelhecido)
+      themeBg = '#130C08';
+      themeSurface = '#1E140E';
+      themeText = '#FDFBF7';
+      themeTextMuted = '#D7C2B2';
+      themeBorder = '#3E2718';
+    } else if (style.layout === 'urban') {
+      // 06 — Urban Brutalist (Concreto Industrial)
       themeBg = '#090A0F';
-      themeSurface = '#11131A';
-    } else if (style.layout === 'neon') {
-      themeBg = '#030407';
-      themeSurface = '#090B12';
-      themeBorder = `${nicho.accentColor}40`;
+      themeSurface = '#131520';
+      themeText = '#F8FAFC';
+      themeTextMuted = '#94A3B8';
+      themeBorder = 'rgba(255, 255, 255, 0.15)';
     } else if (style.layout === 'editorial') {
+      // 02 — Editorial Magazine
       themeBg = '#0A0B10';
       themeSurface = '#12141F';
+      themeText = '#FFFFFF';
+      themeTextMuted = '#94A3B8';
+      themeBorder = 'rgba(255, 255, 255, 0.12)';
+    } else if (style.layout === 'signature') {
+      // 10 — Signature Exclusive
+      themeBg = '#06070B';
+      themeSurface = '#0E1018';
+      themeText = '#FFFDF5';
+      themeTextMuted = '#CBD5E1';
+      themeBorder = 'rgba(245, 158, 11, 0.25)';
     }
 
     const defaultTheme = {
       primary: nicho.accentColor,
       secondary: nicho.secondaryColor || '#D97706',
-      accent: '#FDE68A',
+      accent: style.layout === 'minimal' ? '#B45309' : '#FDE68A',
       background: themeBg,
       surface: themeSurface,
-      text: '#F8FAFC',
-      textMuted: '#94A3B8',
+      text: themeText,
+      textMuted: themeTextMuted,
       cardBg: themeSurface,
       border: themeBorder,
       fontHeading: style.fontCategory === 'EDITORIAL' ? 'Bodoni Moda' : style.fontCategory === 'ELEGANTE' ? 'Playfair Display' : 'Plus Jakarta Sans',
@@ -898,6 +925,12 @@ NICHOS_LIST.forEach((nicho) => {
       },
 
       // Premium Experience Fields
+      logoConfig: {
+        size: 'lg',
+        align: 'center',
+        position: 'hero',
+        background: 'none'
+      },
       fontCategory: style.fontCategory,
       socialIconStyle: style.socialIconStyle,
       serviceLayout: style.serviceLayout,

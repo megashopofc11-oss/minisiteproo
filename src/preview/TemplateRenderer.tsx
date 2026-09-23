@@ -20,7 +20,8 @@ import {
   Info,
   CheckCircle2,
   Layers,
-  ChevronDown
+  ChevronDown,
+  UserCheck
 } from 'lucide-react';
 
 interface TemplateRendererProps {
@@ -54,7 +55,8 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
     fontCategory = 'MODERNA',
     socialIconStyle = 'glass',
     serviceLayout = 'cards',
-    differentials = []
+    differentials = [],
+    logoConfig
   } = project;
 
   // Formatting WhatsApp URL
@@ -68,7 +70,7 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
   // Status calculation (Aberto / Fechado)
   const isCurrentlyOpen = useMemo(() => {
     if (!statusConfig?.enabled) return true;
-    if (!statusConfig.autoCalculate) return statusConfig.customText?.includes('ABERTO') ?? true;
+    if (!statusConfig.autoCalculate) return statusConfig.customText?.toLowerCase().includes('aberto');
 
     try {
       const now = new Date();
@@ -86,32 +88,14 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
     }
   }, [statusConfig]);
 
-  // Web Share API handler
-  const handleShare = async () => {
-    const shareData = {
-      title: identity.name || 'BioSite Oficial',
-      text: identity.slogan || identity.description || 'Conheça nosso biosite oficial.',
-      url: window.location.href
-    };
-
-    if (navigator.share) {
-      try {
-        await navigator.share(shareData);
-      } catch (err) {
-        // User cancelled share
-      }
-    } else {
-      try {
-        await navigator.clipboard.writeText(window.location.href);
-        setCopiedLink(true);
-        setTimeout(() => setCopiedLink(false), 2500);
-      } catch (err) {
-        console.error('Clipboard copy failed', err);
-      }
-    }
+  // Copy share link
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setCopiedLink(true);
+    setTimeout(() => setCopiedLink(false), 2200);
   };
 
-  // Font Family selector based on Category
+  // Determine fonts
   const getHeadingFontFamily = () => {
     switch (fontCategory) {
       case 'ELEGANTE':
@@ -124,28 +108,8 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
         return "'DM Sans', sans-serif";
       case 'ESPORTIVA':
         return "'Chakra Petch', sans-serif";
-      case 'MODERNA':
       default:
         return "'Plus Jakarta Sans', sans-serif";
-    }
-  };
-
-  // Social Icon Style Generator
-  const getSocialIconStyleClasses = (style: string) => {
-    switch (style) {
-      case 'original':
-        return 'bg-white/10 hover:bg-white/20 text-white shadow-md hover:scale-105 transition-all';
-      case 'minimal':
-        return 'bg-transparent border border-white/20 text-slate-300 hover:text-white hover:border-white/50 transition-all';
-      case 'outline':
-        return 'border border-amber-400/40 text-amber-300 hover:bg-amber-400/10 transition-all';
-      case 'glow':
-        return 'bg-black/60 border border-white/20 text-white shadow-[0_0_15px_rgba(245,158,11,0.35)] hover:shadow-[0_0_22px_rgba(245,158,11,0.6)] transition-all';
-      case '3d':
-        return 'bg-gradient-to-b from-white/15 to-white/5 border border-white/20 text-white shadow-[0_4px_0_0_rgba(0,0,0,0.6)] active:translate-y-1 active:shadow-none transition-all';
-      case 'glass':
-      default:
-        return 'bg-white/10 backdrop-blur-md border border-white/15 text-white hover:bg-white/20 hover:scale-105 transition-all';
     }
   };
 
@@ -153,34 +117,82 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
   const layout = project.templateId || '';
   const isLayout = (key: string) => layout.includes(key);
 
-  // 1. RENDER HERO ACCORDING TO THE 10 EXPERIENCES
+  // Is this Minimal Luxury (Model 05)?
+  const isMinimalLayout = isLayout('-05') || isLayout('minimal');
+  // Is this Classic Club (Model 07)?
+  const isClassicClub = isLayout('-07') || isLayout('classic-club');
+  // Is this Urban (Model 06)?
+  const isUrban = isLayout('-06') || isLayout('urban');
+
+  // ========================================================
+  // FREE LOGO RENDERER (RESPECTS FORMAT, NO FORCED CIRCLE)
+  // ========================================================
+  const renderFreeLogo = (customClasses = '', overrideAlign?: 'left' | 'center' | 'right') => {
+    if (!identity.logoUrl) return null;
+
+    const cfg = logoConfig || {
+      size: 'lg',
+      align: 'center',
+      position: 'hero',
+      background: 'none'
+    };
+
+    const align = overrideAlign || cfg.align || 'center';
+
+    const sizeClass = {
+      sm: 'max-h-12 max-w-[130px]',
+      md: 'max-h-16 max-w-[190px]',
+      lg: 'max-h-24 max-w-[260px]',
+      xl: 'max-h-32 max-w-[320px]'
+    }[cfg.size || 'lg'];
+
+    const alignClass = {
+      left: 'justify-start text-left',
+      center: 'justify-center text-center mx-auto',
+      right: 'justify-end text-right ml-auto'
+    }[align];
+
+    const bgClass = {
+      none: '',
+      glass: 'p-3 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-xl',
+      light: 'p-3 rounded-2xl bg-white/95 shadow-xl',
+      dark: 'p-3 rounded-2xl bg-black/80 border border-white/20 shadow-xl'
+    }[cfg.background || 'none'];
+
+    return (
+      <div className={`flex items-center ${alignClass} ${customClasses}`}>
+        <div className={`${bgClass} inline-flex items-center justify-center transition-all`}>
+          <img
+            src={identity.logoUrl}
+            alt={identity.name}
+            className={`${sizeClass} w-auto object-contain select-none`}
+          />
+        </div>
+      </div>
+    );
+  };
+
+  // ========================================================
+  // 1. HERO ACCORDING TO THE 10 DISTINCT ARCHITECTURES
+  // ========================================================
   const renderHero = () => {
-    // 01 — CINEMATIC HERO
+    // 01 — CINEMATIC HERO (Preto + Ouro + Luz Cinematográfica + Logo Central Solta)
     if (isLayout('-01') || isLayout('cinematic')) {
       return (
-        <div className="relative rounded-3xl overflow-hidden p-6 sm:p-10 mb-8 border border-white/15 shadow-2xl min-h-[380px] flex flex-col justify-end text-center items-center">
+        <div className="relative rounded-3xl overflow-hidden p-6 sm:p-10 mb-8 border border-white/15 shadow-2xl min-h-[390px] flex flex-col justify-end text-center items-center">
           <div
             className="absolute inset-0 bg-cover bg-center filter brightness-[0.32] saturate-[1.2] transform scale-105"
-            style={{ backgroundImage: `url(${identity.bannerUrl || identity.avatarUrl || identity.logoUrl})` }}
+            style={{ backgroundImage: `url(${identity.bannerUrl || photos[0]?.url || identity.logoUrl})` }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#07080D] via-[#07080D]/70 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#07080D] via-[#07080D]/75 to-transparent" />
           <div
-            className="absolute -top-16 inset-x-0 mx-auto w-72 h-72 rounded-full blur-[100px] opacity-45 pointer-events-none"
+            className="absolute -top-16 inset-x-0 mx-auto w-72 h-72 rounded-full blur-[100px] opacity-40 pointer-events-none"
             style={{ backgroundColor: theme.primary }}
           />
 
-          <div className="relative z-10 space-y-4 max-w-lg">
-            {identity.logoUrl && (
-              <div
-                className="w-24 h-24 sm:w-28 sm:h-28 rounded-full p-1 mx-auto bg-gradient-to-tr from-amber-400 via-white to-amber-600 shadow-[0_0_35px_rgba(217,119,6,0.55)]"
-              >
-                <img
-                  src={identity.logoUrl}
-                  alt={identity.name}
-                  className="w-full h-full object-cover rounded-full"
-                />
-              </div>
-            )}
+          <div className="relative z-10 space-y-4 max-w-lg w-full">
+            {/* Free PNG Logo (Sem círculo forçado) */}
+            {renderFreeLogo('pb-1')}
 
             {identity.badge && (
               <span
@@ -201,12 +213,25 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
             <p className="text-xs sm:text-sm text-slate-200 font-medium leading-relaxed max-w-md mx-auto drop-shadow">
               {identity.slogan}
             </p>
+
+            <div className="pt-2">
+              <a
+                href={waUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl font-black text-xs text-slate-950 shadow-2xl transition-transform active:scale-95"
+                style={{ backgroundColor: theme.primary }}
+              >
+                <BrandWhatsApp size={16} />
+                <span>{identity.title || 'Agendar Atendimento VIP'}</span>
+              </a>
+            </div>
           </div>
         </div>
       );
     }
 
-    // 02 — EDITORIAL
+    // 02 — EDITORIAL MAGAZINE (Tipografia Display Imponente + Foto Assimétrica + Sem Cards)
     if (isLayout('-02') || isLayout('editorial')) {
       return (
         <div className="space-y-6 mb-8 pt-4">
@@ -214,6 +239,7 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
             <span className="text-[10px] font-mono tracking-widest text-slate-400 uppercase">
               {identity.badge || 'APRESENTAÇÃO OFICIAL'}
             </span>
+            {renderFreeLogo('max-h-8', 'right')}
             <span className="text-[10px] font-mono tracking-widest uppercase" style={{ color: theme.primary }}>
               ED. 2026
             </span>
@@ -221,7 +247,7 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
 
           <div className="space-y-3">
             <h1
-              className="text-4xl sm:text-6xl font-normal tracking-tight text-white leading-[1.05]"
+              className="text-4xl sm:text-6xl font-light tracking-tight text-white leading-[1.05]"
               style={{ fontFamily: getHeadingFontFamily() }}
             >
               {identity.name}
@@ -231,21 +257,24 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
             </p>
           </div>
 
-          {identity.bannerUrl && (
+          {(identity.bannerUrl || photos[0]?.url) && (
             <div className="relative rounded-2xl overflow-hidden aspect-[16/10] border border-white/10 shadow-2xl">
               <img
-                src={identity.bannerUrl}
+                src={identity.bannerUrl || photos[0]?.url}
                 alt={identity.name}
                 className="w-full h-full object-cover grayscale contrast-125 hover:grayscale-0 transition-all duration-700"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0A0B10] via-transparent to-transparent" />
+              <div className="absolute bottom-3 left-4 text-[10px] font-mono text-slate-300 bg-black/60 px-2.5 py-1 rounded-md backdrop-blur-sm">
+                ENSAIO AUTORAL // COLEÇÃO 2026
+              </div>
             </div>
           )}
         </div>
       );
     }
 
-    // 03 — GLASS EXPERIENCE
+    // 03 — GLASS EXPERIENCE (Full-screen background + Card translúcido flutuante com blur)
     if (isLayout('-03') || isLayout('glass')) {
       return (
         <div className="relative rounded-3xl p-6 sm:p-8 mb-8 bg-white/[0.04] backdrop-blur-2xl border border-white/20 shadow-2xl overflow-hidden">
@@ -253,15 +282,11 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
             className="absolute top-0 right-0 w-64 h-64 rounded-full blur-[90px] opacity-40 pointer-events-none"
             style={{ backgroundColor: theme.primary }}
           />
+
           <div className="flex flex-col sm:flex-row items-center gap-6 relative z-10 text-center sm:text-left">
-            {identity.avatarUrl && (
-              <div className="relative">
-                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden border border-white/30 shadow-2xl p-0.5 bg-gradient-to-br from-white/30 to-white/5">
-                  <img src={identity.avatarUrl} alt={identity.name} className="w-full h-full object-cover rounded-2xl" />
-                </div>
-                <div className="absolute -bottom-2 -right-2 w-6 h-6 rounded-full bg-emerald-500 border-2 border-[#07080D] shadow-[0_0_10px_#10B981]" />
-              </div>
-            )}
+            {/* Free Logo */}
+            {renderFreeLogo('shrink-0')}
+
             <div className="space-y-2 flex-1">
               <span className="text-[10px] font-black uppercase tracking-widest text-amber-300">
                 {identity.badge || 'ATENDIMENTO EXCLUSIVO'}
@@ -275,29 +300,49 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
               <p className="text-xs sm:text-sm text-slate-300 font-medium leading-relaxed">
                 {identity.slogan}
               </p>
+
+              {/* Glass Action Pills */}
+              <div className="flex flex-wrap gap-2 pt-2 justify-center sm:justify-start">
+                <a
+                  href={waUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-xs font-bold text-white flex items-center gap-1.5 transition-all"
+                >
+                  <BrandWhatsApp size={14} />
+                  <span>WhatsApp</span>
+                </a>
+                {socials?.instagram?.url && (
+                  <a
+                    href={socials.instagram.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-xs font-bold text-white flex items-center gap-1.5 transition-all"
+                  >
+                    <BrandInstagram size={14} />
+                    <span>Instagram</span>
+                  </a>
+                )}
+              </div>
             </div>
           </div>
         </div>
       );
     }
 
-    // 04 — IMMERSIVE PHOTO
+    // 04 — IMMERSIVE PHOTO (Capítulo Visual Dominante + Tipografia em Camadas)
     if (isLayout('-04') || isLayout('immersive')) {
       return (
         <div className="relative rounded-3xl overflow-hidden mb-8 min-h-[460px] flex flex-col justify-between p-6 sm:p-8 border border-white/10 shadow-2xl">
           <img
             src={identity.bannerUrl || photos[0]?.url || identity.avatarUrl}
             alt={identity.name}
-            className="absolute inset-0 w-full h-full object-cover filter brightness-[0.4] saturate-[1.1]"
+            className="absolute inset-0 w-full h-full object-cover filter brightness-[0.38] saturate-[1.1]"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-[#07080D]" />
 
           <div className="relative z-10 flex justify-between items-center">
-            {identity.logoUrl && (
-              <div className="w-12 h-12 rounded-xl overflow-hidden border border-white/20 backdrop-blur-md p-1 bg-black/40">
-                <img src={identity.logoUrl} alt={identity.name} className="w-full h-full object-cover rounded-lg" />
-              </div>
-            )}
+            {renderFreeLogo('max-h-12', 'left')}
             {identity.badge && (
               <span className="px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-[10px] font-black uppercase text-white">
                 {identity.badge}
@@ -332,180 +377,186 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
       );
     }
 
-    // 05 — MINIMAL LUXURY
-    if (isLayout('-05') || isLayout('minimal')) {
+    // 05 — MINIMAL LUXURY (Fundo Off-White #FAF9F6, Preto, Respiro Amplo)
+    if (isMinimalLayout) {
       return (
-        <div className="mb-8 py-6 text-center space-y-4 border-b border-white/10 pb-8">
-          {identity.logoUrl && (
-            <div className="w-16 h-16 rounded-full overflow-hidden mx-auto border border-white/15 p-0.5">
-              <img src={identity.logoUrl} alt={identity.name} className="w-full h-full object-cover rounded-full" />
-            </div>
-          )}
-          <span className="text-[10px] tracking-[0.25em] text-slate-400 uppercase font-mono block">
-            {identity.badge || 'ESTABELECIMENTO EXCLUSIVO'}
+        <div className="mb-8 py-8 text-center space-y-4 border-b border-stone-200/80 pb-8">
+          {renderFreeLogo('pb-2')}
+          <span className="text-[10px] tracking-[0.25em] text-stone-500 uppercase font-mono block">
+            {identity.badge || 'ESTABELECIMENTO AUTORAL'}
           </span>
           <h1
-            className="text-3xl sm:text-4xl font-normal tracking-tight text-white"
+            className="text-3xl sm:text-5xl font-normal tracking-tight text-stone-900"
             style={{ fontFamily: getHeadingFontFamily() }}
           >
             {identity.name}
           </h1>
-          <p className="text-xs text-slate-400 font-light max-w-sm mx-auto leading-relaxed">
+          <p className="text-xs sm:text-sm text-stone-600 font-light max-w-sm mx-auto leading-relaxed">
             {identity.slogan}
           </p>
-        </div>
-      );
-    }
-
-    // 06 — ORBITAL DYNAMIC
-    if (isLayout('-06') || isLayout('orbital')) {
-      return (
-        <div className="relative rounded-3xl p-8 mb-8 text-center bg-gradient-to-b from-[#101424] to-[#07080D] border border-white/10 shadow-2xl overflow-hidden">
-          <div
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full blur-[100px] opacity-30 pointer-events-none"
-            style={{ backgroundColor: theme.primary }}
-          />
-
-          <div className="relative z-10 space-y-4">
-            <div className="relative w-28 h-28 mx-auto">
-              <div
-                className="absolute inset-0 rounded-full border border-dashed border-amber-400/40 animate-spin"
-                style={{ animationDuration: '25s' }}
-              />
-              <div className="w-24 h-24 rounded-full p-1 m-2 bg-[#07080D] border border-white/20 shadow-2xl overflow-hidden">
-                <img src={identity.logoUrl || identity.avatarUrl} alt={identity.name} className="w-full h-full object-cover rounded-full" />
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <h1
-                className="text-2xl sm:text-4xl font-black text-white tracking-tight uppercase"
-                style={{ fontFamily: getHeadingFontFamily() }}
-              >
-                {identity.name}
-              </h1>
-              <p className="text-xs text-slate-300 font-medium max-w-xs mx-auto">
-                {identity.slogan}
-              </p>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    // 07 — STORY EXPERIENCE
-    if (isLayout('-07') || isLayout('story')) {
-      return (
-        <div className="relative rounded-3xl p-6 sm:p-8 mb-8 bg-[#0D101C] border border-white/10 shadow-2xl space-y-4">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: theme.primary }} />
-            <span className="text-[10px] font-mono tracking-widest uppercase text-slate-400">
-              01 • APRESENTAÇÃO
-            </span>
-          </div>
-
-          <div className="space-y-2">
-            <h1
-              className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight"
-              style={{ fontFamily: getHeadingFontFamily() }}
-            >
-              {identity.name}
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              {identity.slogan}
-            </p>
-          </div>
-
-          {identity.bannerUrl && (
-            <div className="rounded-2xl overflow-hidden aspect-video border border-white/10 shadow-lg">
-              <img src={identity.bannerUrl} alt={identity.name} className="w-full h-full object-cover" />
-            </div>
-          )}
-        </div>
-      );
-    }
-
-    // 08 — PREMIUM BENTO CARDS
-    if (isLayout('-08') || isLayout('cards')) {
-      return (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
-          <div className="sm:col-span-2 p-6 rounded-3xl bg-[#0F1322] border border-white/10 shadow-xl flex flex-col justify-between space-y-4">
-            <div className="space-y-2">
-              <span
-                className="inline-block px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider"
-                style={{ backgroundColor: `${theme.primary}25`, color: theme.primary }}
-              >
-                {identity.badge || 'DESTAQUE'}
-              </span>
-              <h1
-                className="text-2xl sm:text-3xl font-black text-white tracking-tight"
-                style={{ fontFamily: getHeadingFontFamily() }}
-              >
-                {identity.name}
-              </h1>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                {identity.slogan}
-              </p>
-            </div>
+          <div className="pt-2">
             <a
               href={waUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-xs font-black text-white hover:text-amber-400 transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-xs font-semibold tracking-wider text-stone-50 bg-stone-900 hover:bg-stone-800 transition-all uppercase"
             >
-              <span>{whatsappConfig?.label || 'Chamar no WhatsApp'}</span>
-              <ArrowRight size={14} />
+              <span>{identity.title || 'Atendimento com Hora Marcada'}</span>
             </a>
-          </div>
-
-          <div className="p-4 rounded-3xl bg-[#0F1322] border border-white/10 shadow-xl flex items-center justify-center overflow-hidden aspect-square sm:aspect-auto">
-            <img
-              src={identity.logoUrl || identity.avatarUrl}
-              alt={identity.name}
-              className="w-full h-full object-cover rounded-2xl"
-            />
           </div>
         </div>
       );
     }
 
-    // 09 — NEON ENERGY
-    if (isLayout('-09') || isLayout('neon')) {
+    // 06 — URBAN BRUTALIST (Preto e Cinzas Industriais, Monospace, Tags [01])
+    if (isUrban) {
       return (
-        <div className="relative rounded-3xl p-6 sm:p-8 mb-8 bg-[#030407] border shadow-2xl overflow-hidden" style={{ borderColor: `${theme.primary}60` }}>
-          <div
-            className="absolute top-0 right-0 w-56 h-56 rounded-full blur-[100px] opacity-50 pointer-events-none"
-            style={{ backgroundColor: theme.primary }}
-          />
+        <div className="relative rounded-3xl p-6 sm:p-8 mb-8 bg-[#090A0F] border border-cyan-400/30 shadow-2xl space-y-4">
+          <div className="flex justify-between items-center border-b border-white/10 pb-2">
+            <span className="text-[10px] font-mono text-cyan-400 tracking-widest">[URBAN_SERIES]</span>
+            <span className="text-[10px] font-mono text-slate-400">#06_SYSTEM</span>
+          </div>
 
-          <div className="relative z-10 space-y-4 text-center">
-            {identity.badge && (
-              <span
-                className="inline-block px-3 py-1 rounded-full text-[9px] font-black tracking-widest uppercase border"
-                style={{ borderColor: theme.primary, color: theme.primary, backgroundColor: `${theme.primary}15` }}
-              >
-                {identity.badge}
-              </span>
-            )}
+          <div className="flex flex-col sm:flex-row items-center gap-6">
+            {renderFreeLogo('shrink-0')}
+            <div className="space-y-2 text-center sm:text-left">
+              <h1 className="text-3xl sm:text-5xl font-black text-white uppercase tracking-tighter font-mono">
+                {identity.name}
+              </h1>
+              <p className="text-xs font-mono text-slate-400 leading-relaxed">
+                {identity.slogan}
+              </p>
+            </div>
+          </div>
+        </div>
+      );
+    }
 
+    // 07 — CLASSIC CLUB (Marrom Escuro, Couro, Dourado Envelhecido, Serifas Nobres)
+    if (isClassicClub) {
+      return (
+        <div className="relative rounded-3xl p-6 sm:p-10 mb-8 bg-[#130C08] border border-[#3E2718] shadow-2xl text-center space-y-4">
+          <div className="text-[10px] font-serif tracking-[0.25em] text-[#C59B27] uppercase">
+            TRADIÇÃO & CLUBE EXCLUSIVO
+          </div>
+
+          {renderFreeLogo('pb-1')}
+
+          <h1
+            className="text-3xl sm:text-5xl font-bold text-[#FDFBF7] tracking-tight font-serif"
+            style={{ fontFamily: getHeadingFontFamily() }}
+          >
+            {identity.name}
+          </h1>
+
+          <p className="text-xs sm:text-sm text-[#D7C2B2] font-serif max-w-md mx-auto leading-relaxed italic">
+            "{identity.slogan}"
+          </p>
+
+          <div className="pt-2">
+            <a
+              href={waUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-serif text-xs font-bold text-[#130C08] bg-[#C59B27] hover:bg-[#D4A936] shadow-xl uppercase tracking-wider"
+            >
+              <span>{identity.title || 'Reservar Horário'}</span>
+            </a>
+          </div>
+        </div>
+      );
+    }
+
+    // 08 — MOTION DYNAMIC (Iluminação Viva, Cards com Microinterações)
+    if (isLayout('-08') || isLayout('motion')) {
+      return (
+        <div className="relative rounded-3xl p-6 sm:p-8 mb-8 bg-[#0A0714] border border-fuchsia-500/30 shadow-2xl overflow-hidden space-y-4 text-center">
+          <div className="absolute -top-16 -right-16 w-56 h-56 bg-fuchsia-600/30 rounded-full blur-[100px] pointer-events-none" />
+
+          {renderFreeLogo('pb-1')}
+
+          <span className="inline-block px-3 py-1 rounded-full bg-fuchsia-500/20 text-fuchsia-300 text-[10px] font-bold uppercase tracking-wider animate-pulse">
+            {identity.badge || 'MOTION EXPERIENCE'}
+          </span>
+
+          <h1
+            className="text-3xl sm:text-5xl font-black text-white tracking-tight uppercase"
+            style={{ fontFamily: getHeadingFontFamily() }}
+          >
+            {identity.name}
+          </h1>
+
+          <p className="text-xs sm:text-sm text-slate-300 max-w-sm mx-auto font-medium">
+            {identity.slogan}
+          </p>
+
+          <div className="pt-2">
+            <a
+              href={waUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl font-black text-xs text-slate-950 bg-gradient-to-r from-fuchsia-500 to-amber-400 shadow-xl shadow-fuchsia-500/25 active:scale-95 transition-transform uppercase tracking-wider"
+            >
+              <BrandWhatsApp size={16} />
+              <span>{whatsappConfig?.label || 'Chamar no WhatsApp'}</span>
+            </a>
+          </div>
+        </div>
+      );
+    }
+
+    // 09 — PROFILE (Focado no Profissional / Foto de Destaque / Especialista)
+    if (isLayout('-09') || isLayout('profile')) {
+      return (
+        <div className="relative rounded-3xl p-6 sm:p-8 mb-8 bg-[#080A12] border border-white/15 shadow-2xl text-center space-y-4">
+          <div className="flex items-center justify-between border-b border-white/10 pb-2">
+            <span className="text-[10px] font-mono text-amber-400 uppercase tracking-widest flex items-center gap-1.5">
+              <UserCheck size={14} />
+              <span>ESPECIALISTA OFICIAL</span>
+            </span>
+            <span className="text-[10px] text-emerald-400 font-bold flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+              Agenda Disponível
+            </span>
+          </div>
+
+          {/* Large Cutout Portrait of the Specialist */}
+          {identity.avatarUrl && (
+            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full p-1 mx-auto bg-gradient-to-tr from-amber-400 to-amber-600 shadow-2xl overflow-hidden">
+              <img src={identity.avatarUrl} alt={identity.name} className="w-full h-full object-cover rounded-full" />
+            </div>
+          )}
+
+          <div className="space-y-1">
             <h1
-              className="text-3xl sm:text-5xl font-black text-white tracking-tight uppercase leading-tight drop-shadow-[0_0_20px_rgba(249,115,22,0.4)]"
+              className="text-2xl sm:text-4xl font-black text-white tracking-tight"
               style={{ fontFamily: getHeadingFontFamily() }}
             >
               {identity.name}
             </h1>
-
-            <p className="text-xs sm:text-sm text-slate-300 max-w-sm mx-auto font-medium">
+            <p className="text-xs sm:text-sm text-slate-300 font-medium">
               {identity.slogan}
             </p>
+          </div>
+
+          <div className="pt-2">
+            <a
+              href={waUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl font-black text-xs text-white bg-emerald-600 hover:bg-emerald-500 shadow-xl transition-all"
+            >
+              <BrandWhatsApp size={16} />
+              <span>Falar Diretamente Comigo</span>
+            </a>
           </div>
         </div>
       );
     }
 
-    // 10 — SIGNATURE EXCLUSIVE (DEFAULT HIGH-END)
+    // 10 — SIGNATURE EXCLUSIVE (Modelo Mais Sofisticado, Selo de Assinatura, VIP)
     return (
-      <div className="relative rounded-3xl p-6 sm:p-10 mb-8 bg-gradient-to-b from-[#131625] via-[#0B0D17] to-[#07080D] border border-amber-500/30 shadow-2xl space-y-5">
+      <div className="relative rounded-3xl p-6 sm:p-10 mb-8 bg-[#06070B] border border-amber-500/30 shadow-2xl space-y-5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_8px_#F59E0B]" />
@@ -517,11 +568,7 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
         </div>
 
         <div className="flex flex-col sm:flex-row items-center gap-6">
-          {identity.logoUrl && (
-            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden p-1 bg-gradient-to-tr from-amber-400 via-white to-amber-600 shadow-[0_0_25px_rgba(217,119,6,0.4)] shrink-0">
-              <img src={identity.logoUrl} alt={identity.name} className="w-full h-full object-cover rounded-xl" />
-            </div>
-          )}
+          {renderFreeLogo('shrink-0')}
           <div className="space-y-2 text-center sm:text-left">
             <span className="text-[10px] font-black uppercase text-amber-300 tracking-wider">
               {identity.badge || 'PADRÃO SIGNATURE'}
@@ -541,12 +588,22 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
     );
   };
 
+  // ========================================================
   // 2. STATUS CARD (Aberto / Fechado)
+  // ========================================================
   const renderStatusSection = () => {
     if (sectionsVisibility.status === false || !statusConfig?.enabled) return null;
 
     return (
-      <div className="mb-6 flex items-center justify-between p-3.5 sm:p-4 rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-md shadow-md">
+      <div
+        className={`mb-6 flex items-center justify-between p-3.5 sm:p-4 rounded-2xl border backdrop-blur-md shadow-md ${
+          isMinimalLayout
+            ? 'bg-stone-100/90 border-stone-200 text-stone-900'
+            : isClassicClub
+            ? 'bg-[#1E140E] border-[#3E2718] text-[#FDFBF7]'
+            : 'bg-white/[0.04] border-white/10 text-white'
+        }`}
+      >
         <div className="flex items-center gap-2.5">
           <span
             className={`w-2.5 h-2.5 rounded-full animate-pulse ${
@@ -556,10 +613,10 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
             }`}
           />
           <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
-            <span className="text-xs font-black uppercase tracking-wider text-white">
+            <span className="text-xs font-black uppercase tracking-wider">
               {isCurrentlyOpen ? 'ABERTO AGORA' : 'FECHADO NO MOMENTO'}
             </span>
-            <span className="text-[10px] text-slate-400 font-medium">
+            <span className={`text-[10px] font-medium ${isMinimalLayout ? 'text-stone-500' : 'text-slate-400'}`}>
               • {statusConfig.openTime || '09:00'} às {statusConfig.closeTime || '20:00'}
             </span>
           </div>
@@ -569,12 +626,16 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
           <button
             type="button"
             onClick={handleShare}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-white text-[11px] font-bold border border-white/10 transition-colors cursor-pointer"
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold border transition-colors cursor-pointer ${
+              isMinimalLayout
+                ? 'bg-stone-200/80 hover:bg-stone-300/80 border-stone-300 text-stone-800'
+                : 'bg-white/5 hover:bg-white/10 border-white/10 text-white'
+            }`}
           >
             {copiedLink ? (
               <>
-                <Check size={13} className="text-emerald-400" />
-                <span className="text-emerald-400">Copiado</span>
+                <Check size={13} className="text-emerald-500" />
+                <span className="text-emerald-500">Copiado</span>
               </>
             ) : (
               <>
@@ -588,44 +649,62 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
     );
   };
 
+  // ========================================================
   // 3. ABOUT SECTION
+  // ========================================================
   const renderAboutSection = () => {
     if (sectionsVisibility.about === false || !identity.about) return null;
 
     return (
-      <div className="mb-8 p-6 rounded-3xl bg-[#0E111C] border border-white/10 shadow-xl space-y-3">
-        <div className="flex items-center gap-2 text-amber-400 text-xs font-black uppercase tracking-wider">
+      <div
+        className={`mb-8 p-6 rounded-3xl border shadow-xl space-y-3 ${
+          isMinimalLayout
+            ? 'bg-white border-stone-200 text-stone-900'
+            : isClassicClub
+            ? 'bg-[#1E140E] border-[#3E2718] text-[#FDFBF7]'
+            : 'bg-[#0E111C] border-white/10 text-white'
+        }`}
+      >
+        <div className="flex items-center gap-2 text-amber-500 text-xs font-black uppercase tracking-wider">
           <Info size={14} />
           <span>Sobre Nossa Proposta</span>
         </div>
-        <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
+        <p className={`text-xs sm:text-sm leading-relaxed font-normal ${isMinimalLayout ? 'text-stone-600' : 'text-slate-300'}`}>
           {identity.about}
         </p>
       </div>
     );
   };
 
+  // ========================================================
   // 4. DIFFERENTIALS SECTION
+  // ========================================================
   const renderDifferentialsSection = () => {
     if (sectionsVisibility.differentials === false || differentials.length === 0) return null;
 
     return (
       <div className="mb-8 space-y-3">
-        <span className="text-[10px] font-mono tracking-widest uppercase text-slate-400 block px-1">
+        <span className={`text-[10px] font-mono tracking-widest uppercase block px-1 ${isMinimalLayout ? 'text-stone-500' : 'text-slate-400'}`}>
           NOSSOS DIFERENCIAIS
         </span>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {differentials.map((diff) => (
             <div
               key={diff.id}
-              className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 flex items-start gap-3 backdrop-blur-sm"
+              className={`p-4 rounded-2xl border flex items-start gap-3 backdrop-blur-sm ${
+                isMinimalLayout
+                  ? 'bg-white border-stone-200'
+                  : isClassicClub
+                  ? 'bg-[#1E140E] border-[#3E2718]'
+                  : 'bg-white/[0.03] border-white/10'
+              }`}
             >
               <div className="p-2 rounded-xl bg-amber-500/10 text-amber-400 shrink-0">
                 <AppIcon name={diff.iconName || 'sparkles'} size={18} />
               </div>
               <div className="space-y-0.5">
-                <h4 className="text-xs font-bold text-white">{diff.title}</h4>
-                <p className="text-[11px] text-slate-400 leading-snug">{diff.description}</p>
+                <h4 className={`text-xs font-bold ${isMinimalLayout ? 'text-stone-900' : 'text-white'}`}>{diff.title}</h4>
+                <p className={`text-[11px] leading-snug ${isMinimalLayout ? 'text-stone-600' : 'text-slate-400'}`}>{diff.description}</p>
               </div>
             </div>
           ))}
@@ -634,40 +713,80 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
     );
   };
 
+  // ========================================================
   // 5. SERVICES & SPECIALTIES (DIVERSIFIED FORMATS, NO FORCED PRICES)
+  // ========================================================
   const renderServicesSection = () => {
     if (sectionsVisibility.services === false || services.length === 0) return null;
 
-    // A. MINIMAL-LIST (Editorial & Minimal style)
-    if (serviceLayout === 'minimal-list') {
+    // A. EDITORIAL (Sem cards, palavras grandes tipográficas)
+    if (serviceLayout === 'editorial' || isLayout('-02') || isLayout('editorial')) {
       return (
         <div className="mb-8 space-y-4">
           <div className="flex items-center justify-between border-b border-white/15 pb-2">
             <h3
-              className="text-base sm:text-lg font-normal tracking-tight text-white uppercase"
+              className="text-base sm:text-lg font-light tracking-widest text-white uppercase font-serif"
               style={{ fontFamily: getHeadingFontFamily() }}
             >
-              Especialidades & Atendimento
+              MENU DE ATENDIMENTO
             </h3>
             <span className="text-[10px] font-mono text-slate-400">{services.length} ITENS</span>
           </div>
 
           <div className="divide-y divide-white/10">
             {services.map((s) => (
-              <div key={s.id} className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 group">
-                <div className="space-y-1">
-                  <h4 className="font-bold text-sm text-white group-hover:text-amber-400 transition-colors">
+              <div key={s.id} className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 group">
+                <div>
+                  <h4 className="font-light tracking-wide text-lg sm:text-xl text-white group-hover:text-amber-400 transition-colors uppercase font-serif">
                     {s.name}
                   </h4>
-                  <p className="text-xs text-slate-400 max-w-md">{s.description}</p>
+                  <p className="text-xs text-slate-400 max-w-md pt-0.5">{s.description}</p>
                 </div>
                 <a
                   href={waUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-xs font-bold text-amber-400 hover:text-amber-300 self-start sm:self-center"
+                  className="text-xs font-bold text-amber-400 hover:text-amber-300 self-start sm:self-center font-mono"
                 >
-                  <span>{s.ctaText || 'Quero Saber Mais'}</span>
+                  [ CONSULTAR ] →
+                </a>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    // B. MINIMAL-LIST (Minimal luxury & Off-white)
+    if (serviceLayout === 'minimal-list' || isMinimalLayout) {
+      return (
+        <div className="mb-8 space-y-4">
+          <div className="flex items-center justify-between border-b border-stone-200 pb-2">
+            <h3
+              className="text-base sm:text-lg font-medium tracking-tight text-stone-900 uppercase font-serif"
+              style={{ fontFamily: getHeadingFontFamily() }}
+            >
+              Especialidades
+            </h3>
+            <span className="text-[10px] font-mono text-stone-500">{services.length} OPÇÕES</span>
+          </div>
+
+          <div className="divide-y divide-stone-200">
+            {services.map((s) => (
+              <div key={s.id} className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 group">
+                <div className="space-y-1">
+                  <h4 className="font-semibold text-sm text-stone-900 group-hover:text-stone-700 transition-colors">
+                    {s.name}
+                  </h4>
+                  <p className="text-xs text-stone-600 max-w-md">{s.description}</p>
+                </div>
+                <a
+                  href={waUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-stone-800 hover:text-stone-950 self-start sm:self-center"
+                >
+                  <span>{s.ctaText || 'Agendar'}</span>
                   <ChevronRight size={14} />
                 </a>
               </div>
@@ -677,24 +796,21 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
       );
     }
 
-    // B. ICONS-GRID (Orbital & Tech style)
-    if (serviceLayout === 'icons-grid') {
+    // C. ICONS-GRID (Urban & Tech style)
+    if (serviceLayout === 'icons-grid' || isUrban) {
       return (
         <div className="mb-8 space-y-4">
-          <h3
-            className="text-base sm:text-lg font-black text-white tracking-tight uppercase"
-            style={{ fontFamily: getHeadingFontFamily() }}
-          >
-            Serviços & Atuação
+          <h3 className="text-base sm:text-lg font-black text-white tracking-tight uppercase font-mono">
+            // SERVIÇOS & ATUAÇÃO
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {services.map((s) => (
+            {services.map((s, idx) => (
               <div
                 key={s.id}
-                className="p-4 rounded-2xl bg-[#0D101C] border border-white/10 hover:border-amber-400/40 transition-all flex items-start gap-3"
+                className="p-4 rounded-2xl bg-[#0D101C] border border-white/10 hover:border-cyan-400/40 transition-all flex items-start gap-3"
               >
-                <div className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-amber-400 shrink-0">
-                  <AppIcon name={s.iconName || 'sparkles'} size={20} />
+                <div className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-cyan-400 shrink-0 font-mono text-xs font-bold">
+                  {String(idx + 1).padStart(2, '0')}
                 </div>
                 <div className="space-y-1 flex-1">
                   <h4 className="text-xs sm:text-sm font-bold text-white">{s.name}</h4>
@@ -703,7 +819,7 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
                     href={waUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-block text-[11px] font-bold text-amber-400 hover:underline pt-1"
+                    className="inline-block text-[11px] font-bold text-cyan-400 hover:underline pt-1"
                   >
                     {s.ctaText || 'Consultar'} →
                   </a>
@@ -715,15 +831,15 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
       );
     }
 
-    // C. ACCORDION (Story & Procedure style)
-    if (serviceLayout === 'accordion') {
+    // D. ACCORDION (Classic Club & Procedures)
+    if (serviceLayout === 'accordion' || isClassicClub) {
       return (
         <div className="mb-8 space-y-4">
           <h3
-            className="text-base sm:text-lg font-black text-white tracking-tight uppercase"
+            className="text-base sm:text-lg font-bold text-[#FDFBF7] tracking-tight uppercase font-serif"
             style={{ fontFamily: getHeadingFontFamily() }}
           >
-            Nossas Especialidades
+            Serviços do Clube
           </h3>
           <div className="space-y-2">
             {services.map((s) => {
@@ -731,30 +847,30 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
               return (
                 <div
                   key={s.id}
-                  className="rounded-2xl bg-[#0E111C] border border-white/10 overflow-hidden transition-all"
+                  className="rounded-2xl bg-[#1E140E] border border-[#3E2718] overflow-hidden transition-all"
                 >
                   <button
                     type="button"
                     onClick={() => setOpenAccordionId(isOpen ? null : s.id)}
                     className="w-full p-4 flex items-center justify-between text-left cursor-pointer"
                   >
-                    <span className="font-bold text-xs sm:text-sm text-white">{s.name}</span>
+                    <span className="font-serif font-bold text-xs sm:text-sm text-[#FDFBF7]">{s.name}</span>
                     <ChevronDown
                       size={16}
-                      className={`text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+                      className={`text-[#D7C2B2] transition-transform ${isOpen ? 'rotate-180' : ''}`}
                     />
                   </button>
                   {isOpen && (
-                    <div className="px-4 pb-4 pt-1 space-y-3 border-t border-white/5">
-                      <p className="text-xs text-slate-300 leading-relaxed">{s.description}</p>
+                    <div className="px-4 pb-4 pt-1 space-y-3 border-t border-[#3E2718]">
+                      <p className="text-xs text-[#D7C2B2] leading-relaxed font-serif">{s.description}</p>
                       <a
                         href={waUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 text-amber-300 text-xs font-bold border border-amber-500/20"
+                        className="inline-flex items-center gap-1.5 text-xs font-serif font-bold text-[#C59B27] hover:underline"
                       >
-                        <BrandWhatsApp size={14} />
-                        <span>{s.ctaText || 'Quero Saber Mais'}</span>
+                        <span>{s.ctaText || 'Agendar Este Serviço'}</span>
+                        <ChevronRight size={14} />
                       </a>
                     </div>
                   )}
@@ -766,51 +882,54 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
       );
     }
 
-    // D. PHOTO-CARDS (Immersive style)
-    if (serviceLayout === 'photo-cards') {
+    // E. PHOTO-CARDS (Immersive style)
+    if (serviceLayout === 'photo-cards' || isLayout('-04') || isLayout('immersive')) {
       return (
         <div className="mb-8 space-y-4">
           <h3
             className="text-base sm:text-lg font-black text-white tracking-tight uppercase"
             style={{ fontFamily: getHeadingFontFamily() }}
           >
-            Destaques da Coleção
+            Capítulos de Especialidades
           </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {services.map((s) => (
-              <div
-                key={s.id}
-                className="relative rounded-2xl overflow-hidden aspect-[4/3] border border-white/10 group shadow-xl flex flex-col justify-end p-5"
-              >
-                {s.imageUrl && (
-                  <img
-                    src={s.imageUrl}
-                    alt={s.name}
-                    className="absolute inset-0 w-full h-full object-cover filter brightness-[0.4] group-hover:scale-105 transition-transform duration-500"
-                  />
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-                <div className="relative z-10 space-y-1">
-                  <h4 className="font-black text-sm text-white">{s.name}</h4>
-                  <p className="text-[11px] text-slate-300 line-clamp-2">{s.description}</p>
-                  <a
-                    href={waUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-[11px] font-black text-amber-400 hover:text-amber-300 pt-1"
-                  >
-                    <span>{s.ctaText || 'Quero Saber Mais'}</span>
-                    <ArrowRight size={12} />
-                  </a>
+          <div className="space-y-4">
+            {services.map((s, idx) => {
+              const photo = photos[idx % photos.length]?.url || s.imageUrl;
+              return (
+                <div
+                  key={s.id}
+                  className="relative rounded-3xl overflow-hidden min-h-[180px] p-5 flex flex-col justify-end border border-white/15 shadow-xl"
+                >
+                  {photo && (
+                    <img
+                      src={photo}
+                      alt={s.name}
+                      className="absolute inset-0 w-full h-full object-cover filter brightness-[0.4]"
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+                  <div className="relative z-10 space-y-1">
+                    <h4 className="text-sm sm:text-base font-black text-white">{s.name}</h4>
+                    <p className="text-xs text-slate-200 line-clamp-2">{s.description}</p>
+                    <a
+                      href={waUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-xs font-bold text-amber-400 pt-1"
+                    >
+                      <span>{s.ctaText || 'Consultar'}</span>
+                      <ChevronRight size={14} />
+                    </a>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       );
     }
 
-    // E. DEFAULT: CARDS MODULARES DE LUXO
+    // F. DEFAULT NOBLE CARDS
     return (
       <div className="mb-8 space-y-4">
         <div className="flex items-center justify-between">
@@ -818,61 +937,37 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
             className="text-base sm:text-lg font-black text-white tracking-tight uppercase"
             style={{ fontFamily: getHeadingFontFamily() }}
           >
-            Serviços & Especialidades
+            Serviços em Destaque
           </h3>
-          <span className="text-[10px] font-mono text-slate-400">{services.length} DISPONÍVEIS</span>
+          <span className="text-xs text-amber-400 font-mono font-bold">{services.length} SERVIÇOS</span>
         </div>
 
-        <div className="grid grid-cols-1 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {services.map((s) => (
             <div
               key={s.id}
-              className={`p-4 sm:p-5 rounded-2xl bg-[#0E111C] border transition-all duration-300 hover:border-amber-400/40 shadow-lg ${
-                s.featured ? 'border-amber-500/40 bg-gradient-to-r from-[#0E111C] to-amber-950/20' : 'border-white/10'
-              }`}
+              className="p-5 rounded-3xl bg-[#0E111C] border border-white/10 hover:border-amber-400/40 transition-all shadow-xl flex flex-col justify-between space-y-3 group"
             >
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="flex items-start gap-3">
-                  {s.imageUrl ? (
-                    <img
-                      src={s.imageUrl}
-                      alt={s.name}
-                      className="w-14 h-14 rounded-xl object-cover border border-white/15 shrink-0"
-                    />
-                  ) : (
-                    <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0 text-amber-400">
-                      <AppIcon name={s.iconName || 'sparkles'} size={20} />
-                    </div>
-                  )}
-
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-extrabold text-sm sm:text-base text-white">
-                        {s.name}
-                      </h4>
-                      {s.featured && (
-                        <span className="px-2 py-0.5 rounded-md bg-amber-500/20 border border-amber-500/30 text-amber-300 text-[9px] font-black uppercase">
-                          Destaque
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-xs text-slate-400 line-clamp-2">
-                      {s.description}
-                    </p>
-                  </div>
+              <div className="space-y-2">
+                <div className="w-10 h-10 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center">
+                  <AppIcon name={s.iconName || 'sparkles'} size={20} />
                 </div>
+                <h4 className="font-bold text-sm text-white group-hover:text-amber-400 transition-colors">
+                  {s.name}
+                </h4>
+                <p className="text-xs text-slate-400 leading-relaxed">{s.description}</p>
+              </div>
 
-                <div className="flex items-center justify-end pt-2 sm:pt-0 border-t sm:border-t-0 border-white/5">
-                  <a
-                    href={waUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/15 text-white font-bold text-xs flex items-center gap-1.5 transition-colors border border-white/10"
-                  >
-                    <BrandWhatsApp size={14} className="text-emerald-400" />
-                    <span>{s.ctaText || 'Quero Saber Mais'}</span>
-                  </a>
-                </div>
+              <div className="pt-2 border-t border-white/5 flex items-center justify-between">
+                <a
+                  href={waUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-2.5 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-bold text-white text-center flex items-center justify-center gap-1.5 transition-colors"
+                >
+                  <span>{s.ctaText || 'Consultar WhatsApp'}</span>
+                  <ChevronRight size={14} />
+                </a>
               </div>
             </div>
           ))}
@@ -881,219 +976,207 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
     );
   };
 
-  // 6. GALLERY
+  // ========================================================
+  // 6. GALLERY (DIVERSIFIED FORMATS)
+  // ========================================================
   const renderGallerySection = () => {
     if (sectionsVisibility.gallery === false || photos.length === 0) return null;
 
     return (
       <div className="mb-8 space-y-4">
-        <h3
-          className="text-base sm:text-lg font-black text-white tracking-tight uppercase"
-          style={{ fontFamily: getHeadingFontFamily() }}
-        >
-          Galeria Visual
-        </h3>
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-          {photos.map((photo, pIdx) => (
-            <div
-              key={photo.id || pIdx}
-              onClick={() => setActivePhotoModal(photo.url)}
-              className="relative aspect-square rounded-2xl overflow-hidden border border-white/10 group cursor-pointer shadow-md"
-            >
-              <img
-                src={photo.url}
-                alt={photo.alt || `Galeria ${pIdx + 1}`}
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <Sparkles size={18} className="text-white" />
-              </div>
-            </div>
-          ))}
+        <div className="flex items-center justify-between">
+          <h3
+            className={`text-base sm:text-lg font-black tracking-tight uppercase ${isMinimalLayout ? 'text-stone-900' : 'text-white'}`}
+            style={{ fontFamily: getHeadingFontFamily() }}
+          >
+            Galeria de Trabalhos
+          </h3>
+          <span className="text-[10px] font-mono text-slate-400">{photos.length} FOTOS</span>
         </div>
+
+        {galleryStyle === 'horizontal-scroll' ? (
+          <div className="flex gap-3 overflow-x-auto pb-3 snap-x snap-mandatory scrollbar-thin">
+            {photos.map((p) => (
+              <div
+                key={p.id}
+                onClick={() => setActivePhotoModal(p.url)}
+                className="w-60 h-44 rounded-2xl overflow-hidden shrink-0 snap-start border border-white/10 shadow-lg cursor-pointer hover:scale-[1.02] transition-transform"
+              >
+                <img src={p.url} alt={p.alt || ''} className="w-full h-full object-cover" />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {photos.map((p) => (
+              <div
+                key={p.id}
+                onClick={() => setActivePhotoModal(p.url)}
+                className="aspect-square rounded-2xl overflow-hidden border border-white/10 shadow-lg cursor-pointer hover:opacity-90 transition-opacity"
+              >
+                <img src={p.url} alt={p.alt || ''} className="w-full h-full object-cover" />
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     );
   };
 
+  // ========================================================
   // 7. GOOGLE REVIEWS
+  // ========================================================
   const renderGoogleReviews = () => {
     if (sectionsVisibility.reviews === false || !googleReviewConfig?.enabled) return null;
 
     return (
-      <div className="mb-8 p-6 rounded-3xl bg-gradient-to-br from-amber-500/10 via-[#0E111B] to-[#07080D] border border-amber-500/30 shadow-xl space-y-3 text-center sm:text-left">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="space-y-1">
-            <div className="flex items-center justify-center sm:justify-start gap-1 text-amber-400">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} size={18} className="fill-amber-400 text-amber-400 drop-shadow" />
-              ))}
-              <span className="ml-2 text-xs font-black text-white">
-                5.0 ({googleReviewConfig.reviewCount || 147} avaliações)
-              </span>
-            </div>
-
-            <h4 className="text-sm sm:text-base font-black text-white tracking-tight uppercase">
-              {googleReviewConfig.title || 'AVALIAÇÕES NO GOOGLE'}
-            </h4>
-            <p className="text-xs text-slate-300">
-              {googleReviewConfig.subtitle || 'Excelência reconhecida por nossos clientes.'}
-            </p>
+      <div
+        className={`mb-8 p-6 rounded-3xl border shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4 ${
+          isMinimalLayout
+            ? 'bg-white border-stone-200'
+            : isClassicClub
+            ? 'bg-[#1E140E] border-[#3E2718]'
+            : 'bg-[#0E111C] border-white/10'
+        }`}
+      >
+        <div className="space-y-1 text-center sm:text-left">
+          <div className="flex items-center justify-center sm:justify-start gap-1 text-amber-400">
+            {[...Array(5)].map((_, i) => (
+              <Star key={i} size={16} className="fill-amber-400" />
+            ))}
+            <span className="font-black text-sm ml-1.5">{googleReviewConfig.rating || 5.0}</span>
           </div>
+          <h4 className={`font-bold text-sm ${isMinimalLayout ? 'text-stone-900' : 'text-white'}`}>
+            {googleReviewConfig.title || 'AVALIAÇÕES NO GOOGLE'}
+          </h4>
+          <p className={`text-xs ${isMinimalLayout ? 'text-stone-500' : 'text-slate-400'}`}>
+            {googleReviewConfig.subtitle || `${googleReviewConfig.reviewCount || 150}+ clientes atendidos com nota máxima`}
+          </p>
+        </div>
 
+        {googleReviewConfig.url && (
           <a
-            href={googleReviewConfig.url || location.mapsUrl || 'https://google.com'}
+            href={googleReviewConfig.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="shrink-0 px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs transition-all shadow-lg shadow-amber-500/20 active:scale-95 flex items-center gap-2"
+            className="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold flex items-center gap-1.5 transition-colors"
           >
-            <BrandGoogle size={16} />
-            <span>Avaliar Agora</span>
+            <BrandGoogle size={14} />
+            <span>Ver no Google</span>
+            <ExternalLink size={12} />
           </a>
-        </div>
+        )}
       </div>
     );
   };
 
+  // ========================================================
   // 8. HOURS & LOCATION
+  // ========================================================
   const renderHoursAndLocation = () => {
-    const showHours = sectionsVisibility.hours !== false && location.hours;
-    const showLoc = sectionsVisibility.location !== false && location.address;
-    if (!showHours && !showLoc) return null;
+    if (sectionsVisibility.hours === false && sectionsVisibility.location === false) return null;
 
     return (
-      <div className="mb-8 p-6 rounded-3xl bg-[#0E111C] border border-white/10 shadow-xl space-y-4">
-        {showHours && (
+      <div
+        className={`mb-8 p-6 rounded-3xl border shadow-xl space-y-4 ${
+          isMinimalLayout
+            ? 'bg-white border-stone-200'
+            : isClassicClub
+            ? 'bg-[#1E140E] border-[#3E2718]'
+            : 'bg-[#0E111C] border-white/10'
+        }`}
+      >
+        {sectionsVisibility.location !== false && location?.address && (
           <div className="flex items-start gap-3">
-            <div className="p-2 rounded-xl bg-white/5 border border-white/10 text-amber-400 shrink-0">
-              <Clock size={16} />
+            <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-400 shrink-0">
+              <MapPin size={18} />
             </div>
-            <div>
-              <span className="text-[10px] font-mono tracking-wider uppercase text-slate-400 block">
-                HORÁRIO DE FUNCIONAMENTO
+            <div className="space-y-1 flex-1">
+              <span className={`text-[10px] font-mono uppercase tracking-wider block ${isMinimalLayout ? 'text-stone-500' : 'text-slate-400'}`}>
+                ENDEREÇO
               </span>
-              <p className="text-xs sm:text-sm font-semibold text-white mt-0.5">
-                {location.hours}
-              </p>
-            </div>
-          </div>
-        )}
-
-        {showLoc && (
-          <div className="flex items-start gap-3 pt-3 border-t border-white/5">
-            <div className="p-2 rounded-xl bg-white/5 border border-white/10 text-amber-400 shrink-0">
-              <MapPin size={16} />
-            </div>
-            <div className="flex-1">
-              <span className="text-[10px] font-mono tracking-wider uppercase text-slate-400 block">
-                LOCALIZAÇÃO
-              </span>
-              <p className="text-xs sm:text-sm font-semibold text-white mt-0.5">
-                {location.address}
-              </p>
+              <p className={`text-xs sm:text-sm font-medium ${isMinimalLayout ? 'text-stone-900' : 'text-white'}`}>{location.address}</p>
+              {location.city && <p className="text-xs text-slate-400">{location.city}</p>}
               {location.mapsUrl && (
                 <a
                   href={location.mapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-400 hover:underline mt-1.5"
+                  className="inline-flex items-center gap-1 text-xs font-bold text-amber-400 pt-1 hover:underline"
                 >
-                  <BrandGoogleMaps size={14} />
+                  <BrandGoogleMaps size={13} />
                   <span>Abrir no Google Maps</span>
                 </a>
               )}
             </div>
           </div>
         )}
+
+        {sectionsVisibility.hours !== false && location?.hours && (
+          <div className="flex items-start gap-3 pt-3 border-t border-white/5">
+            <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-400 shrink-0">
+              <Clock size={18} />
+            </div>
+            <div className="space-y-0.5">
+              <span className={`text-[10px] font-mono uppercase tracking-wider block ${isMinimalLayout ? 'text-stone-500' : 'text-slate-400'}`}>
+                HORÁRIOS DE ATENDIMENTO
+              </span>
+              <p className={`text-xs sm:text-sm font-medium ${isMinimalLayout ? 'text-stone-900' : 'text-white'}`}>{location.hours}</p>
+            </div>
+          </div>
+        )}
       </div>
     );
   };
 
-  // 9. SOCIALS
+  // ========================================================
+  // 9. SOCIALS SECTION
+  // ========================================================
   const renderSocialsSection = () => {
-    if (sectionsVisibility.socials === false) return null;
+    if (sectionsVisibility.socials === false || !socials) return null;
 
     return (
-      <div className="mb-8 text-center space-y-3">
-        <span className="text-[10px] font-mono tracking-widest uppercase text-slate-400">
-          CONECTE-SE EM NOSSOS CANAIS
-        </span>
-        <div className="flex items-center justify-center gap-3">
-          {socials?.whatsapp?.enabled && waUrl && (
-            <a
-              href={waUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`w-12 h-12 rounded-2xl flex items-center justify-center cursor-pointer ${getSocialIconStyleClasses(
-                socialIconStyle
-              )}`}
-              title="WhatsApp"
-            >
-              <BrandWhatsApp size={22} className="text-emerald-400" />
-            </a>
-          )}
-
-          {socials?.instagram?.enabled && socials.instagram.url && (
-            <a
-              href={socials.instagram.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`w-12 h-12 rounded-2xl flex items-center justify-center cursor-pointer ${getSocialIconStyleClasses(
-                socialIconStyle
-              )}`}
-              title="Instagram"
-            >
-              <BrandInstagram size={22} className="text-pink-400" />
-            </a>
-          )}
-
-          {socials?.tiktok?.enabled && socials.tiktok.url && (
-            <a
-              href={socials.tiktok.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`w-12 h-12 rounded-2xl flex items-center justify-center cursor-pointer ${getSocialIconStyleClasses(
-                socialIconStyle
-              )}`}
-              title="TikTok"
-            >
-              <BrandTikTok size={20} className="text-cyan-400" />
-            </a>
-          )}
-
-          {socials?.google?.enabled && socials.google.url && (
-            <a
-              href={socials.google.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`w-12 h-12 rounded-2xl flex items-center justify-center cursor-pointer ${getSocialIconStyleClasses(
-                socialIconStyle
-              )}`}
-              title="Google"
-            >
-              <BrandGoogle size={20} className="text-blue-400" />
-            </a>
-          )}
-
-          {location?.mapsUrl && (
-            <a
-              href={location.mapsUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`w-12 h-12 rounded-2xl flex items-center justify-center cursor-pointer ${getSocialIconStyleClasses(
-                socialIconStyle
-              )}`}
-              title="Google Maps"
-            >
-              <BrandGoogleMaps size={20} className="text-rose-400" />
-            </a>
-          )}
-        </div>
+      <div className="mb-8 flex flex-wrap gap-2 justify-center">
+        {socials.whatsapp?.enabled && (
+          <a
+            href={waUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-4 py-2.5 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold flex items-center gap-2 transition-all hover:scale-105 active:scale-95"
+          >
+            <BrandWhatsApp size={16} />
+            <span>WhatsApp</span>
+          </a>
+        )}
+        {socials.instagram?.enabled && socials.instagram.url && (
+          <a
+            href={socials.instagram.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-4 py-2.5 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold flex items-center gap-2 transition-all hover:scale-105 active:scale-95"
+          >
+            <BrandInstagram size={16} />
+            <span>Instagram</span>
+          </a>
+        )}
+        {socials.tiktok?.enabled && socials.tiktok.url && (
+          <a
+            href={socials.tiktok.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-4 py-2.5 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold flex items-center gap-2 transition-all hover:scale-105 active:scale-95"
+          >
+            <BrandTikTok size={16} />
+            <span>TikTok</span>
+          </a>
+        )}
       </div>
     );
   };
 
+  // ========================================================
   // 10. CTA FOOTER
+  // ========================================================
   const renderCtaFooter = () => {
     if (sectionsVisibility.cta === false) return null;
 
@@ -1158,8 +1241,8 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
           : 'max-w-4xl px-8'
       }`}
       style={{
-        backgroundColor: theme.background || '#07080D',
-        color: theme.text || '#F8FAFC'
+        backgroundColor: theme.background || (isMinimalLayout ? '#FAF9F6' : '#07080D'),
+        color: theme.text || (isMinimalLayout ? '#0F172A' : '#F8FAFC')
       }}
     >
       <div className="py-6 sm:py-10">

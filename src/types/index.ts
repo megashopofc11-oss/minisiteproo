@@ -34,12 +34,16 @@ export type TemplateLayout =
   | 'glass'
   | 'immersive'
   | 'minimal'
+  | 'urban'
+  | 'classic-club'
+  | 'motion'
+  | 'profile'
+  | 'signature'
+  // Backward compatibility aliases
   | 'orbital'
   | 'story'
   | 'cards'
   | 'neon'
-  | 'signature'
-  // Backward compatibility aliases
   | 'cinematic-luxury'
   | 'glass-premium'
   | '3d-glow'
@@ -48,6 +52,18 @@ export type TemplateLayout =
   | 'immersive-photo'
   | 'modern-cards'
   | 'neon-motion';
+
+export type LogoSize = 'sm' | 'md' | 'lg' | 'xl';
+export type LogoAlign = 'left' | 'center' | 'right';
+export type LogoPosition = 'hero' | 'top' | 'floating';
+export type LogoBackground = 'none' | 'glass' | 'light' | 'dark';
+
+export interface LogoConfig {
+  size: LogoSize;
+  align: LogoAlign;
+  position: LogoPosition;
+  background: LogoBackground;
+}
 
 export type ServiceLayoutStyle =
   | 'cards'
@@ -246,6 +262,7 @@ export interface ProjectData {
   seo: SeoConfig;
 
   // Premium Features & Upgrades
+  logoConfig?: LogoConfig;
   fontCategory?: FontCategory;
   socialIconStyle?: SocialIconStyle;
   serviceLayout?: ServiceLayoutStyle;

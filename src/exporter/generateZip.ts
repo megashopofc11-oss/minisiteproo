@@ -79,9 +79,19 @@ export const generateStandaloneHtml = (project: ProjectData): string => {
   if (fontCategory === 'ESPORTIVA') headingFontFamily = "'Chakra Petch', sans-serif";
 
   // Section Generators
+  const logoSize = project.logoConfig?.size || 'lg';
+  const logoAlign = project.logoConfig?.align || 'center';
+  const logoBg = project.logoConfig?.background || 'none';
+
   const heroHtml = `
     <header class="hero-section">
-      ${identity.logoUrl ? `<div class="hero-logo-box"><img src="${sanitizeUrl(identity.logoUrl)}" alt="${escapeHtml(identity.name)}" class="hero-logo" /></div>` : ''}
+      ${identity.logoUrl ? `
+        <div class="hero-logo-container align-${logoAlign}">
+          <div class="hero-logo-box bg-${logoBg}">
+            <img src="${sanitizeUrl(identity.logoUrl)}" alt="${escapeHtml(identity.name)}" class="hero-logo size-${logoSize}" />
+          </div>
+        </div>
+      ` : ''}
       ${identity.badge ? `<span class="badge-hero">${escapeHtml(identity.badge)}</span>` : ''}
       <h1 class="hero-title">${escapeHtml(identity.name)}</h1>
       <p class="hero-slogan">${escapeHtml(identity.slogan)}</p>
@@ -320,15 +330,51 @@ export const generateStandaloneHtml = (project: ProjectData): string => {
       gap: 12px;
       box-shadow: 0 20px 40px rgba(0,0,0,0.5);
     }
-    .hero-logo-box {
-      width: 96px;
-      height: 96px;
-      border-radius: 50%;
-      padding: 2px;
-      background: linear-gradient(135deg, var(--primary), #ffffff, var(--secondary));
-      box-shadow: 0 0 30px rgba(217, 119, 6, 0.4);
+    .hero-logo-container {
+      display: flex;
+      width: 100%;
     }
-    .hero-logo { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+    .hero-logo-container.align-center { justify-content: center; }
+    .hero-logo-container.align-left { justify-content: flex-start; }
+    .hero-logo-container.align-right { justify-content: flex-end; }
+
+    .hero-logo-box {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      transition: all 0.3s ease;
+    }
+    .hero-logo-box.bg-none { background: transparent; padding: 0; }
+    .hero-logo-box.bg-glass {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+    .hero-logo-box.bg-light {
+      background: #ffffff;
+      padding: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+    .hero-logo-box.bg-dark {
+      background: #000000;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+
+    .hero-logo {
+      object-fit: contain;
+      width: auto;
+      border-radius: 0;
+    }
+    .hero-logo.size-sm { max-height: 48px; max-width: 130px; }
+    .hero-logo.size-md { max-height: 64px; max-width: 190px; }
+    .hero-logo.size-lg { max-height: 96px; max-width: 260px; }
+    .hero-logo.size-xl { max-height: 128px; max-width: 320px; }
     .badge-hero {
       display: inline-block;
       padding: 4px 14px;
