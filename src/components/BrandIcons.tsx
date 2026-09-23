@@ -4,7 +4,7 @@ import * as LucideIcons from 'lucide-react';
 export interface IconProps extends React.SVGProps<SVGSVGElement> {
   size?: number | string;
   className?: string;
-  styleVariant?: 'outline' | 'filled' | 'glass' | 'gradient' | 'premium' | '3d';
+  styleVariant?: '3d' | 'glass' | 'chrome' | 'outline' | 'minimal' | 'gradient' | 'duotone' | 'original' | 'glow' | 'filled' | 'premium';
 }
 
 // Brand SVG Icons (Licensed & official standard SVG paths)
@@ -91,7 +91,7 @@ export const AppIcon: React.FC<{
   name: string;
   size?: number | string;
   className?: string;
-  styleVariant?: 'outline' | 'filled' | 'glass' | 'gradient' | 'premium' | '3d';
+  styleVariant?: IconProps['styleVariant'];
 }> = ({ name, size = 20, className = '', styleVariant = 'outline' }) => {
   const norm = name?.toLowerCase()?.trim() || '';
 
@@ -152,41 +152,72 @@ export const AppIcon: React.FC<{
 
   const Component = iconMap[norm] || (LucideIcons as unknown as Record<string, React.ComponentType<{ size?: number | string; className?: string }>>)[name] || LucideIcons.Link;
 
-  // Visual styling wrappers based on styleVariant
-  if (styleVariant === 'gradient') {
+  // Visual styling wrappers based on styleVariant (Professional Icon Library)
+  if (styleVariant === '3d') {
     return (
-      <span className={`inline-flex items-center justify-center p-2 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-500 text-white shadow-md shadow-purple-500/20 ${className}`}>
+      <span className={`inline-flex items-center justify-center p-2.5 rounded-2xl bg-gradient-to-b from-slate-700 to-slate-900 text-white shadow-[0_4px_0_0_#0F172A] border-t border-white/25 transform active:translate-y-1 transition-all ${className}`}>
         <Component size={size} />
       </span>
     );
   }
   if (styleVariant === 'glass') {
     return (
-      <span className={`inline-flex items-center justify-center p-2 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white shadow-sm ${className}`}>
+      <span className={`inline-flex items-center justify-center p-2.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-white shadow-sm hover:bg-white/15 transition-all ${className}`}>
+        <Component size={size} />
+      </span>
+    );
+  }
+  if (styleVariant === 'chrome') {
+    return (
+      <span className={`inline-flex items-center justify-center p-2.5 rounded-2xl bg-gradient-to-tr from-slate-400 via-slate-100 to-slate-300 text-slate-900 border border-white/60 shadow-lg shadow-black/20 font-bold transition-all ${className}`}>
+        <Component size={size} />
+      </span>
+    );
+  }
+  if (styleVariant === 'gradient') {
+    return (
+      <span className={`inline-flex items-center justify-center p-2.5 rounded-2xl bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 text-white shadow-md shadow-rose-500/20 transition-all ${className}`}>
+        <Component size={size} />
+      </span>
+    );
+  }
+  if (styleVariant === 'duotone') {
+    return (
+      <span className={`inline-flex items-center justify-center p-2.5 rounded-2xl bg-amber-500/15 text-amber-400 border border-amber-500/30 transition-all ${className}`}>
+        <Component size={size} />
+      </span>
+    );
+  }
+  if (styleVariant === 'outline') {
+    return (
+      <span className={`inline-flex items-center justify-center p-2 rounded-xl border border-current/40 text-current hover:border-current transition-all ${className}`}>
+        <Component size={size} />
+      </span>
+    );
+  }
+  if (styleVariant === 'glow') {
+    return (
+      <span className={`inline-flex items-center justify-center p-2.5 rounded-2xl bg-white/10 text-white shadow-[0_0_15px_rgba(255,255,255,0.25)] border border-white/30 transition-all ${className}`}>
         <Component size={size} />
       </span>
     );
   }
   if (styleVariant === 'filled') {
     return (
-      <span className={`inline-flex items-center justify-center p-2 rounded-xl bg-slate-800 text-slate-100 ${className}`}>
+      <span className={`inline-flex items-center justify-center p-2.5 rounded-2xl bg-slate-800 text-slate-100 shadow-sm ${className}`}>
         <Component size={size} />
       </span>
     );
   }
   if (styleVariant === 'premium') {
     return (
-      <span className={`inline-flex items-center justify-center p-2 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-bold shadow-lg shadow-amber-500/20 ${className}`}>
+      <span className={`inline-flex items-center justify-center p-2.5 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 font-bold shadow-lg shadow-amber-500/20 ${className}`}>
         <Component size={size} />
       </span>
     );
   }
-  if (styleVariant === '3d') {
-    return (
-      <span className={`inline-flex items-center justify-center p-2 rounded-xl bg-gradient-to-b from-purple-500 to-purple-800 text-white shadow-[0_4px_0_0_#4c1d95] transform active:translate-y-1 ${className}`}>
-        <Component size={size} />
-      </span>
-    );
+  if (styleVariant === 'minimal') {
+    return <Component size={size} className={`opacity-80 hover:opacity-100 transition-opacity ${className}`} />;
   }
 
   return <Component size={size} className={className} />;

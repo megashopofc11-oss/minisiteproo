@@ -323,6 +323,16 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({
     }));
   };
 
+  const movePhoto = (index: number, direction: 'up' | 'down') => {
+    const list = [...(project.photos || [])];
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= list.length) return;
+    const temp = list[index];
+    list[index] = list[targetIndex];
+    list[targetIndex] = temp;
+    setProject((prev) => ({ ...prev, photos: list }));
+  };
+
   const updatePhoto = (id: string, field: keyof PhotoItem, val: string) => {
     setProject((prev) => ({
       ...prev,
@@ -976,6 +986,35 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({
                       </div>
                     );
                   })}
+                </div>
+
+                <div className="pt-2 flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const allKeys: SectionKey[] = ['hero', 'status', 'about', 'differentials', 'services', 'gallery', 'reviews', 'hours', 'location', 'socials', 'cta'];
+                      const newVis: Record<string, boolean> = {};
+                      allKeys.forEach((k) => (newVis[k] = true));
+                      setProject((prev) => ({
+                        ...prev,
+                        sectionsOrder: allKeys,
+                        sectionsVisibility: newVis as any
+                      }));
+                    }}
+                    className="flex-1 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-[11px] font-bold text-slate-300 hover:text-white transition-colors cursor-pointer text-center"
+                  >
+                    Ativar Todas as Seções
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      toggleAccordion('botoes');
+                    }}
+                    className="flex-1 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-[11px] font-bold text-amber-300 transition-colors cursor-pointer text-center flex items-center justify-center gap-1"
+                  >
+                    <Plus size={12} />
+                    <span>+ Botão Personalizado</span>
+                  </button>
                 </div>
               </div>
             )}
@@ -1652,14 +1691,34 @@ export const ProjectEditor: React.FC<ProjectEditorProps> = ({
                                 className="w-full px-2.5 py-1.5 rounded-lg bg-black/40 border border-white/10 text-white text-xs font-mono"
                               />
                             </div>
-                            <button
-                              type="button"
-                              onClick={() => removePhoto(photo.id)}
-                              className="p-2 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded-lg cursor-pointer transition-colors"
-                              title="Remover foto da galeria"
-                            >
-                              <Trash2 size={16} />
-                            </button>
+                            <div className="flex items-center gap-1 shrink-0">
+                              <button
+                                type="button"
+                                disabled={pIdx === 0}
+                                onClick={() => movePhoto(pIdx, 'up')}
+                                className="p-1.5 rounded bg-white/5 hover:bg-white/15 disabled:opacity-20 text-slate-300 cursor-pointer disabled:cursor-not-allowed transition-colors"
+                                title="Mover foto para cima"
+                              >
+                                <MoveUp size={13} />
+                              </button>
+                              <button
+                                type="button"
+                                disabled={pIdx === (project.photos || []).length - 1}
+                                onClick={() => movePhoto(pIdx, 'down')}
+                                className="p-1.5 rounded bg-white/5 hover:bg-white/15 disabled:opacity-20 text-slate-300 cursor-pointer disabled:cursor-not-allowed transition-colors"
+                                title="Mover foto para baixo"
+                              >
+                                <MoveDown size={13} />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => removePhoto(photo.id)}
+                                className="p-1.5 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded-lg cursor-pointer transition-colors"
+                                title="Remover foto da galeria"
+                              >
+                                <Trash2 size={15} />
+                              </button>
+                            </div>
                           </div>
 
                           <div className="grid grid-cols-2 gap-2 pt-1 border-t border-white/5">

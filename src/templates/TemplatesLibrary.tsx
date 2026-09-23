@@ -283,38 +283,192 @@ const ModelLayoutWireframe: React.FC<{
     );
   }
 
-  // 06 — URBAN BRUTALIST: Preto, cinzas industriais, tipografia marcante em blocos, numeração [01]
-  if (layout === 'urban') {
+  // 05 — URBAN BRUTALIST: Preto, cinzas industriais, tipografia marcante em blocos, numeração [01]
+  if (layout === 'brutalist' || layout === 'urban') {
     return (
-      <div className="w-full aspect-[9/13] rounded-2xl overflow-hidden bg-[#090A0F] border border-white/20 relative p-3 flex flex-col justify-between shadow-2xl group-hover:border-cyan-400/60 transition-all duration-300">
+      <div className="w-full aspect-[9/13] rounded-2xl overflow-hidden bg-[#121214] border border-white/20 relative p-3 flex flex-col justify-between shadow-2xl group-hover:border-red-500/60 transition-all duration-300">
         <div className="flex justify-between items-center border-b border-white/10 pb-1">
-          <span className="text-[6px] font-mono text-cyan-400 tracking-widest">[URBAN_TECH]</span>
-          <span className="text-[6px] font-mono text-slate-400">#06</span>
+          <span className="text-[6px] font-mono text-red-500 tracking-widest font-black">[05] BRUTALIST</span>
+          <span className="text-[6px] font-mono text-slate-400">URBAN</span>
         </div>
 
         <div className="space-y-1 my-1">
-          <div className="text-sm font-black text-white uppercase tracking-tighter leading-none font-mono">
+          <div className="text-xs font-black text-white uppercase tracking-tighter leading-none font-mono">
             {template.name}
           </div>
-          <div className="h-0.5 w-10 bg-cyan-400" />
+          <div className="h-0.5 w-10 bg-red-500" />
         </div>
 
         {/* Industrial Grids */}
         <div className="grid grid-cols-2 gap-1 my-1">
-          <div className="h-14 rounded bg-white/5 border border-white/15 overflow-hidden">
+          <div className="h-14 rounded-none bg-white/5 border border-white/20 overflow-hidden">
             <img src={photoUrl} alt="" className="w-full h-full object-cover filter contrast-150" />
           </div>
-          <div className="h-14 rounded bg-[#131520] border border-cyan-400/30 p-1 flex flex-col justify-between text-[6px] font-mono text-slate-300">
-            <span>[01] DIAGNÓSTICO</span>
+          <div className="h-14 rounded-none bg-[#1A1A1E] border border-white/10 p-1 flex flex-col justify-between text-[6px] font-mono text-slate-300">
+            <span>[01] TÉCNICA</span>
             <span>[02] PRECISÃO</span>
-            <span className="text-cyan-400 font-bold">100% EXECUTIVO</span>
+            <span className="text-red-500 font-bold">100% INDUSTRIAL</span>
           </div>
         </div>
 
         <div className="space-y-1">
-          <div className="w-full py-1.5 rounded bg-cyan-500 text-slate-950 text-[8px] font-mono font-black text-center uppercase tracking-wider">
+          <div className="w-full py-1.5 rounded-none bg-red-600 text-white text-[8px] font-mono font-black text-center uppercase tracking-wider">
             CHAMAR AGORA // WA
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 06 — AUTHORITY: Foco no barbeiro/profissional de elite, corte de estúdio, credenciais
+  if (layout === 'authority') {
+    return (
+      <div className="w-full aspect-[9/13] rounded-2xl overflow-hidden bg-[#080C14] border border-white/15 relative p-3 flex flex-col justify-between shadow-2xl group-hover:border-cyan-400/60 transition-all duration-300">
+        <div className="flex justify-between items-center">
+          <span className="text-[6px] font-mono uppercase tracking-widest text-cyan-400">
+            MESTRE PROFISSIONAL
+          </span>
+          <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+        </div>
+
+        {/* Portrait Cutout of Master Barber */}
+        <div className="text-center space-y-1 my-1 relative">
+          <div className="w-14 h-14 rounded-full p-0.5 mx-auto bg-gradient-to-tr from-cyan-400 to-blue-600 shadow-xl overflow-hidden">
+            <img src={secondPhotoUrl} alt="" className="w-full h-full object-cover rounded-full" />
+          </div>
+          <div className="text-xs font-black text-white leading-none">
+            {template.defaultData.identity.name}
+          </div>
+          <div className="text-[6px] text-cyan-300 font-semibold line-clamp-1">
+            Referência & Especialista VIP
+          </div>
+        </div>
+
+        {/* Bio Manifesto */}
+        <div className="p-1.5 rounded-xl bg-white/5 border border-white/10 text-[6px] text-slate-300 leading-relaxed text-center line-clamp-2">
+          "Não é apenas um serviço. É a assinatura e presença da sua imagem pessoal."
+        </div>
+
+        {/* Direct Booking */}
+        <div className="space-y-1">
+          <div className="w-full py-1.5 rounded-xl bg-cyan-500 text-slate-950 text-[7px] font-black text-center uppercase tracking-wider shadow-lg flex items-center justify-center gap-1">
+            <span>Cadeira VIP no WhatsApp</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 07 — COMPACT PROFILE: Biosite compacto de alta conversão, botões empilhados
+  if (layout === 'compact-profile') {
+    return (
+      <div className="w-full aspect-[9/13] rounded-2xl overflow-hidden bg-[#090A0F] border border-white/15 relative p-3 flex flex-col justify-between shadow-2xl group-hover:border-amber-400/60 transition-all duration-300">
+        <div className="flex justify-between items-center pb-1">
+          <span className="px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[6px] font-bold">
+            ● ABERTO AGORA
+          </span>
+          <div className="text-[6px] text-amber-400 font-bold">★ 5.0 GOOGLE</div>
+        </div>
+
+        {/* Profile Card Header */}
+        <div className="text-center space-y-1">
+          <div className="w-10 h-10 rounded-full mx-auto border-2 border-amber-500 overflow-hidden shadow-lg">
+            <img src={photoUrl} alt="" className="w-full h-full object-cover" />
+          </div>
+          <div className="text-[11px] font-black text-white uppercase">{template.name}</div>
+          <div className="text-[6px] text-slate-400">{template.defaultData.identity.slogan || 'Atendimento Premium'}</div>
+        </div>
+
+        {/* Stacked Compact Action Buttons */}
+        <div className="space-y-1 pt-1">
+          <div className="w-full py-1.5 rounded-lg bg-amber-500 text-slate-950 text-[7px] font-black text-center uppercase tracking-wider flex items-center justify-center gap-1">
+            <span>WhatsApp Direto</span>
+          </div>
+          <div className="w-full py-1.5 rounded-lg bg-white/5 border border-white/10 text-white text-[7px] font-bold text-center flex items-center justify-center gap-1">
+            <span>Instagram Oficial</span>
+          </div>
+          <div className="w-full py-1.5 rounded-lg bg-white/5 border border-white/10 text-white text-[7px] font-bold text-center flex items-center justify-center gap-1">
+            <span>Como Chegar (Maps)</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 08 — BENTO: Grid modular dinâmico 2x2, 1x2, 1x1
+  if (layout === 'bento') {
+    return (
+      <div className="w-full aspect-[9/13] rounded-2xl overflow-hidden bg-[#0E1015] border border-white/15 relative p-2.5 flex flex-col justify-between shadow-2xl group-hover:border-amber-400/60 transition-all duration-300">
+        <div className="flex justify-between items-center pb-1">
+          <span className="text-[6px] font-mono text-slate-400">[BENTO MODULAR]</span>
+          <span className="text-[6px] font-bold text-amber-400">#08</span>
+        </div>
+
+        {/* Bento Grid layout */}
+        <div className="grid grid-cols-2 gap-1 my-1">
+          {/* Tile 1: Photo */}
+          <div className="h-14 rounded-xl overflow-hidden border border-white/10 relative">
+            <img src={photoUrl} alt="" className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-black/40 p-1 flex items-end">
+              <span className="text-[6px] font-bold text-white uppercase">Portfólio</span>
+            </div>
+          </div>
+          {/* Tile 2: Google 5.0 */}
+          <div className="h-14 rounded-xl bg-white/5 border border-white/10 p-1.5 flex flex-col justify-between">
+            <span className="text-[6px] font-mono text-slate-400">AVALIAÇÃO</span>
+            <div className="text-[12px] font-black text-white leading-none">5.0 ★</div>
+            <span className="text-[5px] text-amber-400">Google Reviews</span>
+          </div>
+          {/* Tile 3: Live Status */}
+          <div className="h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-1 flex items-center gap-1">
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-[6px] font-bold text-emerald-400">ABERTO HOJE</span>
+          </div>
+          {/* Tile 4: Service */}
+          <div className="h-10 rounded-xl bg-white/5 border border-white/10 p-1 flex flex-col justify-center text-[6px] text-slate-300">
+            <span className="font-bold text-white truncate">{template.defaultData.services[0]?.name || 'Corte'}</span>
+            <span className="text-[5px] text-slate-400">Agendar</span>
+          </div>
+        </div>
+
+        <div className="w-full py-1.5 rounded-xl bg-amber-500 text-slate-950 text-[7px] font-black text-center uppercase tracking-wider shadow-md">
+          Chamar no WhatsApp
+        </div>
+      </div>
+    );
+  }
+
+  // 09 — STORYTELLING: Linha do tempo em capítulos narrativos
+  if (layout === 'storytelling') {
+    return (
+      <div className="w-full aspect-[9/13] rounded-2xl overflow-hidden bg-[#140D08] border border-[#3D2214] relative p-3 flex flex-col justify-between shadow-2xl group-hover:border-amber-500/60 transition-all duration-300">
+        <div className="text-center pb-1 border-b border-[#3D2214]">
+          <span className="text-[6px] font-mono uppercase tracking-widest text-amber-400">
+            JORNADA & CAPÍTULOS
+          </span>
+          <div className="text-xs font-black text-white uppercase">{template.name}</div>
+        </div>
+
+        {/* Narrative Chapter Cards */}
+        <div className="space-y-1.5 my-1">
+          <div className="p-1.5 rounded-lg bg-black/40 border border-[#3D2214] flex items-center gap-1.5">
+            <span className="text-[8px] font-mono font-bold text-amber-400">I.</span>
+            <div className="text-[6px] text-slate-200">
+              <div className="font-bold text-white">A Tradição da Lâmina</div>
+              <div className="text-slate-400 text-[5px]">Origem e propósito</div>
+            </div>
+          </div>
+          <div className="p-1.5 rounded-lg bg-black/40 border border-[#3D2214] flex items-center gap-1.5">
+            <span className="text-[8px] font-mono font-bold text-amber-400">II.</span>
+            <div className="text-[6px] text-slate-200">
+              <div className="font-bold text-white">O Ritual Quente</div>
+              <div className="text-slate-400 text-[5px]">Toalha e hidratação</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="w-full py-1.5 rounded-lg bg-amber-500 text-slate-950 text-[7px] font-black text-center uppercase tracking-wider shadow-md">
+          Viver a Experiência
         </div>
       </div>
     );

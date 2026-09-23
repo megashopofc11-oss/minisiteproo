@@ -1,17 +1,21 @@
 import React, { useState } from 'react';
 import { ProjectData } from '../types';
 import { CinematicEngine } from './engines/CinematicEngine';
-import { EditorialEngine } from './engines/EditorialEngine';
-import { StorytellingEngine } from './engines/StorytellingEngine';
-import { BrutalistEngine } from './engines/BrutalistEngine';
-import { GlassEngine } from './engines/GlassEngine';
 import { MinimalLightEngine } from './engines/MinimalLightEngine';
+import { EditorialEngine } from './engines/EditorialEngine';
 import { ClassicClubEngine } from './engines/ClassicClubEngine';
+import { BrutalistEngine } from './engines/BrutalistEngine';
+import { ProfessionalAuthorityEngine } from './engines/ProfessionalAuthorityEngine';
+import { CompactProfileEngine } from './engines/CompactProfileEngine';
 import { BentoEngine } from './engines/BentoEngine';
-import { SocialProfileEngine } from './engines/SocialProfileEngine';
-import { SignatureLuxuryEngine } from './engines/SignatureLuxuryEngine';
+import { StorytellingEngine } from './engines/StorytellingEngine';
 import { ImmersiveEngine } from './engines/ImmersiveEngine';
+import { GlassEngine } from './engines/GlassEngine';
+import { SignatureLuxuryEngine } from './engines/SignatureLuxuryEngine';
 import { OrbitalMotionEngine } from './engines/OrbitalMotionEngine';
+import { SocialProfileEngine } from './engines/SocialProfileEngine';
+import { getWhatsAppUrl } from './engines/common';
+import { BrandWhatsApp } from '../components/BrandIcons';
 import { X } from 'lucide-react';
 
 interface TemplateRendererProps {
@@ -28,47 +32,62 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
   // Determine the engine variant based on templateId or explicit layout
   const templateId = project.templateId || '';
   const layout = project.layout || '';
+  const waUrl = getWhatsAppUrl(project);
 
   const getEngine = () => {
     // 1. Direct template index matching (ensures 100% distinct engine per model 01..10)
+    // MODELO 01: Cinematográfica com fotografia grande
     if (templateId.endsWith('-01')) return <CinematicEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
-    if (templateId.endsWith('-02')) return <EditorialEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
-    if (templateId.endsWith('-03')) return <StorytellingEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
-    if (templateId.endsWith('-04')) return <BrutalistEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
-    if (templateId.endsWith('-05')) return <GlassEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
-    if (templateId.endsWith('-06')) return <MinimalLightEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
-    if (templateId.endsWith('-07')) return <ClassicClubEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
+    // MODELO 02: Clean branco, extremamente minimalista
+    if (templateId.endsWith('-02')) return <MinimalLightEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
+    // MODELO 03: Revista/editorial masculina
+    if (templateId.endsWith('-03')) return <EditorialEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
+    // MODELO 04: Vintage/barbershop clássico
+    if (templateId.endsWith('-04')) return <ClassicClubEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
+    // MODELO 05: Urbano/brutalista
+    if (templateId.endsWith('-05')) return <BrutalistEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
+    // MODELO 06: Focado no barbeiro como profissional / autoridade pessoal
+    if (templateId.endsWith('-06')) return <ProfessionalAuthorityEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
+    // MODELO 07: Biosite compacto estilo perfil premium
+    if (templateId.endsWith('-07')) return <CompactProfileEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
+    // MODELO 08: Bento Grid modular
     if (templateId.endsWith('-08')) return <BentoEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
-    if (templateId.endsWith('-09')) return <SocialProfileEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
-    if (templateId.endsWith('-10')) return <SignatureLuxuryEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
+    // MODELO 09: Storytelling conforme o usuário rola a página
+    if (templateId.endsWith('-09')) return <StorytellingEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
+    // MODELO 10: Experiência imersiva com carrossel automático
+    if (templateId.endsWith('-10')) return <ImmersiveEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
 
     // 2. Fallback based on layout property
     switch (layout) {
-      case 'editorial':
-        return <EditorialEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
       case 'minimal':
         return <MinimalLightEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
-      case 'glass':
-        return <GlassEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
-      case 'immersive':
-        return <ImmersiveEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
-      case 'bento':
-        return <BentoEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
+      case 'editorial':
+        return <EditorialEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
       case 'classic-club':
         return <ClassicClubEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
-      case 'storytelling':
-        return <StorytellingEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
       case 'brutalist':
       case 'urban':
         return <BrutalistEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
-      case 'social-profile':
-      case 'profile':
-        return <SocialProfileEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
+      case 'authority':
+        return <ProfessionalAuthorityEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
+      case 'compact-profile':
+        return <CompactProfileEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
+      case 'bento':
+        return <BentoEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
+      case 'storytelling':
+        return <StorytellingEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
+      case 'immersive':
+        return <ImmersiveEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
+      case 'glass':
+        return <GlassEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
+      case 'signature':
+        return <SignatureLuxuryEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
       case 'orbital':
       case 'motion':
         return <OrbitalMotionEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
-      case 'signature':
-        return <SignatureLuxuryEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
+      case 'social-profile':
+      case 'profile':
+        return <SocialProfileEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
       case 'cinematic':
       default:
         return <CinematicEngine project={project} viewport={viewport} onPhotoClick={setActivePhotoModal} />;
@@ -76,22 +95,40 @@ export const TemplateRenderer: React.FC<TemplateRendererProps> = ({
   };
 
   const containerClasses = {
-    mobile: 'max-w-[420px] mx-auto p-4 sm:p-5',
+    mobile: 'max-w-[430px] mx-auto p-4 sm:p-5',
     tablet: 'max-w-2xl mx-auto p-6 sm:p-8',
     desktop: 'max-w-4xl mx-auto p-8 sm:p-12'
   }[viewport];
 
   return (
     <main
-      className={`min-h-screen w-full transition-colors duration-500 overflow-x-hidden`}
+      className={`min-h-screen w-full transition-colors duration-500 overflow-x-hidden relative`}
       style={{
         backgroundColor: project.theme?.background || '#07080C',
         color: project.theme?.text || '#F8FAFC'
       }}
     >
-      <div className={`${containerClasses} pb-24`}>
+      <div className={`${containerClasses} pb-28`}>
         {getEngine()}
       </div>
+
+      {/* Floating WhatsApp Button with Pulsing Glow (From references: Jéssica Rodrigues, Marcos Willian, Central Food Park) */}
+      {project.whatsappConfig?.showFloating !== false && waUrl !== '#' && (
+        <a
+          href={waUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Falar no WhatsApp"
+          className="fixed bottom-6 right-6 z-40 group flex items-center justify-center cursor-pointer select-none"
+        >
+          {/* Animated pulsing glow effect */}
+          <span className="absolute inset-0 rounded-full bg-emerald-500/40 animate-ping opacity-75" />
+          <span className="absolute -inset-1 rounded-full bg-gradient-to-r from-emerald-400 to-green-500 opacity-60 blur-sm group-hover:opacity-100 transition-opacity" />
+          <div className="relative w-14 h-14 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-2xl shadow-emerald-950/60 hover:scale-110 active:scale-95 transition-all">
+            <BrandWhatsApp size={30} />
+          </div>
+        </a>
+      )}
 
       {/* Global Image Lightbox Modal */}
       {activePhotoModal && (

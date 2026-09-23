@@ -42,6 +42,8 @@ export type TemplateLayout =
   | 'urban'
   | 'classic-club'
   | 'social-profile'
+  | 'authority'
+  | 'compact-profile'
   | 'motion'
   | 'profile'
   // Backward compatibility aliases
@@ -89,12 +91,15 @@ export type FontCategory =
   | 'ESPORTIVA';
 
 export type SocialIconStyle =
-  | 'original'
-  | 'minimal'
-  | 'outline'
+  | '3d'
   | 'glass'
-  | 'glow'
-  | '3d';
+  | 'chrome'
+  | 'outline'
+  | 'minimal'
+  | 'gradient'
+  | 'duotone'
+  | 'original'
+  | 'glow';
 
 export type WhatsAppStyle =
   | 'floating'
@@ -139,17 +144,20 @@ export interface PhotoItem {
 }
 
 export type GalleryStyle =
-  | 'masonry'
-  | 'editorial'
+  | 'single'
   | 'carousel'
-  | 'cards'
-  | 'horizontal-scroll'
+  | 'grid'
+  | 'masonry'
+  | 'lookbook'
   | 'collage'
+  | 'horizontal-scroll'
+  | 'fullscreen'
+  | 'editorial'
+  | 'cards'
+  | 'bento'
+  | 'polaroid'
   | 'overlap'
   | 'full-width'
-  | 'grid'
-  | 'polaroid'
-  | 'bento'
   | 'none';
 
 export interface CarouselConfig {
